@@ -68,5 +68,3 @@ INSTALL (see above to change install path):
 CHECK/TEST:
    make test
 
-These programs have successfully been compiled and tested under <to be completed>
-

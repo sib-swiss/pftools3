@@ -1,0 +1,415 @@
+.\"
+.\" $Id: pfsearch.1,v 1.4 2003/07/24 08:40:52 vflegel Exp $
+.\" Copyright (c) 2003 SIB Swiss Institute of Bioinformatics <pftools@sib.swiss>
+.\" Process this file with
+.\" groff -man -Tascii <name>
+.\" for ascii output or
+.\" groff -man -Tps <name>
+.\" for postscript output
+.\"
+.TH PFSEARCH 1 "July 2003" "pftools 2.3" "pftools"
+.\" ------------------------------------------------
+.\" Name section
+.\" ------------------------------------------------
+.SH NAME
+pfsearch \- search a protein or DNA sequence library for sequence segments 
+matching a profile
+.\" ------------------------------------------------
+.\" Synopsis section
+.\" ------------------------------------------------
+.SH SYNOPSIS
+.TP 10
+.B pfsearch
+[
+.B \-abdfhlLmruksvxyz
+] [
+.B \-C
+.I cut_off
+] [
+.B \-M
+.I mode_nb
+] [
+.B \-W
+.I width
+] [
+.I profile
+|
+.B \-
+] [
+.I sequence_library
+|
+.B \-
+] [
+.I parameters
+]
+.\" ------------------------------------------------
+.\" Description section
+.\" ------------------------------------------------
+.SH DESCRIPTION
+.B pfsearch 
+compares a query profile against a DNA or protein sequence library.
+The result is an unsorted list of profile-sequence matches written to the standard output. 
+A variety of output formats containing different information can be specified 
+via the options 
+.BR \-l , \ \-L , \ \-r , \ \-k , \ \-s , \ \-x , \ \-y
+and 
+.BR \-z .
+The file
+.RI ' profile '
+contains a profile in
+.SM PROSITE
+format. The
+.RI ' sequence_library '
+file contains a sequence library in
+.SM EMBL/SWISS-PROT
+format (assumed by default) or in Pearson/Fasta
+format (indicated by option 
+.BR \-f ). 
+If
+.RB ' \- '
+is specified instead of one of the filenames, the corresponding data is read
+from the standard input.
+.\" ------------------------------------------------
+.\" Options section
+.\" ------------------------------------------------
+.SH OPTIONS 
+.\" --- profile ---
+.TP
+.I profile
+Input query profile.
+.br
+The
+.SM PROSITE
+profile contained in this file will be used to search for profile to sequence
+matches in a biological sequence library. If the filename is replaced by a
+.RB ' \- ',
+.B pfsearch
+will read the profile from
+.BR stdin .
+.\" --- sequence_library ---
+.TP
+.I sequence_library
+Library of DNA or protein sequences.
+.br
+This file should contain one or several
+.SM EMBL/SWISS-PROT
+(default) or Pearson/Fasta (option
+.BR \-f )
+formatted DNA or protein sequences. The program
+.B pfsearch
+tries to identify matches between the input profile and all individual
+sequences of this library. If the filename is replaced by a
+.RB ' \- ',
+.B pfsearch
+will read the sequence library from
+.BR stdin .
+.\" --- a ---
+.TP
+.B \-a
+Report optimal alignment scores for 
+all sequences regardless of the cut-off value. 
+This option simultaneously forces 
+.IR DISJOINT = UNIQUE .   
+.\" --- b ---
+.TP
+.B \-b
+Search the complementary strands of DNA sequences as well.
+.\" --- f ---
+.TP
+.B \-f
+Input sequence library is in Pearson/Fasta format.
+.\" --- h ---
+.TP
+.B \-h
+Display usage help text.
+.\" --- l ---
+.TP
+.B \-l
+Indicate the value of the highest cut-off level exceeded by the match score
+in the output list. 
+.\" --- L ---
+.TP
+.B \-L
+Indicate by character string the highest cut-off level exceeded by the match score
+in the output list.
+.br
+.RS
+.TP
+Note:
+The generalized profile format includes a text
+string field to specify a name for a cut-off level. The
+.B \-L
+option causes the program to display the first two characters of this text string
+(usually something like
+.RI ' ! ',\ ' ? ',\ ' ?? ',
+etc.) at the beginning of each match description.
+.RE
+.\" --- m ---
+.TP
+.B \-m
+Report individual matches for circular profiles.
+.br
+If the profile is circular, each match between a sequence and a profile can be composed
+of a stretch of individual matches of the profile. By default,
+.B pfsearch
+reports only the total matched region. When this option is set, detailed information for 
+each individual match will be output as well.
+.RS
+.TP
+Note:
+The scoring system for most circular profiles has been optimized to find
+total matches, therefore the normalized scores of individual matches of a circular profile
+to a sequence should be considered with caution.
+.RE
+.\" --- r ---
+.TP
+.B \-r
+Use raw scores rather than normalized 
+scores for match selection. The normalized score is not printed, this option is useful
+to create raw score lists to be used with
+.BR pfscale (1).
+.\" --- u ---
+.TP
+.B \-u
+Forces
+.IR DISJOINT = UNIQUE . 
+.\" --- C ---
+.TP
+.BI \-C\  cut_off
+Cut-off value to be used for match selection.
+.br
+The value of
+.RI ' cut_off '
+overwrites the level zero cut-off value specified in the profile.
+.br
+An integer argument is interpreted as a raw score value,
+a decimal argument as a normalized score value.
+.br
+Default: profile level 0 cut-off value (normalized score if present)
+.RS
+.TP
+Note:
+Compared to release 2.2, an integer value does
+.I not
+force option
+.BR \-r .
+Normalized scores will still be listed in output if an integer cut-off
+is specified on the command line but cut-off level computation will be
+based on raw score.
+.RE
+.\" --- M ---
+.TP
+.BI \-M\  mode_nb
+Normalization mode to use for score computation.
+.br
+The
+.RI ' mode_nb '
+specifies which normalization mode defined in the profile should be used
+to compute the normalized scores for profile to sequence matches. This
+option will override the profile's
+.I PRIORITY
+parameter.
+.br
+If the specified normalization mode does not exist in the profile, an error
+message will be output to standard error and the search is interrupted.
+.br
+Type: integer
+.br
+Default: lowest priority mode defined in the profile
+.\" ------------------------------------------------
+.\" Output modifiers subsection
+.\" ------------------------------------------------
+.SS Output modifiers
+.\" --- d ---
+.TP
+.B \-d
+Limit sequence description length.
+.br
+If this option is set, the description of the sequence on the header line
+will be limited in length. If the match information is longer than
+the output width specified using option
+.BR \-W ,
+the sequence description will not be printed. Else the description will be truncated
+to fit the
+.B \-W
+value.
+.br
+By default, the sequence description is not truncated. This option can not be used
+when option
+.B \-k
+is set.
+.\" --- k ---
+.TP
+.B \-k
+Use
+.BR xpsa (5)
+headers for output.
+.br
+When this option is set, all output types 
+.RI ( see
+below) will use
+an
+.BR xpsa (5)
+style header line. This format uses
+.IR keyword = value
+pairs to output alignment parameters. It is useful to transfer information between
+different sequence alignment tools.
+.\" --- s ---
+.TP
+.B \-s
+List the sequences of the matched regions as well. 
+The output will be a Pearson/Fasta-formatted sequence
+library.
+.\" --- v ---
+.TP
+.B \-v
+Suppress sequence/profile parsing warnings.
+If this option is set no warning messages will be printed on
+.IR stderr .
+Only fatal errors will be reported. This option should be used
+with caution.
+.\" --- x ---
+.TP
+.B \-x
+List profile-sequence alignments 
+in
+.BR psa (5)
+format. Please refer to the corresponding man page for more information. 
+.\" --- y ---
+.TP
+.B \-y
+Display alignments between the profile and the matched sequence regions in 
+a human-friendly pairwise alignment format.   
+.\" --- z ---
+.TP
+.B \-z
+Indicate starting and ending position of the matched profile range. The latter
+position will be given as a negative offset from the end of the profile. Thus
+the range [    1,    -1] means entire profile.
+.\" --- W ---
+.TP
+.BI \-W\  width
+Set alignment output width.
+.br
+The value of
+.RI ' width '
+specifies how many residues will be output on one line when any of the
+.BR \-s ,\  \-x \ or\  \-y
+options is set.
+.br
+Type: integer
+.br
+Default: 60
+.\" ------------------------------------------------
+.\" Parameters section
+.\" ------------------------------------------------
+.SH PARAMETERS 
+.TP
+Note:
+for backwards compatibility, release 2.3 of the
+.B pftools
+package will parse the version 2.2 style parameters, but these are
+.I deprecated
+and the corresponding option (refer to the
+.I options
+section) should be used instead.
+.TP
+C=#
+Cut-off value.
+.br
+Use option
+.B \-C
+instead.
+.TP
+W=#
+Output width. 
+.br
+Use option
+.B \-W
+instead.
+.\" ------------------------------------------------
+.\" Examples section
+.\" ------------------------------------------------
+.SH EXAMPLES 
+.TP
+(1)
+.B pfsearch
+\-f \-C 6.0 sh3.prf sh3.seq
+.IP
+Searches the Pearson/Fasta-formatted protein sequence library
+.RI ' sh3.seq '
+for SH3 domains with a cut-off value of 6.0 normalized score units.
+The file
+.RI ' sh3.seq '
+contains 20 SH3 domain-containing protein sequences from
+.SM SWISS-PROT
+release 32.
+The file
+.RI ' sh3.prf '
+contains the
+.SM PROSITE
+entry SH3/PS50002.
+.TP
+(2)
+.B pfsearch
+\-bx ecp.prf CVPBR322 |
+.B psa2msa   
+\-du |    
+.B readseq
+\-p -fMSF > ecp.msf
+.IP
+Generates a multiple sequence alignment  of potential
+.I E. coli
+promoters on both strands of plasmid pBR322.
+The file
+.RI ' ecp.prf ' 
+contains a profile for
+.I E. coli   
+promoters.  
+The file
+.RI ' CVPBR322 '
+ contains
+.SM EMBL
+entry J01749|CVPBR322.
+The result file
+.RI ' ecp.msf '
+can further be processed by
+.SM GCG
+programs accepting MSF files as input.
+.\" ------------------------------------------------
+.\" Exit code section
+.\" ------------------------------------------------
+.SH EXIT CODE
+.LP
+On successful completion of its task,
+.B pfsearch
+will return an exit code of 0. If an error occurs, a diagnostic message will be
+output on standard error and the exit code will be different from 0. When conflicting
+options where passed to the program but the task could nevertheless be completed, warnings
+will be issued on standard error.
+.\" ------------------------------------------------
+.\" Bugs section
+.\" ------------------------------------------------
+.SH "BUGS"
+The use of normalized scores as cut-off values can lead to a different behaviour when compared
+to raw scores. This is due to the inherent rounding inaccuracy of real numbers.
+The normalized scores used as cut-offs should be rounded down in order to circumvent this 
+problem.
+.\" ------------------------------------------------
+.\" See also section
+.\" ------------------------------------------------
+.SH "SEE ALSO"
+.BR pfscan (1),
+.BR pfmake (1),
+.BR psa2msa (1),
+.BR psa (5),
+.BR xpsa (5)
+.\" ------------------------------------------------
+.\" Author section
+.\" ------------------------------------------------
+.SH AUTHOR
+The
+.B pftools
+package was developed by Philipp Bucher.
+.br
+Any comments or suggestions should be addressed to <pftools@sib.swiss>.

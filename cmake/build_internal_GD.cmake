@@ -1,0 +1,38 @@
+# Instruction to build libGD from internal package source
+SET(EXTRA "")
+IF(APPLE)
+   SET(EXTRA  -DCMAKE_INSTALL_NAME_DIR=${CMAKE_INSTALL_PREFIX}/lib)
+ENDIF(APPLE)
+
+INCLUDE(ExternalProject)
+EXTERNALPROJECT_ADD(libGD
+    URL file://${PROJECT_SOURCE_DIR}/extern/libgd-2.1.1.tar.xz
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/libGD
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/libGD
+               -DENABLE_JPEG:BOOL=ON -DENABLE_PNG:BOOL=ON
+               ${EXTRA}
+)
+
+
+ExternalProject_Get_Property(libGD install_dir)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/libGD/include)
+MESSAGE(STATUS "libGD will be built in ${install_dir}")
+
+SET( GD_LIBRARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/libGD/lib PATH)
+# Set uncached variables as per standard.
+# 	  set(GD_FOUND ON)
+SET(GD_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/libGD/include CACHE PATH "GD include path" FORCE)
+
+IF(STANDALONE)
+	SET(GD_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libGD/lib/libgd${CMAKE_STATIC_LIBRARY_SUFFIX};-lpng;-ljpeg;-lz;-lm
+		  CACHE STRING "GD library" FORCE )
+
+ELSE(STANDALONE)
+	SET(GD_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libGD/lib/libgd${CMAKE_SHARED_LIBRARY_SUFFIX}
+		  CACHE PATH "GD library" FORCE )
+	INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libGD/lib 
+	        DESTINATION ./
+	        USE_SOURCE_PERMISSIONS
+	        FILES_MATCHING PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}*" 
+				 )
+ENDIF(STANDALONE)

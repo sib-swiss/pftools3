@@ -1,0 +1,89 @@
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.9.14)  15 JAN 2013 16:03
+entering extended mode
+ %&-line parsing enabled.
+**profile_syntax.tex
+(./profile_syntax.tex
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
+yphenation, ibycus, monogreek, greek, ancientgreek, loaded.
+(/usr/share/texmf-texlive/tex/latex/base/article.cls
+Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/share/texmf-texlive/tex/latex/base/size10.clo
+File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) (./profile_syntax.aux)
+\openout1 = `profile_syntax.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+
+Overfull \hbox (32.9967pt too wide) in paragraph at lines 17--17
+[]\OT1/cmtt/m/n/10 DT   APR-2005 (CREATED); APR-2005 (DATA UPDATE); JAN-2012 (I
+NFO UPDATE).[] 
+ []
+
+
+Overfull \hbox (1.49698pt too wide) in paragraph at lines 17--17
+[]\OT1/cmtt/m/n/10 MA   /GENERAL_SPEC: ALPHABET='ABCDEFGHIKLMNPQRSTVWYZ'; LENGT
+H=194;[] 
+ []
+
+
+Overfull \hbox (111.74602pt too wide) in paragraph at lines 17--17
+[]\OT1/cmtt/m/n/10 MA   /NORMALIZATION: MODE=1; FUNCTION=LINEAR; R1=1.0061111; 
+R2=0.0089461; TEXT='-LogE';[] 
+ []
+
+
+Overfull \hbox (74.99634pt too wide) in paragraph at lines 17--17
+[]\OT1/cmtt/m/n/10 MA   /CUT_OFF: LEVEL=0; SCORE=838; N_SCORE=8.5; H_SCORE=4300
+7; MODE=1; TEXT='!';[] 
+ []
+
+
+Overfull \hbox (80.24629pt too wide) in paragraph at lines 17--17
+[]\OT1/cmtt/m/n/10 MA   /CUT_OFF: LEVEL=-1; SCORE=615; N_SCORE=6.5; H_SCORE=327
+04; MODE=1; TEXT='?';[] 
+ []
+
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./profile_syntax.aux) ) 
+Here is how much of TeX's memory you used:
+ 203 strings out of 494985
+ 2218 string characters out of 1181034
+ 47142 words of memory out of 3000000
+ 3474 multiletter control sequences out of 15000+50000
+ 3808 words of font info for 15 fonts, out of 3000000 for 9000
+ 73 hyphenation exceptions out of 8191
+ 23i,4n,17p,161b,160s stack positions out of 5000i,500n,10000p,200000b,50000s
+</
+usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/te
+xmf-texlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on profile_syntax.pdf (1 page, 27431 bytes).
+PDF statistics:
+ 14 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

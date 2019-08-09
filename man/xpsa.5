@@ -1,0 +1,396 @@
+.\"
+.\" $Id: xpsa.5,v 1.5 2003/08/11 12:09:14 vflegel Exp $
+.\" Copyright (c) 2003 SIB Swiss Institute of Bioinformatics <pftools@sib.swiss>
+.\" Process this file with
+.\" groff -man -Tascii <name>
+.\" for ascii output or
+.\" groff -man -Tps <name>
+.\" for postscript output
+.\"
+.TH XPSA 5 "July 2003" "pftools 2.3" "File formats"
+.\" ------------------------------------------------
+.\" Name section
+.\" ------------------------------------------------
+.SH NAME
+xpsa \- extended psa header
+.\" ------------------------------------------------
+.\" Description section
+.\" ------------------------------------------------
+.SH DESCRIPTION
+.B xpsa
+is an extension of the
+.BR psa (5)
+file format used by the
+.B pftools
+package to describe and store biological sequences.
+.PP
+.B xpsa
+uses
+.IR keyword = value
+pairs in the header to include information about the sequence or the alignment
+between the sequence and a
+.I PROSITE
+profile (or any other kind of motif). The syntax is therefore easily extensible. In this man-page, we focus on 
+the keywords defined and used by the
+.B pftools
+package. 
+.PP
+In the following text we will use the more general term
+.RI ' motif '
+when in fact our discussion refers specifically to
+.IR "PROSITE profiles" .
+Nevertheless the keywords defined here can be used by any kind of sequence analysis tool
+to store and transfer information.
+.PP
+None of the defined keywords are mandatory and analysis tools have often a length limit imposed
+on the header line. In order to keep the header line reasonably short and user readable,
+these tools can easily remove individual
+.IR keyword = value
+pairs which are not important to the specific task at hand.
+.\" ------------------------------------------------
+.\" Syntax section
+.\" ------------------------------------------------
+.SH SYNTAX
+The general syntax of the
+.B xpsa
+header is given below. For examples please refer to the corresponding
+.I examples
+section.
+.PP
+The biological sequence itself starts on the next line following the header and may extend over several lines.
+If several sequences are contained in the same file, each must be preceded by a header line.
+.PP
+.sp
+Syntax of the header line:
+.sp
+.RS
+.BI > seq_id / seq_pos
+{
+.RI "[ "  keyword = value " | " free_text " ]" 
+}
+.RE
+.sp
+The header must start with a
+.RB ' > '
+followed by the fields detailed below:
+.RS
+.\" --- seq_id ---
+.TP
+.I seq_id
+typically the 
+.IR accession \ number\ and\  identifier
+of the sequence.  This text field should not contain any spaces.
+.TP
+Note:
+If the input sequences have a well defined accession number and identifier (as is
+the case with
+.SM SWISS-PROT
+entries)
+.BR pfsearch "(1) and " pfscan (1)
+will use as
+.IR seq_id
+the accession number separated by a
+.RB ' | '
+from the identifier.
+.br
+If the input sequences are in
+.SM FASTA
+format, no guess can be made about the accession number or the identifier. Therefore
+.BR pfsearch "(1) and " pfscan (1)
+will use as
+.IR seq_id
+all text following the
+.RB ' > '
+character up to the first whitespace.
+.\" --- seq_pos ---
+.TP
+.I seq_pos
+this field describes the sequence coordinates where a
+motif matches. The positions are generally given as
+.IR start_pos \- end_pos
+pairs.
+.br
+If present, this field is separated from the
+.I seq_id
+by a
+.RB ' / '
+character.
+.\" --- keyword=value ---
+.TP
+.IR keyword = value
+is an optional list of defined 
+.IR keyword = value
+pairs. Each pair should be separated from the next or from free text by whitespaces.
+.br
+The
+.I keyword
+is case sensitive in the current implementation of the
+.B pftools
+package. It should not exceed 24 characters in length.
+.br
+The
+.I value
+can be numeric or alphanumeric. Values containing whitespaces should be enclosed in either
+.I single quotes
+or
+.IR "double quotes" .
+If the same type of quote appears inside the value it must be escaped using the
+.RB ' \(rs '
+character.
+.RS
+.TP
+Note:
+the
+.B pftools
+do not currently produce quote enclosed values.
+.RE
+.\" --- free_text ---
+.TP
+.I free_text
+typically this is a description of the sequence. It should not contain any of the defined
+.IR keyword = value
+pairs.
+.PP
+.\" ------------------------------------------------
+.\" Keywords subsection
+.\" ------------------------------------------------
+.SS Keywords
+.RE
+Keywords used by the
+.BR pfsearch "(1) and " pfscan (1)
+programs:
+.RS
+.\" --- level ---
+.TP
+.I level
+the highest cut-off level (as a value) exceeded by the alignment.
+.br
+The characters
+.RB ' NA '
+indicate that the alignment score does not exceed any of the cut-off levels defined in the motif.
+.\" --- level_tag ---
+.TP
+.I level_tag
+the highest cut-off level (as a character string) exceeded by the alignment.
+.br
+The characters
+.RB ' NA '
+indicate that the alignment score does not exceed any of the cut-off levels defined in the motif.
+.RS
+.TP
+Note:
+.BR pfsearch "(1) and " pfscan (1)
+only report the first 2 characters of the level text string.
+.RE
+.\" --- match_nb ---
+.TP
+.I match_nb
+if the motif matches several times on the same sequence, each alignment is numbered incrementally.
+.br
+If the motif is circular, each single repeat is numbered incrementally with the key 
+.I repeat_nb
+(see below).
+.\" --- match_parent ---
+.TP
+.I match_parent
+for each single match of a circular motif, this key references the number of the parental total match of the circular
+motif.
+.RS
+.TP
+Note:
+if a circular motif matches only once on a given sequence,
+.BR pfsearch "(1) and " pfscan (1)
+do not report this key.
+.RE
+.\" --- match_type ---
+.TP
+.I match_type
+identifies the type of match. Either
+.B region
+for a complete match of a motif to a sequence, or
+.B repeat
+for a single repeat of a circular motif.
+.\" --- motif ---
+.TP
+.I motif
+the name and/or identifier of the motif.
+.\" --- motif_start ---
+.TP
+.I motif_start
+the motif position where the alignment begins.
+.\" --- motif_end ---
+.TP
+.I motif_end
+negative offset from the end of the alignment to the end of the motif.
+.\" --- norm_score ---
+.TP
+.I norm_score
+the normalized score of the alignment.
+.\" --- raw_score ---
+.TP
+.I raw_score
+the raw score of the alignment.
+.\" --- repeat_nb ---
+.TP
+.I repeat_nb
+if the motif is circular, each individual repeat is numbered incrementally with this keyword.
+.\" --- seq_end ---
+.TP
+.I seq_end
+negative offset from the end of the alignment to the end of the sequence.
+.br
+In combination with the information given by 
+.I seq_pos
+this allows to deduce the length of the query sequence.
+.\" --- strand ---
+.TP
+.I strand
+the sequence strand on which the motif matches, when the search includes the reverse complement of a DNA sequence.
+The
+.I value
+is either
+.B s
+for the sens or
+.B r
+for the reverse strand.
+.PP
+.RE
+Keywords used by the
+.BR pfmake "(1) and " pfw (1)
+programs:
+.RS
+.\" --- weight ---
+.TP
+.I weight
+the weight of a given sequence in a multiple alignment.
+.\" ------------------------------------------------
+.\" Examples section
+.\" ------------------------------------------------
+.SH EXAMPLES
+.TP
+(1)
+>O00628|PEX7/73-315
+.IR motif =PS50294|WD_REP
+.IR raw_score =1336
+.IR match_nb =1
+.IR match_type =region
+.IR seq_end =-491 
+.br
+VTW[...]IYD
+.br
+>O00628|PEX7/540-801
+.IR motif =PS50294|WD_REP
+.IR raw_score =1378
+.IR match_nb =2
+.IR match_type =region
+.IR seq_end =-5 
+.br
+SFD[...]PAS
+.br
+
+The 2 headers above describe 2 matches of the motif called
+.RI ' WD_REP '
+onto the sequence
+.RI ' PEX7 '.
+Each of the matches onto this single sequence is numbered using the the
+.I match_nb
+keyword.
+These matches are not individual repeats of a circular motif as can be seen with the
+.I region
+value of the
+.I match_type
+keyword.
+.br
+The first match starts at position 73 of the sequence and ends at position 315. This position is 491
+residues away from the end of the input sequence
+.RI ( seq_end ).
+.br
+The next line following the
+.BR xpsa (5)
+header line is the sequence of the match (it has been truncated here to help readability).
+.br
+The second match begins at position 540 of the sequence and terminates 5 residues before the end of the
+input sequence, that is at position 801.  
+.RE
+
+.TP
+(2)
+>O00628|PEX7/540-582
+.IR motif =PS50294|WD_REP
+.IR norm_score =7.437
+.IR raw_score =180
+.IR match_parent =2
+.IR repeat_nb =1
+.IR match_type =repeat
+.IR level =-1
+.IR seq_end =-224
+.IR motif_start =1
+.IR motif_end =-1 
+.br
+SFD[...]PLQ
+.br
+
+This example illustrates the kind of header obtained when aligning a circular motif
+to a sequence. Each match of this motif (which we will call
+.I total
+match) can be composed of several individual repeats of the motif. Tools like
+.BR pfsearch "(1) and " pfscan (1)
+can output each total match followed by all its individual repeats. In this example
+we only show one of the indiviual repeats that is part of a total match between a circular profile
+and a sequence.
+.br
+The
+.BR xpsa (5)
+header above describes a single repeat of a match between a circular motif called 
+.RI ' WD_REP '
+and the sequence
+.RI ' PEX7 '.
+.br
+This is the first individual repeat of a match of the circular motif, as identified by the
+.I repeat_nb
+keyword. The other individual repeats have not been listed in this example.
+.br
+The total circular motif has at least 2 distinct matches on the
+.RI ' PEX7 '
+sequence, because this single repeat is part of the second match as described by the
+.I match_parent
+keyword. The parental matches have been omitted from this example, they would be numbered using the
+.I match_nb
+keyword.
+.br
+The normalized score of this motif exceeds the cut-off level number -1 
+.RI ( level
+keyword) which is specified in the motif.
+.br
+This match starts at position 1 of the profile
+.RI ( motif_start )
+and position 540 of the sequence, it ends at the end of the motif
+.RI ( motif_end =-1)
+and position 582 of the sequence.
+.br
+The next line following the
+.BR xpsa (5)
+header line is the sequence of the match (it has been truncated here to help readability).
+.RE
+.\" ------------------------------------------------
+.\" See also section
+.\" ------------------------------------------------
+.SH "SEE ALSO"
+.BR psa (5),
+.BR pfsearch (1),
+.BR pfscan (1),
+.BR pfw (1),
+.BR pfmake (1),
+.BR psa2msa (1)
+.\" ------------------------------------------------
+.\" Author section
+.\" ------------------------------------------------
+.SH "AUTHOR"
+This manual page was originally written by Volker Flegel.
+.br
+The
+.B pftools
+package was developed by Philipp Bucher.
+.br
+Any comments or suggestions should be addressed to <pftools@sib.swiss>.
+

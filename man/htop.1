@@ -1,0 +1,375 @@
+.\"
+.\" $Id: htop.1,v 1.2 2003/11/18 10:54:42 vflegel Exp $
+.\" Copyright (c) 2003 SIB Swiss Institute of Bioinformatics <pftools@sib.swiss>
+.\" Process this file with
+.\" groff -man -Tascii <name>
+.\" for ascii output or
+.\" groff -man -Tps <name>
+.\" for postscript output
+.\"
+.TH HTOP 1 "May 2003" "pftools 2.3" "pftools"
+.\" ------------------------------------------------
+.\" Name section
+.\" ------------------------------------------------
+.SH NAME
+htop \- convert a
+.SM HMMER
+ASCII-formatted HMM into an equivalent
+.SM PROSITE
+profile  
+.\" ------------------------------------------------
+.\" Synopsis section
+.\" ------------------------------------------------
+.SH SYNOPSIS
+.TP 10
+.B htop
+[
+.B \-fhilos
+] [
+.B \-B
+.I norm_logbase
+] [
+.B \-C
+.I cut_off
+] [
+.B \-F
+.I multiplier
+] [
+.B \-H
+.I init/term_score
+] [
+.B \-L
+.I score_logbase
+] [
+.B \-M
+.I nb_unprotect
+] [
+.B \-P
+.I percent_unprotect
+] [
+.B \-Q
+.I odds_ratio
+]
+.I hmm_file
+|
+.B \-
+[
+.I random_model
+] [
+.I parameters
+]
+.\" ------------------------------------------------
+.\" Description section
+.\" ------------------------------------------------
+.SH DESCRIPTION
+.B htop
+converts a hidden Markov model (HMM) into an equivalent
+.SM PROSITE
+formatted generalized profile. The input
+.I hmm_file
+is a nucleic acid or protein HMM in
+.SM HMMER
+ASCII-format. The
+.I random_model
+file contains a simple null-model in the format used by the HMM search programs
+of the
+.SM HMMER1
+package.
+This random model is only effective in conjunction with the 
+.B \-o
+option (old
+.SM HMMER1 
+format). If omitted, a random model consisting of the 
+average residue probabilities of the insert states will be used.
+.\" ------------------------------------------------
+.\" Options section
+.\" ------------------------------------------------
+.SH OPTIONS 
+.\" --- hmm_file ---
+.TP
+.I hmm_file
+Input HMM ASCII-file. By default,
+.B htop
+expects a
+.SM HMMER2
+formatted HMM. If the option
+.B \-o
+is set, the file should be in
+.SM HMMER1
+ASCII format.
+If the filename is replaced by a
+.RB ' \- ',
+.B htop
+will read the input HMM from
+.BR stdin .
+.\" --- random_model ---
+.TP
+.I random_model
+Input random model file. Only used in conjunction with
+.SM HMMER1
+HMMs (see option
+.BR \-o ).
+This file should contain a simple null-model using the same residue alphabet as
+the
+.IR hmm_file .
+.\" --- f ---
+.TP
+.B \-f
+Emulate HMM fragment search (only effective with old
+.SM HMMER1
+format).
+When given as input to the
+.B pftools
+programs
+.BR pfsearch (1) 
+or
+.BR pfscan (1),
+the resulting profile will behave like the original HMM searched with 
+the 
+.SM HMMER1
+program 
+.BR hmmfs . 
+The default mode is to emulate HMM local search implemented in the
+.SM HMMER1
+program 
+.BR hmmls . 
+.\" --- h ---
+.TP
+.B \-h
+Display usage help text.
+.\" --- i ---
+.TP
+.B \-i
+Force all insert extension scores to be zero.
+.\" --- l ---
+.TP
+.B \-l
+Remove output line length limit. Individual lines of the output profile
+can exceed a length of 132 characters, removing the need to wrap them over several lines. 
+.\" --- o ---
+.TP
+.B \-o
+Assume input to be in old
+.SM HMMER1
+ASCII format. Since version 2.2, the
+.B pftools
+assume by default the
+.SM HMMER2
+format. 
+.\" --- s ---
+.TP
+.B \-s
+Implement semiglobal alignment mode. This option forces all external
+initiation scores to be identical to the internal initiation
+score at the beginning of the profile. Likewise, the external 
+termination scores are set to the value of the internal
+termination score at the end of the profile.
+.\" --- B ---
+.TP
+.BI \-B\  norm_logbase
+Logarithmic base to be used for normalization of profile
+match scores (only effective with old
+.SM HMMER1
+format).
+.br
+Default: 2.0
+.\" --- C ---
+.TP
+.BI \-C\  cut_off
+Level zero cut-off value in normalized score units.
+.br
+Default: 8.5 (or 0.0 in conjunction with option 
+.BR \-o )
+.\" --- F ---
+.TP
+.BI \-F\  multiplier
+Output score multiplier. On output, all profile scores are multiplied by
+this factor and rounded to the nearest integers.
+.br
+Only effective with
+.SM HMMER2
+format.
+.br
+Default: 100
+.\" --- H ---
+.TP
+.BI \-H\  init/term_score
+High-cost initiation/termination score (only effective in conjunction with 
+.B \-s
+option). This score will be applied to
+all external and internal initiation and termination scores
+at path matrix positions where
+initiation or termination at low cost is not possible according to semiglobal
+alignment mode.
+.br
+Default: * (low-value)
+.\" --- L ---
+.TP
+.BI \-L\  score_logbase
+Logarithmic base to be used for representation of profile
+scores (only effective in conjunction with old
+.SM HMMER1
+format).
+.br
+Default: 1.0233739 (1/30 bit units)
+.\" --- M ---
+.TP
+.BI \-M\  nb_unprotect
+Maximal number of unprotected residues at the ends of the profile.
+.br
+Type: integer
+.br
+Default: 5 (meaning that the protected region starts at position 6).
+.\" --- P ---
+.TP
+.BI \-P\  percent_unprotect
+Percent profile-length at the ends of the profile,
+which will not be included in the protected area.
+.br
+Type: real
+.br
+Default: 0 (range 0 to 100)
+.\" --- Q ---
+.TP
+.BI \-Q\  odds_ratio
+Position-independent odds ratio assumed for unknown residues.
+This parameter determines 
+the default values for profile scores
+.I M0
+and 
+.IR I0 .
+Note that the 
+.I I0
+scores may be over-written by the
+.B \-i   
+option.
+.br
+Default: 0.8
+.\" ------------------------------------------------
+.\" Parameters section
+.\" ------------------------------------------------
+.SH PARAMETERS 
+.TP
+Note:
+for backwards compatibility, release 2.3 of the
+.B pftools
+package will parse the version 2.2 style parameters, but these are
+.I deprecated
+and the corresponding option (refer to the
+.I options
+section) should be used instead.
+.TP
+B=#
+Match score logarithmic base.
+.br
+Use option
+.B \-B
+instead.
+.TP
+C=#
+Level zero cut-off.
+.br
+Use option
+.B \-C
+instead.
+.TP
+F=#
+Output score multiplier.
+.br
+Use option
+.B \-F
+instead.
+.TP
+H=#
+High-cost init/term score.
+.br
+Use option
+.B \-H
+instead.
+.TP
+L=#
+Profile scores logarithmic base.
+.br
+Use option
+.B \-L
+instead.
+.TP
+M=#
+Maximal number of unprotected residues.
+.br
+Use option
+.B \-M
+instead.
+.TP
+P=#
+Percentage of unprotected residues.
+.br
+Use option
+.B \-P
+instead.
+.TP
+Q=#
+Unknown residues odds ratio.
+.br
+Use option
+.B \-Q
+instead.
+.\" ------------------------------------------------
+.\" Examples section
+.\" ------------------------------------------------
+.SH EXAMPLES
+.TP
+(1)
+.B htop 
+pfam_sh3.hmm > pfam_sh3.prf
+.IP
+Converts the
+.SM HHMER2
+formatted SH3 domain profile
+.RI ' pfam_sh3.hmm '
+into a generalized
+.SM PROSITE
+profile. 
+After this conversion, the following two commands:
+.IP
+.B hmmsearch 
+\--null2  pfam_sh3.hmm sh3.seq 
+.br
+.B pfsearch
+\-fy -C 5.0 pfam_sh3.prf sh3.seq
+.IP
+should produce equivalent results in terms of raw scores
+and profile-sequence alignments (E-values and normalized scores
+will usually be different). Note that the program 
+.B hmmsearch
+is from Sean Eddy's
+.SM HMMER2
+package
+.RI ( http://hmmer.wustl.edu/ ).
+.\" ------------------------------------------------
+.\" Exit code section
+.\" ------------------------------------------------
+.SH EXIT CODE
+.LP
+On successful completion of its task,
+.B htop
+will return an exit code of 0. If an error occurs, a diagnostic message will be
+output on standard error and the exit code will be different from 0. When conflicting
+options where passed to the program but the task could nevertheless be completed, warnings
+will be issued on standard error.
+.\" ------------------------------------------------
+.\" See also section
+.\" ------------------------------------------------
+.SH "SEE ALSO"
+.BR pfsearch (1),
+.SM HMMER
+documentation
+.\" ------------------------------------------------
+.\" Author section
+.\" ------------------------------------------------
+.SH AUTHOR
+The
+.B pftools
+package was developed by Philipp Bucher.
+.br
+Any comments or suggestions should be addressed to <pftools@sib.swiss>.

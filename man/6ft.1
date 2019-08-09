@@ -1,0 +1,127 @@
+.\"
+.\" $Id: 6ft.1,v 1.2 2003/08/11 12:09:14 vflegel Exp $
+.\" Copyright (c) 2003 SIB Swiss Institute of Bioinformatics <pftools@sib.swiss>
+.\" Process this file with
+.\" groff -man -Tascii <name>
+.\" for ascii output or
+.\" groff -man -Tps <name>
+.\" for postscript output
+.\"
+.TH 6FT 1 "May 2003" "pftools 2.3" "pftools"
+.\" ------------------------------------------------
+.\" Name section
+.\" ------------------------------------------------
+.SH NAME
+6ft \- 6-frame translation of a DNA sequence into protein 
+.\" ------------------------------------------------
+.\" Synopsis section
+.\" ------------------------------------------------
+.SH SYNOPSIS
+.TP 10
+.B 6ft
+[
+.B \-h
+] [
+.B \-r
+|
+.B \-s
+] [
+.B \-W
+.I width
+]
+.B <
+.I sequence_library
+.\" ------------------------------------------------
+.\" Description section
+.\" ------------------------------------------------
+.SH DESCRIPTION
+.B 6ft
+translates all six reading frames of a double-stranded DNA sequence into
+individual protein sequences.
+Stop codons are represented by character
+.RB \(dq O \(dq.
+The program
+.B 6ft
+reads input fasta formatted DNA sequences from standard input. If the sequences
+are contained in a file, the input can be redirected from this file using the
+shell's input redirector
+.RB ' < '
+as shown in the
+.I synopsis
+section.
+The
+.I sequence_library
+contains one or several sequences in Pearson/Fasta format.
+.LP
+This program may be used for searching genomic or EST sequence databases
+with a protein profile. Better results are usually obtained by first
+converting the protein profile into a frame-search profile, and then
+searching a 2-frame translation of the DNA sequence database generated with
+pftools program
+.BR 2ft (1), 
+.I see
+manual pages of pftools programs 
+.BR ptof (1)
+and  
+.BR 2ft (1).
+.\" ------------------------------------------------
+.\" Options section
+.\" ------------------------------------------------
+.SH OPTIONS
+.\" --- h ---
+.TP
+.B \-h
+Display usage help text.
+.\" --- r ---
+.TP
+.B \-r 
+Translate only reverse (antisense) strand.
+.br
+This option is mutualy exclusive with option
+.BR \-s .
+.br
+Default: translate both strands
+.\" --- s ---
+.TP
+.B \-s
+Translate only sense strand.
+.br
+This option is mutualy exclusive with option
+.BR \-r .
+.br
+Default: translate both strands
+.\" --- W ---
+.TP
+.BI \-W\  width
+Set sequence output width.
+.br
+The value of
+.RI ' width '
+specifies how many residues will be output on one line.
+.br
+Type: integer
+.br
+Default: 60
+.\" ------------------------------------------------
+.\" Examples section
+.\" ------------------------------------------------
+.SH EXAMPLES
+.I See
+manual pages of pftools program
+.BR ptof (1).
+.\" ------------------------------------------------
+.\" See also section
+.\" ------------------------------------------------
+.SH "SEE ALSO"
+.BR ptof (1),
+.BR pfsearch (1),
+.BR pfscan (1)
+.\" ------------------------------------------------
+.\" Author section
+.\" ------------------------------------------------
+.SH AUTHOR
+The
+.B pftools
+package was developed by Philipp Bucher.
+.br
+Any comments or suggestions should be addressed to <pftools@sib.swiss>.

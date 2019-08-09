@@ -1,0 +1,130 @@
+\ProvidesPackage{beamerthemeRJH} % this style was created by Rob J Hyndman and is an adapation of i6dv by David Vilar
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\selectcolormodel{cmyk}
+\mode<presentation>
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% custom colors
+%\definecolor{i6blue}{cmyk}{1,0.305,0,0.06}
+\definecolor{i6bluedark}{rgb}{1,0,0}                
+\definecolor{i6colorscheme1}{HTML}{000000}  % e.g. for block title
+\definecolor{i6colorblockbg}{HTML}{FF0000}
+\definecolor{i6colorblockfg}{HTML}{FFFFFF}
+\definecolor{i6colorscheme2}{HTML}{000000}  % e.g. title in headline
+\definecolor{i6colorscheme3}{HTML}{FFFFFF}  % e.g. for poster background
+\definecolor{i6colorscheme4}{HTML}{000000} 
+\definecolor{i6colorschemeHeadline}{HTML}{FF0000}  % for headline bg
+\definecolor{i6colorschemeFootline}{HTML}{FF0000}  % for headline bg
+\definecolor{i6colorschemeHeadline}{HTML}{FF0000}  % for headline bg
+
+% headline colors and fonts
+\setbeamercolor{headline}{fg=i6colorschemeHeadline,bg=white}
+\setbeamercolor{title in headline}{fg=i6colorschemeHeadline}
+\setbeamercolor{author in headline}{fg=black,bg=white}
+\setbeamercolor{institute in headline}{fg=black,bg=white}
+\setbeamercolor{logo in headline}{fg=black}
+\setbeamercolor{separation line}{bg=i6colorscheme1}
+
+% footline colors and fonts
+\setbeamercolor{footline}{fg=white,bg=i6colorschemeHeadline}
+\setbeamerfont{footline}{fg=white, size=\normalsize}
+
+% body colors and fonts
+\setbeamercolor*{normal text}{fg=black,bg=i6colorscheme3}
+
+% block environment
+\setbeamercolor*{block body}{bg=white,fg=black}
+\setbeamercolor*{block title}{fg=i6colorblockfg,bg=i6colorblockbg}
+\setbeamerfont{block title}{size=\large,series=\bf}
+\setbeamerfont{block body}{size=\tiny}
+
+% example environment
+\setbeamercolor*{example title}{fg=white,bg=i6colorscheme1}
+\setbeamerfont{example title}{size=\large,series=\bf,bg=i6colorscheme1,fg=white}
+
+\setbeamercolor{alerted text}{fg=i6colorscheme1}
+
+\setbeamertemplate{itemize items}[triangle]
+\setbeamertemplate{navigation symbols}{}  % no navigation on a poster
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamertemplate{block begin}{
+    \vskip.75ex
+    \begin{beamercolorbox}[leftskip=1cm,colsep*=.75ex]{block title}%
+        \usebeamerfont*{block title}{\insertblocktitle}
+    \end{beamercolorbox}%
+    {\ifbeamercolorempty[bg]{block body}{}{\nointerlineskip\vskip-0.5pt}}%
+    \usebeamerfont{block body}%
+    \vskip.15ex
+    \begin{beamercolorbox}[colsep*=.75ex,sep=.75ex,vmode]{block body}%
+    \ifbeamercolorempty[bg]{block body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+  }
+\setbeamertemplate{block end}{
+  \end{beamercolorbox}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamertemplate{headline}{  
+    \begin{beamercolorbox}[wd=\paperwidth]{headline}
+    \vskip4ex
+    \begin{columns}[T]
+        \begin{column}{0.03\paperwidth}
+            \begin{center}
+                %\includegraphics[width=1\linewidth]{sib_logo_quadri_high_res.pdf} 
+            \end{center}
+        \end{column}
+        \begin{column}{0.94\paperwidth}
+            \raggedright
+            \usebeamercolor{title in headline}{\color{fg}\textbf{\Large{\inserttitle}}\\[1ex]}
+            \usebeamercolor{author in headline}{\color{fg}\small{\insertauthor}\\[1ex]}
+            \usebeamercolor{institute in headline}{\color{fg}\footnotesize{\insertinstitute}\\[1ex]}     
+        \end{column}
+        \begin{column}{0.03\paperwidth}
+            \begin{center}
+                %\includegraphics[width=1\linewidth]{sib_logo_quadri_high_res.pdf} 
+            \end{center}
+        \end{column}
+    \end{columns}
+    \vskip1.5cm
+    \end{beamercolorbox}
+
+%  \leavevmode
+%  \vskip2ex
+%  \begin{beamercolorbox}[wd=\paperwidth]{headline}
+%				\centering
+%        \vskip1ex
+%        \usebeamercolor{title in headline}{\color{fg}\textbf{\LARGE{\inserttitle}}\\[2ex]}
+%  \end{beamercolorbox}
+%  \begin{beamercolorbox}[wd=\paperwidth]{}
+%				\centering
+%        \vskip1.0ex
+%        \usebeamercolor{author in headline}{\color{fg}\normalsize{\insertauthor}\\[1ex]}
+%        \usebeamercolor{institute in headline}{\color{fg}\small{\insertinstitute}\\[1ex]}
+%  \end{beamercolorbox}
+%  
+%  \begin{beamercolorbox}[wd=\paperwidth]{lower separation line head}
+%    \rule{0pt}{2pt}
+%  \end{beamercolorbox}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamertemplate{footline}{
+  \begin{beamercolorbox}[wd=\paperwidth]{upper separation line foot}
+    \rule{0pt}{2pt}
+  \end{beamercolorbox}
+  
+  \begin{beamercolorbox}[ht=4ex,leftskip=1cm,rightskip=1cm]{footline}%
+    \includegraphics[width=0.080\linewidth]{sib_logo_quadri_high_res.pdf} \hfill \raisebox{0.4cm}{\insertfooter}
+    \vskip0.2em  
+\end{beamercolorbox}
+
+  \begin{beamercolorbox}[wd=\paperwidth]{lower separation line foot}
+    \rule{0pt}{2pt}
+  \end{beamercolorbox}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\mode<all>
+
+\def\footer#1{\def\insertfooter{#1}}

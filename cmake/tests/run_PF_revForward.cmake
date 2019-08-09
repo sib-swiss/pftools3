@@ -1,0 +1,27 @@
+
+     
+IF(EXISTS ${RES_F} AND EXISTS ${RES_R} AND EXISTS ${RES_RC})
+	MESSAGE("Forward vs reverse")
+		UNSET(CMD_RESULT)
+		EXECUTE_PROCESS(COMMAND diff "${RES_F}"	"${RES_R}"
+				OUTPUT_FILE  "${TESTS_DIRECTORY}/${OUT_FILE}_FR.diff"
+				RESULT_VARIABLE CMD_RESULT)
+		IF(CMD_RESULT)
+			MESSAGE(FATAL_ERROR "Difference found between ${RES_F} and ${RES_R}")
+		ELSE()
+			MESSAGE("MATRIX  ${RES_F} and ${RES_R} similar")
+		ENDIF(CMD_RESULT)
+    
+    MESSAGE("Forward vs reverseComplementary")
+		UNSET(CMD_RESULT)
+		EXECUTE_PROCESS(COMMAND diff "${RES_F}"	"${RES_RC}"
+				OUTPUT_FILE  "${TESTS_DIRECTORY}/${OUT_FILE}_FRC.diff"
+				RESULT_VARIABLE CMD_RESULT)
+		IF(CMD_RESULT)
+			MESSAGE(FATAL_ERROR "Difference found between ${RES_F} and ${RES_RC}")
+		ELSE()
+			MESSAGE("MATRIX  ${RES_F} and ${RES_RC} similar")
+	   	ENDIF(CMD_RESULT)
+ENDIF(EXISTS  ${RES_F} AND EXISTS ${RES_R} AND EXISTS ${RES_RC})
+
+

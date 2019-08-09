@@ -1,0 +1,197 @@
+.\"
+.\" $Id: psa.5,v 1.1 2003/05/12 11:51:45 vflegel Exp $
+.\" Copyright (c) 2003 SIB Swiss Institute of Bioinformatics <pftools@sib.swiss>
+.\" Process this file with
+.\" groff -man -Tascii <name>
+.\" for ascii output or
+.\" groff -man -Tps <name>
+.\" for postscript output
+.\"
+.TH PSA 5 "April 2003" "pftools 2.3" "File formats"
+.\" ------------------------------------------------
+.\" Name section
+.\" ------------------------------------------------
+.SH NAME
+psa \- biological sequence alignment file format
+.\" ------------------------------------------------
+.\" Description section
+.\" ------------------------------------------------
+.SH DESCRIPTION
+.B psa
+is an output format used by the
+.B pftools
+package to describe alignments between biological sequences (DNA or protein) and
+.I PROSITE
+profiles.
+.PP
+.B psa
+is apparented to the widely used biological sequence file format
+.IR fasta .
+Nevertheless it does not only describe a biological sequence, it is especially used to include
+information of alignments between a motif descriptor like a
+.I PROSITE
+profile and a given sequence. This information is included in the header and reflected
+in the structure of the sequence following the header line.
+.\" ------------------------------------------------
+.\" Syntax section
+.\" ------------------------------------------------
+.SH SYNTAX
+Each sequence in a
+.B psa
+alignment file or output must be preceded by a
+.I fasta
+header line.
+.br
+The general syntax of such a
+.I fasta
+header line is as follows:
+.sp
+.RS
+.BI > seq_id
+.RI "[ " free_text " ]" 
+.RE
+.sp
+The header must start with a
+.RB ' > '
+character which is directly followed by the
+.I seq_id
+field. This field is interpreted by most programs as the sequence's
+.I identifier
+and/or
+.I accession
+number. It ends at the first encountered whitespace character.
+.br
+The
+.B pftools
+programs will use the
+.I free_text
+to add information about the match score, position and description of the sequence or motif.
+Please refer to the man page of the corresponding programs for further information about
+the output formats.
+.br
+The header can only extend over one line. The following lines up to a new line starting with a
+.RB ' > '
+character or the end of the file are interpreted as sequence data.
+.sp
+The line following the header, starts the alignment data between a sequence and a 
+.I PROSITE
+profile. This data can span over several lines of different length.
+.br
+The data is formed by
+.I upper
+or
+.IR lower -case
+characters of the corresponding sequence alphabet (DNA or protein).
+The gap characters
+.RB ' . "' and '" - '
+are also supported.
+.br
+The alignment always has at least the length of the matching profile. Insertions or deletions
+detected during the motif/sequence alignment step will vary the length of the data reported,
+and can be identified using the following conventions:
+.RS
+.\" --- upper-case character ---
+.TP
+.I upper-case character
+Any upper-case character of the sequence alphabet identifies a
+.I match
+position between the sequence and the motif descriptor.
+.\" --- lower-case character ---
+.TP
+.I lower-case character
+A lower-case character of the sequence alphabet is used to symbolize an
+.I insertion
+in the sequence compared to the motif descriptor.
+.\" --- dash '-' character ---
+.TP
+.I '-' (dash) character
+A
+.RB ' - '
+character in the output identifies the presence of a
+.I deletion
+in the sequence compared to the motif descriptor.
+.RE
+.\" ------------------------------------------------
+.\" Examples section
+.\" ------------------------------------------------
+.SH EXAMPLES
+.TP
+(1)
+>YD28_SCHPO 556 pos. 291 - 332 sp|Q10256|YD28_SCHPO
+.br
+PTDPGlnsKIAQLVSMGFDPLEAAQALDAANGDLDVAASFLL--
+.br
+
+This is an example of the output produced by
+.BR pfsearch (1)
+using the '-x' (i.e. 
+.B psa
+output) option. The first line starting with the
+.RB ' > '
+character is the
+.I fasta
+header. It also contains information about the raw score of the alignment as well as its
+position in the input sequence.
+.br
+On the next line you find the alignment proper. Starting at position 6, we can find an
+.I insertion
+of the
+.RI ' lns '
+residues in the sequence compared to the motif. The last two positions of the motif are
+not present in the sequence (i.e. they are
+.IR deleted ).
+This is indicated by the presence of two 
+.RB ' - '
+(dash) characters at the end of the alignment.
+.RE
+.\" ------------------------------------------------
+.\" Notes section
+.\" ------------------------------------------------
+.SH "NOTES"
+.TP
+(1)
+The
+.BR xpsa (5)
+format defines a more strict syntax of the header line, allowing the exchange of information between
+different sequence analysis tools. It uses
+.IR keyword = value
+pairs to annotate the current match between a sequence and a motif descriptor. This syntax can be
+easily parsed and extended, according to the needs of bioinformatic tools.
+.RE
+
+.TP
+(2)
+The current implementation of the
+.B pftools
+package does not use the
+.RB ' . '
+(dot) character in the 
+.B psa
+output. Nevertheless
+.BR psa2msa (1)
+will read it and interpret it in the same manner as the
+.RB ' - '
+(dash) character.
+.RE
+.\" ------------------------------------------------
+.\" See also section
+.\" ------------------------------------------------
+.SH "SEE ALSO"
+.BR xpsa (5),
+.BR pfsearch (1),
+.BR pfscan (1),
+.BR pfw (1),
+.BR pfmake (1),
+.BR psa2msa (1)
+.\" ------------------------------------------------
+.\" Author section
+.\" ------------------------------------------------
+.SH "AUTHOR"
+This manual page was originally written by Volker Flegel.
+.br
+The
+.B pftools
+package was developed by Philipp Bucher.
+.br
+Any comments or suggestions should be addressed to <pftools@sib.swiss>.
+

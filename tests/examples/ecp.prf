@@ -1,0 +1,71 @@
+ID   ECOLI_PROM_RP70; MATRIX.
+AC   NS00001;
+DT   OCT-1993 (CREATED).
+DE   E. coli RNA POL sigma-70 promoter.
+CC
+CC   Note: The score for T at the 5th position of the TTGACA motif  
+CC         has been changed to 11 in order to reproduce the numbers
+CC         shown in [Mulligan et al. 1984, NAR 12:789]. The normalization
+CC         parameters were adjusted manually. 
+CC
+MA   /GENERAL_SPEC: ALPHABET='ACGT'; LENGTH=45;
+MA   /DISJOINT: DEFINITION=PROTECT; N1=37; N2=42;
+MA   /NORMALIZATION: MODE=1; FUNCTION=LINEAR; R1=-96.81; R2=0.5931;
+MA      TEXT='Homology Score';
+MA   /NORMALIZATION: MODE=2; FUNCTION=LINEAR; R1=-10.198; R2=0.06215;
+MA      TEXT='Log KBk2';
+MA   /CUT_OFF: LEVEL=2; SCORE=256; N_SCORE=55.0; MODE=1;
+MA   /CUT_OFF: LEVEL=1; SCORE=248; N_SCORE=50.0; MODE=1;
+MA   /CUT_OFF: LEVEL=0; SCORE=240; N_SCORE=45.0; MODE=1;
+MA   /DEFAULT: B0=*; B1=*; E0=*; E1=*; SY_M='*'; II=*;
+MA   /I: B0= 0; B1= 0;
+MA   /M: M= 11, 3, 3, 4;
+MA   /M: M=  8, 4, 2, 7;
+MA   /M: M=  8, 2, 4, 7;
+MA   /M: M=  7, 4, 2, 8;
+MA   /M: M=  8, 4, 4, 5;
+MA   /M: M=  7, 3, 5, 6;
+MA   /M: M=  3, 5, 5, 8;
+MA   /M: M=  5, 2, 5, 9;
+MA   /M: M=  5, 8, 5, 3;
+MA   /M: M=  0, 1, 2,17; SY='T';
+MA   /M: M=  1, 1, 1,18; SY='T';
+MA   /M: M=  0, 2,17, 2; SY='G';
+MA   /M: M= 14, 3, 1, 4; SY='A';
+MA   /M: M=  5,11, 2, 3; SY='C';
+MA   /M: M=  9, 2, 3, 7; SY='A';
+MA   /M: M=  5, 5, 3, 9;
+MA   /M:
+MA   /M:
+MA   /M:
+MA   /M:
+MA   /M:
+MA   /M:
+MA   /M:
+MA   /M:
+MA   /M:
+MA   /I: MD=0; MM=1;
+MA   /I: DM=1;
+MA   /I: DM=1;
+MA   /I: DM=6;
+MA   /I: DM=14;
+MA   /I: DM=6;
+MA   /I: DM=1;
+MA   /M: M=  4, 5, 2,10;
+MA   /M: M=  5, 4, 5, 6;
+MA   /M: M=  3, 5, 5, 8;
+MA   /M: M=  4, 4, 8, 5;
+MA   /M: M=  4, 5, 7, 6;
+MA   /M: M=  0, 2, 2,17; SY='T';
+MA   /M: M= 20, 0, 0, 1; SY='A';
+MA   /M: M=  5, 3, 3, 9; SY='T';
+MA   /M: M= 12, 3, 3, 3; SY='A';
+MA   /M: M= 11, 4, 3, 4; SY='A';
+MA   /M: M=  0, 1, 0,20; SY='T';
+MA   /M: M=  7, 2, 6, 6;
+MA   /M: M=  4, 7, 5, 5;
+MA   /M: M=  6, 6, 6, 4;
+MA   /I: E0=0; E1= 0;
+CC   /TAXO-RANGE=???P?;   
+CC   /SITE=10-15, -35 regions; /SITE=37-42, -10 regions; 
+//

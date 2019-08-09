@@ -1,0 +1,295 @@
+.\"
+.\" $Id: ptoh.1,v 1.1 2003/05/12 11:50:03 vflegel Exp $
+.\" Copyright (c) 2003 SIB Swiss Institute of Bioinformatics <pftools@sib.swiss>
+.\" Process this file with
+.\" groff -man -Tascii <name>
+.\" for ascii output or
+.\" groff -man -Tps <name>
+.\" for postscript output
+.\"
+.TH PTOH 1 "April 2003" "pftools 2.3" "pftools"
+.\" ------------------------------------------------
+.\" Name section
+.\" ------------------------------------------------
+.SH NAME
+ptoh \- converts a
+.SM PROSITE
+formatted profile into an approximately equivalent HMM
+.\" ------------------------------------------------
+.\" Synopsis section
+.\" ------------------------------------------------
+.SH SYNOPSIS
+.TP 10
+.B ptoh
+[
+.B \-fFhs
+] [
+.B \-D
+.I del_to_del
+] [
+.B \-I
+.I ins_to_ins
+] [
+.B \-L
+.I log_base
+] [
+.I profile
+|
+.B \-
+] [
+.I random_model
+] [
+.I parameters
+]
+.\" ------------------------------------------------
+.\" Description section
+.\" ------------------------------------------------
+.SH DESCRIPTION
+.B ptoh
+converts a
+.SM PROSITE
+formatted generalized profile into an approximately equivalent
+.SM HMMER1
+(default) or
+.SM SAM 
+formatted hidden Markov model (HMM).
+The file
+.RI ' profile '
+is a nucleic acid or protein profile in
+.SM PROSITE
+format. If
+.RB ' \- '
+is specified instead of a filename, the profile is read from the standard input.
+The
+.RI random_model
+file contains a simple null-model in the format used by the HMM search programs
+of the
+.SM HMMER1
+package.
+The result is written to the standard output.
+.LP
+The profile-to-HMM conversion method is described in Bucher
+.I et al.
+(1996). 
+All profile scores corresponding to transitions which are not supported
+by the HMM architectures of the
+.SM SAM
+and
+.SM HMMER1
+packages, are ignored. 
+If no random model is specified on the command line, 
+the null model given in the GENERAL_SPEC data block of the profile is used. 
+If this is also missing, a flat residue distribution
+is assumed.
+.\" ------------------------------------------------
+.\" Options section
+.\" ------------------------------------------------
+.SH OPTIONS 
+.\" --- profile ---
+.TP
+.I profile
+Input
+.SM PROSITE
+generalized profile.
+The motif described by the profile will be converted into an approximately
+equivalent HMM. If the filename is replaced by a
+.RB ' \- ',
+.B ptoh
+will read the input profile from
+.BR stdin .
+.\" --- random_model ---
+.TP
+.I random_model
+Input random model file.
+.br
+This file should contain a simple null-model using the same residue alphabet as
+the
+.IR profile .
+.\" --- f ---
+.TP
+.B \-f
+Generate free insert-modules (FIMs) at the beginning
+and at the end of the model which approximately emulate domain-global
+or semi-global alignment mode 
+.RI ( see
+Bucher
+.I et al.
+1996).
+.\" --- F ---
+.TP
+.B \-F
+Generate free insert-modules (FIMs) at the beginning
+and at the end of the model which approximately emulate 
+local alignment mode. 
+.\" --- h ---
+.TP
+.B \-h
+Display usage help text.
+.RS
+.TP
+Note:
+The meaning of this option has changed between version 2.2 and the current
+release of the
+.B pftools
+package. No option is needed to get
+.SM HMMER1
+output format because it is the default
+.RI ( see
+option
+.BR \-s ).
+.RE
+.\" --- s ---
+.TP 
+.B \-s
+Output in
+.SM SAM
+format.
+.\" --- D ---
+.TP
+.BI \-D\  del_to_del
+Delete-to-delete transition probabilities.
+.br
+They are used in conjunction with FIMs (options 
+.BR \-f ,
+.BR \-F ).
+This value will be imposed on all delete-to-delete transitions of the model.
+The other outgoing transitions from the affected delete states will be renormalized to satisfy
+the "sum to one" requirement. 
+Note that the application of the 
+.I D
+parameter precedes the application of the
+.I I
+parameter.
+Delete-to-delete probabilities at the beginning and at the end of the
+model may thus change again as a result of renormalizations  
+following the application of the  
+.I I
+parameter.
+.br
+Default: 0.9
+.\" --- I ---
+.TP
+.BI \-I\  ins_to_ins
+Insert-to-insert transition probabilities.
+.br
+They are used in the FIMs (options 
+.BR \-f ,
+.BR \-F ).
+This value will be imposed on the first and the last match-to-insert and insert-to-insert 
+transition probabilities of the model. 
+The other outgoing transitions of the affected states 
+will be renormalized such as to satisfy the "summing to one" requirement.
+If the 
+.B \-F 
+option is simultaneously set, the
+.I I
+parameter will also be imposed on the insert-to-delete transition probability
+at the beginning, and on the delete-to-insert transition probability at the 
+end of the model.
+.br
+Default: 0.99
+.\" --- L ---
+.TP
+.BI \-L\  log_base
+Logarithmic base.
+.br
+Specifies the logarithmic base used for conversion of the profile scores into HMM probabilities
+(The profile scores are interpreted as log-odds ratios,
+.I see
+Bucher
+.I et al.
+1996). This value over-writes the logarithmic base 
+specified within the profile by the optional 
+.I LOG_BASE
+parameter.
+.br
+Default: 1.0233739 (1/30 bit units)
+.\" ------------------------------------------------
+.\" Parameters section
+.\" ------------------------------------------------
+.SH PARAMETERS 
+.TP
+Note:
+for backwards compatibility, release 2.3 of the
+.B pftools
+package will parse the version 2.2 style parameters, but these are
+.I deprecated
+and the corresponding option (refer to the
+.I options
+section) should be used instead.
+.TP
+D=#
+Delete-to-delete transition probabilities.
+.br
+Use option
+.B \-D
+instead.
+.TP
+I=#
+Insert-to-insert transition probabilities.
+.br
+Use option
+.B \-I
+instead.
+.TP
+L=#
+Logarithmic base.
+.br
+Use option
+.B \-L
+instead.
+.\" ------------------------------------------------
+.\" Examples section
+.\" ------------------------------------------------
+.SH EXAMPLES
+.TP
+(1)
+.B ptoh
+\-Fs \-L 1.0233739 sh3.prf standard.random > sh3.hmm
+.IP
+Generates a
+.SM SAM
+formatted HMM for the SH3 domain from a profile. The file
+.RI ' sh3.prf '
+contains the source profile in
+.SM PROSITE
+format.
+The file
+.RI ' standard.random '
+contains the null-model used for conversion of the log-odds ratios into probabilities.
+The logarithmic base 1.0233739 corresponds to 1/30 bits, the implicit scale
+of the profile.
+The 
+.B \-F 
+option causes the HMM to emulate local alignment (fragment search) mode.
+.\" ------------------------------------------------
+.\" Exit code section
+.\" ------------------------------------------------
+.SH EXIT CODE
+.LP
+On successful completion of its task,
+.B ptoh
+will return an exit code of 0. If an error occurs, a diagnostic message will be
+output on standard error and the exit code will be different from 0. When conflicting
+options where passed to the program but the task could nevertheless be completed, warnings
+will be issued on standard error.
+.\" ------------------------------------------------
+.\" References section
+.\" ------------------------------------------------
+.SH REFERENCES
+.LP
+Bucher P, Karplus K, Moeri N & Hofmann, K. (1996).
+.I A flexible motif search
+.I technique based on generalized
+.I profiles.
+Comput. Chem.
+.BR 20 :3-24.
+.\" ------------------------------------------------
+.\" Author section
+.\" ------------------------------------------------
+.SH AUTHOR
+The
+.B pftools
+package was developed by Philipp Bucher.
+.br
+Any comments or suggestions should be addressed to <pftools@sib.swiss>.

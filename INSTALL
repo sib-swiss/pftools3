@@ -1,0 +1,72 @@
+REQUIREMENTS
+------------
+
+- 64bit processors
+- cmake >= 3.7
+- gcc   >= 4.6
+- gfortran (or g77 or f77)  for release 2.3 source code
+- perl  >= 5.5.3            for ps_scan.pl
+
+Optional:
+- pcre*
+- GD*
+- libpng
+- libjpeg
+- zlib
+- libharu* (hpdf)
+
+* copy of the source code is provided and could be used during build, if requested.
+
+INSTALLATION
+------------
+
+In order to compile the programs, type:
+
+BUILD:
+   git clone https://github.com/sib-swiss/pftools3.git
+   cd pftools3
+   mkdir build
+   cd build/
+   cmake ..
+
+   OPTIONS:
+   - Build static binaries:
+        cmake -DSTANDALONE=ON ..
+
+   - Build a version using 32bits integers to represent profile matrix values
+     instead of default 16bits (less problems with low/negative cutoff values,
+     might be slower & use more memory):
+        cmake -DUSE_32BIT_INTEGER=ON ..
+
+   - Change installation prefix:
+        cmake -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL PATH> ..
+
+   - Compile C only code (version 3 only):
+        cmake -DC_ONLY=ON ..
+
+   - Compile with graphical support for pfcalibrateV3 (highly optional):
+        cmake -DUSE_GRAPHICS=ON -DUSE_PDF=ON ..
+
+   - Compile without regular expression support:
+        cmake -DUSE_PCRE=OFF ..
+
+   ...
+
+   example:
+        cmake -DC_ONLY=ON -DUSE_32BIT_INTEGER=ON -DUSE_PCRE=OFF ..
+
+
+COMPILE:
+   make
+
+This will create the binaries. To install the
+binaries and the corresponding manual pages type:
+
+INSTALL (see above to change install path):
+   make install
+
+CHECK/TEST:
+   make test
+
+These programs have successfully been compiled and tested under <to be completed>
+

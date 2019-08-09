@@ -1,0 +1,73 @@
+Scan a protein sequence library for profile matches:
+ pfsearchV3 [options] [profile|regex{...}|pattern{...}] database
+
+ Options:
+  Profile
+   --level <int>                      [-L] : level to use for cutoff (default 0)
+   --mode <int>                            : mode to use for normalization (default 1)
+   --reverse-profile                  [-R] : reverse the profile
+
+  Sequence
+   --optimal                          [-a] : report optimal alignment for all sequences
+     --satisfy-cutoff                      : but satisfying cutoff
+   --reverse                          [-r] : read sequence backward
+   --complementary <string>           [-b] : does a complementary sequence alignment
+                                             based on the given string: DNA or IUPAC
+                                             note that --reverse is NOT automatic
+
+  Regular expressions
+   --max-regex-match <uint>                : maximum number of returned matches per sequence
+   --header-only                           : search in headers only
+
+  Database
+   --create-index-database <file>     [-I] : output indices to given file
+   --use-index-database <file>        [-i] : use indices stored in given file
+
+  Heuristic
+   --no-heuristic                     [-n] : bypass heuristic
+   --heuristic-cutoff <uint>          [-H] : heuristic cutoff value
+   --dump-heuristic-scores                 : only print heuristic scores to stdout
+
+  Filter
+   --filter-cutoff <int>              [-C] : filter cutoff value
+   --filter-normalized-cutoff <float> [-N] : filter normalized cutoff value
+   --dump-filter-scores                    : only print filter scores to stdout
+   --dump-filter-sequences            [-d] : dump passed heuristic sequences
+
+  Alignment
+   --dump-alignment-sequences         [-D] : dump passed heuristic and filter
+                                             sequences
+
+  Optimizations
+   --sse2                                  : enforces SSE 2 only instruction set,
+                                             default to using SSE 4.1
+   --nthreads <uint>                  [-t] : max number of threads to use
+                                             default to all available cores
+   --max-heuristic-nthreads <uint>         : max number of threads to use for
+                                             heuristic phase only. (IO bounds)
+                                             default to all available cores
+   --no-affinity                           : disable CPU affinity file
+   --thread-affinity                       : file containing thread mask, one row per thread
+   --no-shared-core                        : Prevent core resource sharing
+   --split                                 : if both SSE 2 & 4.1 are available,
+                                             split half-half using linked resources
+
+  Printing output
+   --output-method <uint>  [-o] : printing output method (default 0)
+                                     == 0 replicates the pfsearch output without options
+                                     == 1 InterPro
+                                     == 2 IncMatch
+                                     == 3 PSMaker
+                                     == 4 Pfscan
+                                     == 5 Pfscan long
+                                     == 6 xPSA output
+                                     == 7 tsv output (single line tab delimited)
+                                     == 8 SAM output
+                                     == 9 Family classification (ONLY for pfsearch)
+   --output-length <uint>  [-W] : maximum number of column for sequence
+                                  output printing (default 60)
+  Other
+   --verbose               [-V] : verbose on stderr
+   --help                  [-h] : output command help
+
+ Version 3.1.0 built on Jun 21 2019 at 10:16:48.

@@ -1,0 +1,7 @@
+build/
+
+\.kdev4/
+
+#Ignore cmake cache files
+**/CMakeCache.txt
+**/CMakeFiles

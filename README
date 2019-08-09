@@ -30,15 +30,6 @@ it was originally published in
   A generalized profile syntax for biomolecular sequence motifs and its function in automatic sequence interpretation.
   Proc Int Conf Intell Syst Mol Biol. 1994;2:53-61. PubMed PMID: 7584418.
 
-The official web site for the 'pftools' package can be found under:
-
-   https://web.expasy.org/pftools/
-
-Further information on PROSITE specific applications of the 'pftools' programs
-can be found at the following URL:
-
-   https://prosite.expasy.org/
-   https://hamap.expasy.org/
 
 +----------------------------+
 | Command-line tutorial      |

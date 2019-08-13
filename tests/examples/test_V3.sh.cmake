@@ -235,5 +235,25 @@ $PFCALIBRATEV3 -F  $TMPDIR/permut.fa 16S.prf.tmp > 16S.prf
 
 $PFSEARCHV3 -qn 16S.prf SRR9619541.sample.fastq | sort -nr
 
+#----------------------------------------------------------------------#
+# Verify handling of characters not in the alphabet
+#----------------------------------------------------------------------#
+
+cat > $TMPDIR/ACGTAACGT.seq << EOI
+>ACGTAACGT weight=1.0
+ACGTAACGT
+EOI
+cat > $TMPDIR/ACGTWACGT.seq << EOI
+>ACGTWACGT weight=1.0
+ACGTWACGT
+EOI
+$PFMAKE -m -3 -S 0.01 -F 100 $TMPDIR/ACGTAACGT.seq $CMPDIR/dna_50_40.cmp > $TMPDIR/ACGTAACGT.prf
+
+$PFSEARCHV3 -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTAACGT.seq # raw_score=450 PSA=ACGTAACGT 
+$PFSEARCHV3 -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTWACGT.seq # raw_score=383 PSA=ACGTWACGT (not ACGTXACGT)
+
+
+
+
 
 

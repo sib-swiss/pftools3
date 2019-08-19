@@ -125,7 +125,7 @@ static void *thread_heuristic(void * _Data)
 			
       if (lHeuristicCutOff > 0U) {
 				/* Translate first sequence */
-				TranslateSequenceToIndex(&lPFSeq, prf->Alphabet_Mapping);
+				TranslateSequenceToIndex(&lPFSeq, prf->Alphabet_Mapping, 0);
 				const unsigned int score = heuristic(TransposeMatch[k], prf->Alphabet_Length, prf->Length, &lPFSeq);
 				Array[i*Nprf+k].PrfId = (score >= (unsigned int) lHeuristicCutOff) ? (int) k : -1 ;	
       } 
@@ -179,7 +179,7 @@ static void *thread_xali1( void * _Data)
     const struct Profile * const restrict prf = prfs[Array[i].PrfId];
     
     /* Translate first sequence */
-    PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+    PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 		
     const float lNormalizedCutoff = (((struct ThreadData*) _Data)->NormalizedCutoff > 0.0f) ?
                                     ((struct ThreadData*) _Data)->NormalizedCutoff : prf->NormalizedCutOff;   
@@ -270,7 +270,7 @@ static void *thread_xaliPT( void * _Data)
     const struct Profile * const restrict prf = prfs[Array[i].PrfId];
 
     /* Translate first sequence */
-    PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+    PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 
     /* Clear Lock */
     memset(Lock, 0, FASTA->MaxSequenceSize*sizeof(_Bool));

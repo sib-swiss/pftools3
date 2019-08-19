@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
   pfseq_in.Length = length;
   strcpy(pfseq_in.ProfileIndex, Sequence);
   printf(" Original sequence      : %s\n", pfseq_in.ProfileIndex);
-  TranslateSequenceToIndex(&pfseq_in, prf.Alphabet_Mapping );
+  TranslateSequenceToIndex(&pfseq_in, prf.Alphabet_Mapping, 0);
   
   InitializeGenerator(Seed, &Generator);
   

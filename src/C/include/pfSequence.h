@@ -83,7 +83,7 @@ PFSequence * MMAP_ReadSequenceIndex(Sequence * const Seq, const char * const res
 );
 void ReadSequenceNameIndex(char * const Name, FILE * const stream, const ss_Data * const DataPtr);
 unsigned char TranslateCharToIndex(const char letter, const unsigned char * restrict const Alphabet);
-PFSequence * TranslateSequenceToIndex(PFSequence * const Sequence, const unsigned char * restrict const Alphabet );
+PFSequence * TranslateSequenceToIndex(PFSequence * const Sequence, const unsigned char * restrict const Alphabet, const int complement );
 void ReverseTranslatedSequence(PFSequence * const Sequence);
 #else
 #include "pfSequenceInline.h"

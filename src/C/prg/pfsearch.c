@@ -1191,7 +1191,7 @@ int main (int argc, char *argv[])
 					);
 #endif
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 
 					char * ptr = SeqData.Data.Header;
 					while (*ptr != ' ' && *ptr != '\n') ptr++;
@@ -1214,7 +1214,7 @@ int main (int argc, char *argv[])
 					);
 #endif
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 
 					char * ptr = SeqData.Data.Header;
 					while (*ptr != ' ' && *ptr != '\n') ptr++;
@@ -1437,7 +1437,7 @@ int main (int argc, char *argv[])
 				);
 #  endif
 				/* Translate first sequence */
-				PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+				PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 
 				char * ptr = SeqData.Data.Header;
 				while (*ptr != ' ' && *ptr != '\n') ptr++;

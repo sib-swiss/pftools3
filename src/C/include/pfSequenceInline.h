@@ -106,7 +106,7 @@ extern inline unsigned char __ALWAYS_INLINE TranslateCharToIndex(const char lett
 }
 
 /* WARNING: NEED TO OPTIMIZE THIS PIECE OF JUNK */
-extern inline PFSequence * __ALWAYS_INLINE TranslateSequenceToIndex(PFSequence * const Sequence, const unsigned char * restrict const Alphabet )
+extern inline PFSequence * __ALWAYS_INLINE TranslateSequenceToIndex(PFSequence * const Sequence, const unsigned char * restrict const Alphabet, const int complement )
 {
   register size_t counter = 0;
   unsigned char * restrict const CharPtr = Sequence->ProfileIndex;
@@ -114,6 +114,14 @@ extern inline PFSequence * __ALWAYS_INLINE TranslateSequenceToIndex(PFSequence *
 
   for (size_t i=0; i<Sequence->Length; ++i) {
     Sequence->OriginalSequence[counter] = ( CharPtr[i] >= (unsigned char) 'a' ) ? CharPtr[i] - ((unsigned char) 'a' - (unsigned char) 'A') : CharPtr[i];
+    if (complement) {
+#define MY_FWD "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define MY_CPL "TVGHEFCDIJMLKNOPQYSAUBWXRZ"
+      if (Sequence->OriginalSequence[counter] >= (unsigned char) 'A' && Sequence->OriginalSequence[counter] <= (unsigned char) 'Z')
+	Sequence->OriginalSequence[counter] = MY_CPL[Sequence->OriginalSequence[counter] - (unsigned char) 'A'];
+#undef MY_FWD
+#undef MY_CPL
+    }
     register size_t index = (size_t) ( ( CharPtr[i] >= (unsigned char) 'a' ) ? CharPtr[i] - ((unsigned char) 'a' - (unsigned char) 'A') : CharPtr[i] );
     if ( index >= (size_t) 'A' && index <= (size_t) 'Z' ) {
 #ifdef XALIT_DEBUG
@@ -130,17 +138,22 @@ extern inline PFSequence * __ALWAYS_INLINE TranslateSequenceToIndex(PFSequence *
 extern inline void __ALWAYS_INLINE ReverseTranslatedSequence(PFSequence * const Sequence)
 {
   unsigned char * restrict const CharPtr = Sequence->ProfileIndex;
+  unsigned char * restrict const CharPtrOrig = Sequence->OriginalSequence;
   const size_t SeqLength = Sequence->Length;
   unsigned char * BackPtr = &CharPtr[SeqLength-1];
+  unsigned char * BackPtrOrig = CharPtrOrig + SeqLength - 1;
 
   for (size_t i=0; i<SeqLength/2; ++i) {
-      const unsigned char c = CharPtr[i];
-      CharPtr[i] = *BackPtr;
-      *BackPtr-- = c;
+    unsigned char c = CharPtr[i];
+    CharPtr[i] = *BackPtr;
+    *BackPtr-- = c;
+    c = CharPtrOrig[i];
+    CharPtrOrig[i] = *BackPtrOrig;
+    *BackPtrOrig-- = c;
   }
-  if (SeqLength & 0x1) {
-      const unsigned char c = CharPtr[SeqLength/2];
-      CharPtr[Sequence->Length/2] = *BackPtr;
-      *BackPtr = c;
-  }
+  //if (SeqLength & 0x1) {
+  //    const unsigned char c = CharPtr[SeqLength/2];
+  //    CharPtr[Sequence->Length/2] = *BackPtr;
+  //    *BackPtr = c;
+  //}
 }

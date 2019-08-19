@@ -124,7 +124,7 @@ THREAD_FUNCTION(thread_heuristic)
 				for (size_t i=Start; i<Stop; ++i) {
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 					HeuristicScores[i] = heuristic(TransposeMatch, prf->Alphabet_Length, prf->Length, PFSeq);
 				}
 				break;
@@ -132,7 +132,7 @@ THREAD_FUNCTION(thread_heuristic)
 				for (size_t i=Start; i<Stop; ++i) {
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping, 1);
 					ReverseTranslatedSequence(PFSeq);
 					HeuristicScores[i] = heuristic(TransposeMatch, prf->Alphabet_Length, prf->Length, PFSeq);
 				}
@@ -141,11 +141,11 @@ THREAD_FUNCTION(thread_heuristic)
 				for (size_t i=Start; i<Stop; i++) {
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 					HeuristicScores[2*i] = heuristic(TransposeMatch, prf->Alphabet_Length, prf->Length, PFSeq);
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping, 1);
 					ReverseTranslatedSequence(PFSeq);
 					HeuristicScores[2*i+1] = heuristic(TransposeMatch, prf->Alphabet_Length, prf->Length, PFSeq);
 				}
@@ -158,7 +158,7 @@ THREAD_FUNCTION(thread_heuristic)
 			PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[index].Sequence));
 			const unsigned char * AlphabetPtr = (SeqID[i] & 0x80000000) ? prf->Complement_Alphabet_Mapping : prf->Alphabet_Mapping;
 
-			PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr);
+			PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr, SeqID[i] & 0x80000000);
 			if (SeqID[i] & 0x40000000) ReverseTranslatedSequence(PFSeq);
 
 			HeuristicScores[i] = heuristic(TransposeMatch, prf->Alphabet_Length, prf->Length, PFSeq);
@@ -210,7 +210,7 @@ THREAD_FUNCTION(thread_xali1)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 					TotalSequenceLength += PFSeq->Length;
 					Scores[i] = xali1_ptr(prf, PFSeq->ProfileIndex, Work, 0, PFSeq->Length, 0.0, RealFilterScore);
 				}
@@ -220,7 +220,7 @@ THREAD_FUNCTION(thread_xali1)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping, 1);
 					ReverseTranslatedSequence(PFSeq);
 					TotalSequenceLength += PFSeq->Length;
 					Scores[i] = xali1_ptr(prf, PFSeq->ProfileIndex, Work, 0, PFSeq->Length, 0.0, RealFilterScore);
@@ -231,14 +231,14 @@ THREAD_FUNCTION(thread_xali1)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 					TotalSequenceLength += PFSeq->Length;
 					Scores[2*i] = xali1_ptr(prf, PFSeq->ProfileIndex, Work, 0, PFSeq->Length, 0.0, RealFilterScore);
 
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping, 1);
 					ReverseTranslatedSequence(PFSeq);
 					Scores[2*i+1] = xali1_ptr(prf, PFSeq->ProfileIndex, Work, 0, PFSeq->Length, 0.0, RealFilterScore);
 				}
@@ -257,7 +257,7 @@ THREAD_FUNCTION(thread_xali1)
 				PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[index].Sequence));
 				const unsigned char * AlphabetPtr = (SeqID[i] & 0x80000000) ? prf->Complement_Alphabet_Mapping : prf->Alphabet_Mapping;
 
-				PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr);
+				PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr, SeqID[i] & 0x80000000);
 				if (SeqID[i] & 0x40000000) ReverseTranslatedSequence(PFSeq);
 
 				TotalSequenceLength += PFSeq->Length;
@@ -275,7 +275,7 @@ THREAD_FUNCTION(thread_xali1)
 
 				const unsigned char * AlphabetPtr = (SeqID[i] & 0x80000000) ? prf->Complement_Alphabet_Mapping : prf->Alphabet_Mapping;
 
-				PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr);
+				PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr, SeqID[i] & 0x80000000);
 				if (SeqID[i] & 0x40000000) ReverseTranslatedSequence(PFSeq);
 
 				TotalSequenceLength += PFSeq->Length;
@@ -338,7 +338,7 @@ THREAD_FUNCTION(thread_scores_only)
 
 			const unsigned char * AlphabetPtr = (SeqID[i] & 0x80000000) ? prf->Complement_Alphabet_Mapping : prf->Alphabet_Mapping;
 
-			PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr);
+			PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr, SeqID[i] & 0x80000000);
 			if (SeqID[i] & 0x40000000) ReverseTranslatedSequence(PFSeq);
 
       /* Compute filter */
@@ -358,7 +358,7 @@ THREAD_FUNCTION(thread_scores_only)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 
 					/* Compute filter */
 					FilterScores[i] = xali1_ptr(prf, PFSeq->ProfileIndex, Work, 0, PFSeq->Length, 0.0, true);
@@ -372,7 +372,7 @@ THREAD_FUNCTION(thread_scores_only)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping, 1);
 					ReverseTranslatedSequence(PFSeq);
 
 					/* Compute filter */
@@ -387,7 +387,7 @@ THREAD_FUNCTION(thread_scores_only)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 
 					/* Compute filter */
 					FilterScores[2*i] = xali1_ptr(prf, PFSeq->ProfileIndex, Work, 0, PFSeq->Length, 0.0, true);
@@ -397,7 +397,7 @@ THREAD_FUNCTION(thread_scores_only)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping, 1);
 					ReverseTranslatedSequence(PFSeq);
 
 					/* Compute filter */
@@ -480,7 +480,7 @@ THREAD_FUNCTION(thread_xaliPT)
 
 			/* Translate first sequence */
 			const unsigned char * AlphabetPtr = (SeqID[i] & 0x80000000) ? prf->Complement_Alphabet_Mapping : prf->Alphabet_Mapping;
-			PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr);
+			PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr, SeqID[i] & 0x80000000);
 			if (SeqID[i] & 0x40000000) ReverseTranslatedSequence(PFSeq);
 
 			/* Clear Lock */
@@ -536,7 +536,7 @@ THREAD_FUNCTION(thread_xaliPT)
 
 			/* Translate first sequence */
 			const unsigned char * AlphabetPtr = (SeqID[i] & 0x80000000) ? prf->Complement_Alphabet_Mapping : prf->Alphabet_Mapping;
-			PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr);
+			PFSeq = TranslateSequenceToIndex(PFSeq, AlphabetPtr, SeqID[i] & 0x80000000);
 			if (SeqID[i] & 0x40000000) ReverseTranslatedSequence(PFSeq);
 
 			const float RAVE = ComputeAverageFrequencies(PFSeq, &prf->Average);
@@ -659,7 +659,7 @@ THREAD_FUNCTION(thread_optimal)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 
 					/* Get the optimal alignment score */
 					const int CutOff = xali1_ptr(prf, PFSeq->ProfileIndex, Work, 0, PFSeq->Length, 0, true);
@@ -724,7 +724,7 @@ THREAD_FUNCTION(thread_optimal)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 					ReverseTranslatedSequence(PFSeq);
 
 					/* Get the optimal alignment score */
@@ -790,7 +790,7 @@ THREAD_FUNCTION(thread_optimal)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping, 1);
 
 					/* Get the optimal alignment score */
 					const int CutOff = xali1_ptr(prf, PFSeq->ProfileIndex, Work, 0, PFSeq->Length, 0, true);
@@ -855,7 +855,7 @@ THREAD_FUNCTION(thread_optimal)
 					PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 					/* Translate first sequence */
-					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping);
+					PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping, 1);
 					ReverseTranslatedSequence(PFSeq);
 
 					/* Get the optimal alignment score */
@@ -922,7 +922,7 @@ THREAD_FUNCTION(thread_optimal)
 						PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 						/* Translate first sequence */
-						PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping);
+						PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
 
 						/* Get the optimal alignment score */
 						const int CutOff = xali1_ptr(prf, PFSeq->ProfileIndex, Work, 0, PFSeq->Length, 0, true);
@@ -985,7 +985,7 @@ THREAD_FUNCTION(thread_optimal)
 						PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 
 						/* Translate first sequence */
-						PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping);
+						PFSeq = TranslateSequenceToIndex(PFSeq, prf->Complement_Alphabet_Mapping, 1);
 						ReverseTranslatedSequence(PFSeq);
 
 						/* Get the optimal alignment score */
@@ -1131,7 +1131,7 @@ THREAD_FUNCTION(thread_heuristic_calibration)
       PFSeqIn = GET_DATABASE_SEQUENCE(&SeqDataIn, &(DB->DataPtr[i].Sequence));
 
 			/* Translate first sequence */
-			PFSeqIn = TranslateSequenceToIndex(PFSeqIn, prf->Alphabet_Mapping);
+			PFSeqIn = TranslateSequenceToIndex(PFSeqIn, prf->Alphabet_Mapping, 0);
 
 			/* Treat original sequence */
 			FilterScoresPtr[0]    = xali1_ptr(prf, PFSeqIn->ProfileIndex, Work, 0, PFSeqIn->Length, 0.0, true);

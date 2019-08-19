@@ -110,10 +110,15 @@ extern inline PFSequence * __ALWAYS_INLINE TranslateSequenceToIndex(PFSequence *
 {
   register size_t counter = 0;
   unsigned char * restrict const CharPtr = Sequence->ProfileIndex;
+  Sequence->OriginalSequence = malloc(Sequence->Length * sizeof(unsigned char)); // FIXME - not sure where to free this
 
   for (size_t i=0; i<Sequence->Length; ++i) {
+    Sequence->OriginalSequence[counter] = ( CharPtr[i] >= (unsigned char) 'a' ) ? CharPtr[i] - ((unsigned char) 'a' - (unsigned char) 'A') : CharPtr[i];
     register size_t index = (size_t) ( ( CharPtr[i] >= (unsigned char) 'a' ) ? CharPtr[i] - ((unsigned char) 'a' - (unsigned char) 'A') : CharPtr[i] );
     if ( index >= (size_t) 'A' && index <= (size_t) 'Z' ) {
+#ifdef XALIT_DEBUG
+      fprintf(stderr,"CharPtr[%zu++] = Alphabet[%zu (%c) - (size_t) 'A'] = %u\n", counter, index, CharPtr[i], Alphabet[index - (size_t) 'A']);
+#endif
       CharPtr[counter++] = Alphabet[index - (size_t) 'A'];
     }
   }

@@ -27,6 +27,7 @@
  */
 typedef struct PFSequence {
   unsigned char * ProfileIndex;
+  unsigned char * OriginalSequence;
   size_t Length;
 } PFSequence;
 #endif

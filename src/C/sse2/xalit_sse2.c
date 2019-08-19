@@ -270,13 +270,15 @@ union lScores tmp = { xmm:
 }
 
 // This functions fills in IPMB, IPME and CALI that are then required !
-int xalit_sse2(const struct Profile * const restrict prf, const size_t N1, const size_t N2, const size_t bseq, const size_t lseq,
-               const unsigned char * const restrict Sequence, char * const restrict CALI, union lScores * const restrict iop,
+int xalit_sse2(const struct Profile * const restrict prf, const size_t N1, const size_t N2, const size_t bseq,
+               const PFSequence * const restrict PFSeq, char * const restrict CALI, union lScores * const restrict iop,
                struct Alignment * const restrict alignment, const _Bool * const restrict Lock)
 {
     int IPM[2];
     unsigned int K3 = (unsigned int) prf->Length;
     unsigned int JS = 0;
+    const size_t lseq = PFSeq->Length;
+    const unsigned char * const restrict Sequence = PFSeq->ProfileIndex;
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Prologue
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -285,9 +287,9 @@ int xalit_sse2(const struct Profile * const restrict prf, const size_t N1, const
     const int CutOff                 = alignment->Score;
 
 #ifdef XALIT_DEBUG
-    fprintf(stdout,"XALIT ALIGN %i %i %i %i %i | %u %u %i %lu\n",
-            alignment->JAL1, alignment->JAL2, alignment->Score,
-            alignment->SequenceBegin, alignment->SequenceEnd, SequenceBegin, SequenceEnd, CutOff, prf->Length );
+    fprintf(stdout,"XALIT ALIGN %i %i %i | %u %u %i %lu\n",
+            alignment->Score,
+            alignment->Region.Sequence.Begin, alignment->Region.Sequence.End, SequenceBegin, SequenceEnd, CutOff, prf->Length );
 #endif
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -546,19 +548,19 @@ int xalit_sse2(const struct Profile * const restrict prf, const size_t N1, const
     const register char * const restrict CABC = prf->CABC;
     do {
 #ifdef XALIT_DEBUG
-        printf("XALIT BACKTRACE %10i %10i %8u %8u %10i\n", K1, K2, K3, JS, J1+1);
+        printf("XALIT BACKTRACE %10i %10i %8u %8u %10i %u %u %c %c\n", K1, K2, K3, JS, J1+1, Sequence[K2], CABC[Sequence[K2]], CABC[Sequence[K2]], PFSeq->OriginalSequence[K2]);
 #endif
         // Beware that ordering is important here
         if ( JS == 1 ) {
             ///////////////////////////////////////////////
             // Insertion treated first
-            CALI[++J1]  = (unsigned char) 32 + CABC[Sequence[K2]];
+            CALI[++J1]  = (unsigned char) 32 + PFSeq->OriginalSequence[K2];
             K1         -= (int) prfLength + 1;
             --K2;
         } else if ( JS == 2 ) {
             ///////////////////////////////////////////////
             // Match treated second
-            CALI[++J1]  = CABC[Sequence[K2]];
+            CALI[++J1]  = PFSeq->OriginalSequence[K2];
             K1         -= (int) prfLength + 2;
             --K2;
             --K3;

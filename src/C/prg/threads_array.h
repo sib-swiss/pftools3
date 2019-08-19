@@ -55,8 +55,8 @@ static int (*xalip_ptr)( const struct Profile * const restrict, const unsigned c
            union Positions * const restrict, const int, const int,
            struct Alignment * const restrict, _Bool * const restrict, const size_t, const size_t, const _Bool,
            const int, const size_t);
-static int (*xalit_ptr)(const struct Profile * const restrict, const size_t, const size_t, const size_t, const size_t,
-          const unsigned char * const restrict, char * const restrict, union lScores * const restrict,
+static int (*xalit_ptr)(const struct Profile * const restrict, const size_t, const size_t, const size_t,
+          const PFSequence * const restrict, char * const restrict, union lScores * const restrict,
           struct Alignment * const restrict, const _Bool * const restrict);
 static PrintFunctionPtr PrintFunction = &PrintPfscan;
 static pthread_mutex_t PrintLock;
@@ -103,7 +103,7 @@ static void *thread_heuristic(void * _Data)
     for (size_t k=0; k<Nprf; ++k) {
       memcpy(Buffer, PFSeq->ProfileIndex, PFSeq->Length);
       Buffer[PFSeq->Length] = '\0';
-      PFSequence lPFSeq = {Buffer, PFSeq->Length}; 
+      PFSequence lPFSeq = {Buffer, NULL, PFSeq->Length}; 
       const struct Profile * const restrict prf = prfs[k];
 			
 			
@@ -308,7 +308,7 @@ static void *thread_xaliPT( void * _Data)
       /* Remove lock for aligned sequence generation */
       memset(Lock, 0, FASTA->MaxSequenceSize*sizeof(_Bool));
       
-      if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq->Length, &(PFSeq->ProfileIndex[0]),
+      if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq,
 		    AlignedSequences[j-1], iop, &alignment[j], Lock) < 0 ) {
 				fputs("Internal error within xalit!\n", stderr);
 				pthread_exit((void*)1);

@@ -60,8 +60,8 @@ static int (*xalip_ptr)( const struct Profile * const restrict, const unsigned c
            union Positions * const restrict, const int, const int,
            struct Alignment * const restrict, _Bool * const restrict, const size_t, const size_t, const _Bool,
            const int, const size_t);
-static int (*xalit_ptr)(const struct Profile * const restrict, const size_t, const size_t, const size_t, const size_t,
-          const unsigned char * const restrict, char * const restrict, union lScores * const restrict,
+static int (*xalit_ptr)(const struct Profile * const restrict, const size_t, const size_t, const size_t,
+          const PFSequence * const restrict, char * const restrict, union lScores * const restrict,
           struct Alignment * const restrict, const _Bool * const restrict);
 #endif
 #ifdef _NEEDS_HEURISTIC_CALIBRATION_
@@ -502,7 +502,7 @@ THREAD_FUNCTION(thread_xaliPT)
 			for ( int j=1; j<=nali; j++) {
 				/* Remove lock for aligned sequence generation */
 				memset(Lock, 0, DB->MaxSequenceSize*sizeof(_Bool));
-				if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq->Length, &(PFSeq->ProfileIndex[0]),
+				if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq,
 					AlignedSequences[j-1], iop, &alignment[j], Lock) < 0 ) {
 					fputs("Internal error within xalit!\n", stderr);
 					((struct ThreadData*) _Data)->counter = AlignedSeqCounter;
@@ -561,7 +561,7 @@ THREAD_FUNCTION(thread_xaliPT)
 			for ( int j=1; j<=nali; j++) {
 				/* Remove lock for aligned sequence generation */
 				memset(Lock, 0, DB->MaxSequenceSize*sizeof(_Bool));
-				if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq->Length, &(PFSeq->ProfileIndex[0]),
+				if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq,
 					AlignedSequences[j-1], iop, &alignment[j], Lock) < 0 ) {
 						fputs("Internal error within xalit!\n", stderr);
 						((struct ThreadData*) _Data)->counter = AlignedSeqCounter;
@@ -696,7 +696,7 @@ THREAD_FUNCTION(thread_optimal)
 						/* Remove lock for aligned sequence generation */
 						memset(Lock, 0, DB->MaxSequenceSize*sizeof(_Bool));
 
-						if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq->Length, &(PFSeq->ProfileIndex[0]),
+						if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq,
 							AlignedSequences[0], iop, &alignment[best], Lock) < 0 ) {
 							fputs("Internal error within xalit!\n", stderr);
 							((struct ThreadData*) _Data)->counter = AlignedSeqCounter;
@@ -762,7 +762,7 @@ THREAD_FUNCTION(thread_optimal)
 						/* Remove lock for aligned sequence generation */
 						memset(Lock, 0, DB->MaxSequenceSize*sizeof(_Bool));
 
-						if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq->Length, &(PFSeq->ProfileIndex[0]),
+						if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq,
 							AlignedSequences[0], iop, &alignment[best], Lock) < 0 ) {
 							fputs("Internal error within xalit!\n", stderr);
 							((struct ThreadData*) _Data)->counter = AlignedSeqCounter;
@@ -827,7 +827,7 @@ THREAD_FUNCTION(thread_optimal)
 						/* Remove lock for aligned sequence generation */
 						memset(Lock, 0, DB->MaxSequenceSize*sizeof(_Bool));
 
-						if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq->Length, &(PFSeq->ProfileIndex[0]),
+						if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq,
 							AlignedSequences[0], iop, &alignment[best], Lock) < 0 ) {
 							fputs("Internal error within xalit!\n", stderr);
 							((struct ThreadData*) _Data)->counter = AlignedSeqCounter;
@@ -893,7 +893,7 @@ THREAD_FUNCTION(thread_optimal)
 						/* Remove lock for aligned sequence generation */
 						memset(Lock, 0, DB->MaxSequenceSize*sizeof(_Bool));
 
-						if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq->Length, &(PFSeq->ProfileIndex[0]),
+						if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq,
 							AlignedSequences[0], iop, &alignment[best], Lock) < 0 ) {
 							fputs("Internal error within xalit!\n", stderr);
 							((struct ThreadData*) _Data)->counter = AlignedSeqCounter;
@@ -959,7 +959,7 @@ THREAD_FUNCTION(thread_optimal)
 							/* Remove lock for aligned sequence generation */
 							memset(Lock, 0, DB->MaxSequenceSize*sizeof(_Bool));
 
-							if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq->Length, &(PFSeq->ProfileIndex[0]),
+							if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq,
 								AlignedSequences[0], iop, &alignment[best], Lock) < 0 ) {
 								fputs("Internal error within xalit!\n", stderr);
 								((struct ThreadData*) _Data)->counter = AlignedSeqCounter;
@@ -1023,7 +1023,7 @@ THREAD_FUNCTION(thread_optimal)
 							/* Remove lock for aligned sequence generation */
 							memset(Lock, 0, DB->MaxSequenceSize*sizeof(_Bool));
 
-							if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq->Length, &(PFSeq->ProfileIndex[0]),
+							if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq,
 								AlignedSequences[0], iop, &alignment[best], Lock) < 0 ) {
 								fputs("Internal error within xalit!\n", stderr);
 								((struct ThreadData*) _Data)->counter = AlignedSeqCounter;
@@ -1362,3 +1362,5 @@ THREAD_FUNCTION(thread_regex)
 };
 
 #endif /* _NEEDS_REGEX_ */
+/* vim: tabstop=2 shiftwidth=2
+ */

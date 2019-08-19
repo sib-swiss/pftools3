@@ -362,6 +362,7 @@ struct Profile {
 #define PFSEQ
 typedef struct PFSequence {
 	unsigned char * ProfileIndex;
+	unsigned char * OriginalSequence;
 	size_t Length;
 } PFSequence;
 #endif
@@ -539,12 +540,12 @@ PFIMPEXP int xalip_sse41(const struct Profile * const restrict prf, const unsign
                          struct Alignment * const restrict alignment,
                          _Bool * const restrict Lock, const size_t N1, const size_t N2, const _Bool Lopt,
                          const int Cutoff, const size_t MaxNumberOfAlignment);
-PFIMPEXP int xalit_sse2(const struct Profile * const restrict prf, const size_t N1, const size_t N2, const size_t bseq, const size_t lseq,
-                        const unsigned char * const restrict Sequence, char * const restrict CALI,
+PFIMPEXP int xalit_sse2(const struct Profile * const restrict prf, const size_t N1, const size_t N2, const size_t bseq,
+                        const PFSequence * const restrict PFSeq, char * const restrict CALI,
                         union lScores * const restrict iop,
                         struct Alignment * const restrict alignment, const _Bool * const restrict Lock);
-PFIMPEXP int xalit_sse41(const struct Profile * const restrict prf, const size_t N1, const size_t N2, const size_t bseq, const size_t lseq,
-                         const unsigned char * const restrict Sequence, char * const restrict CALI,
+PFIMPEXP int xalit_sse41(const struct Profile * const restrict prf, const size_t N1, const size_t N2, const size_t bseq,
+                         const PFSequence * const restrict PFSeq, char * const restrict CALI,
                          union lScores * const restrict iop,
                          struct Alignment * const restrict alignment, const _Bool * const restrict Lock);
 

@@ -586,6 +586,11 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
 	}
 	
 	const int CurrentMode = prf->NormalizationData.Values[(int) prf->ModeIndex].NNOR;
+#ifdef XALIT_DEBUG
+	for (unsigned int i=0; i<N; ++i) {
+	  fprintf(stderr,"%u/%d %u %s\n",i,N,AlignedSequence[i][0],AlignedSequence[i] + 1);
+	}
+#endif
 	
 	if (!(extra->SeqId & 0xC0000000)) {
 		for (unsigned int i=0; i<N; ++i) {   

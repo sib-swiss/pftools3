@@ -34,19 +34,22 @@ TMPDIR=/tmp
 # software. Despite the PFTOOLS are crippled by a lot of legacy code, 
 # they are still extremely useful for precision work . 
 #
-# Here below are given examples of commands for the latest V3 version. 
+# Nota bene to use this script as a testsuite:
+# (1) The output order of pfsearch is reproducible, as well as the one of 
+#     pfsearchV3 with -t 1. 
+# (2) Refrain using any pipe.
 #----------------------------------------------------------------------#
 
 #----------------------------------------------------------------------#
 # Searching for the occurence of the SH3 domain within the VAV oncogene,
 # using pfsearch V2 ...
 #----------------------------------------------------------------------#
-$PFSEARCH -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr
+$PFSEARCH -f ./sh3.prf ./VAV_HUMAN.seq 
 
 #----------------------------------------------------------------------#
 # ...and using pfsearch V3:
 #----------------------------------------------------------------------#
-$PFSEARCHV3 -n -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr
+$PFSEARCHV3 -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq
 
 #----------------------------------------------------------------------#
 # Create a database of sequences and a database of profiles, each one 
@@ -69,8 +72,8 @@ $PFSEARCH -fkxz ./sh3.prf $TMPDIR/VAV.seq >> $TMPDIR/SHX.pfsearch2.hit
 $PFSCAN -fkxz ./VAV_HUMAN.seq $TMPDIR/SHX.prf > $TMPDIR/SHX.pfscan2.hit
 $PFSCAN -fkxz ./VAV_RAT.seq $TMPDIR/SHX.prf >> $TMPDIR/SHX.pfscan2.hit
 
-$PFSEARCHV3 -f -n -o 6 ./sh2.prf -f $TMPDIR/VAV.seq > $TMPDIR/SHX.pfsearch3.hit
-$PFSEARCHV3 -f -n -o 6 ./sh3.prf -f $TMPDIR/VAV.seq >> $TMPDIR/SHX.pfsearch3.hit
+$PFSEARCHV3 -f -n -t 2 -o 6 ./sh2.prf -f $TMPDIR/VAV.seq > $TMPDIR/SHX.pfsearch3.hit
+$PFSEARCHV3 -f -n -t 2 -o 6 ./sh3.prf -f $TMPDIR/VAV.seq >> $TMPDIR/SHX.pfsearch3.hit
 
 $PFSCANV3 -f -n -o 6 $TMPDIR/SHX.prf $TMPDIR/VAV.seq > $TMPDIR/SHX.pfscan3.hit
 
@@ -78,13 +81,9 @@ $PFSCANV3 -f -n -o 6 $TMPDIR/SHX.prf $TMPDIR/VAV.seq > $TMPDIR/SHX.pfscan3.hit
 # All these commands produces exactly the same list of matched 
 # sequences, with the same raw scores and coordinates. 
 #
-# However the output order is not preserved. 
-
-# If properly calibrated, the V3 heuristic should produce the same 
-# results.
+# However the output order is not necessarily preserved here. 
 #
-# Let's verify that the output are comparable (FASTA headers need to be 
-# fixed, however):
+# Let's verify that the output are comparable after fixing FASTA headers
 #----------------------------------------------------------------------#
 $SORT_PSA -s $TMPDIR/SHX.pfscan2.hit   > $TMPDIR/SHX.pfscan2.out
 $SORT_PSA -s $TMPDIR/SHX.pfscan3.hit   > $TMPDIR/SHX.pfscan3.out
@@ -98,29 +97,29 @@ diff $TMPDIR/SHX.pfscan2.out $TMPDIR/SHX.pfsearch3.out  # expecting no differenc
 # Pfsearch/pfscan V2 supports the following input formats for sequence: 
 # FASTA, Swiss-Prot and EMBL.
 #----------------------------------------------------------------------#
-$PFSEARCH -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr    # FASTA
-$PFSCAN   -f ./VAV_HUMAN.seq ./sh3.prf | sort -nr    # FASTA
+$PFSEARCH -f ./sh3.prf ./VAV_HUMAN.seq     # FASTA
+$PFSCAN   -f ./VAV_HUMAN.seq ./sh3.prf     # FASTA
 
-$PFSEARCH ./sh3.prf ./GTPA_HUMAN.dat | sort -nr      # SwissProt
-$PFSCAN   ./GTPA_HUMAN.dat ./sh3.prf | sort -nr      # SwissProt
+$PFSEARCH ./sh3.prf ./GTPA_HUMAN.dat       # SwissProt
+$PFSCAN   ./GTPA_HUMAN.dat ./sh3.prf       # SwissProt
 
-$PFSEARCH  ./ecp.prf ./CVPBR322.embl | sort -nr      # EMBL
-$PFSCAN    ./CVPBR322.embl ./ecp.prf | sort -nr      # EMBL 
+$PFSEARCH  ./ecp.prf ./CVPBR322.embl       # EMBL
+$PFSCAN    ./CVPBR322.embl ./ecp.prf       # EMBL 
 
 #----------------------------------------------------------------------#
 # Pfsearch/pfscan V3 supports the following input formats for sequence: 
 # FASTA and FASTQ.
 #----------------------------------------------------------------------#
-$PFSEARCHV3 -n -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr  # FASTA
-$PFSCANV3   -n -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr  # FASTA
+$PFSEARCHV3 -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq # FASTA
+$PFSCANV3   -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq # FASTA
 cat ./CVPBR322.embl \
 | perl -ne 'if(/^ID +(\w+)/){print ">$1\n"}elsif(/^ /){s/[\s\d]+//g;print "$_\n";}' \
-> $TMPDIR/CVPBR322.fa
-$PFSEARCHV3 -n -f ./ecp.prf $TMPDIR/CVPBR322.fa | sort -nr
-$PFSCANV3  -n -f ./ecp.prf $TMPDIR/CVPBR322.fa  | sort -nr
+> $TMPDIR/CVPBR322.fa  # Extract FASTA from EMBL
+$PFSEARCHV3 -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa
+$PFSCANV3   -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa 
 
-$PFSEARCHV3 -n -q ./hiv.prf ./hiv.fastq | sort -nr    # FASTQ
-$PFSCANV3   -n -q ./hiv.prf ./hiv.fastq | sort -nr    # FASTQ
+$PFSEARCHV3 -n -t 1 -q ./hiv.prf ./hiv.fastq | sort -nr    # FASTQ
+$PFSCANV3   -n -t 1 -q ./hiv.prf ./hiv.fastq | sort -nr    # FASTQ
 
 #----------------------------------------------------------------------#
 # The following output formats are preserved between V2 and V3
@@ -129,7 +128,7 @@ $PFSCANV3   -n -q ./hiv.prf ./hiv.fastq | sort -nr    # FASTQ
 #----------------------------------------------------------------------#
 $PFSEARCH      -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr > $TMPDIR/sh3.VAV_HUMAN.2.hit
 $PFSEARCHV3 -n -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr > $TMPDIR/sh3.VAV_HUMAN.3.hit
-diff -b  $TMPDIR/sh3.VAV_HUMAN.2.hit $TMPDIR/sh3.VAV_HUMAN.3.hit # expecting no difference # FIXME: could we remove -b ?
+diff -b $TMPDIR/sh3.VAV_HUMAN.2.hit $TMPDIR/sh3.VAV_HUMAN.3.hit # expecting no difference
 
 $PFSEARCH      -fb ./ecp.prf $TMPDIR/CVPBR322.fa | sort -nr > $TMPDIR/ecp.CVPBR322.2.hit
 $PFSEARCHV3 -n -fb ./ecp.prf $TMPDIR/CVPBR322.fa | sort -nr > $TMPDIR/ecp.CVPBR322.3.hit
@@ -156,17 +155,17 @@ $PFSEARCHV3 -n -f -o 6 ./ecp.prf $TMPDIR/CVPBR322.fa | $SORT_PSA - | $PSA2MSA
 # V3 has two new output formats: TSV and SAM
 #----------------------------------------------------------------------#
 
-$PFSEARCHV3 -n -f    -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa | sort # FASTA to TSV
-$PFSEARCHV3 -n -f -b -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa | sort # FASTA to TSV
+$PFSEARCHV3 -n -t 1 -f    -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to TSV
+$PFSEARCHV3 -n -t 1 -f -b -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to TSV
 
-$PFSEARCHV3 -n -f    -o 8 ./ecp.prf $TMPDIR/CVPBR322.fa | sort # FASTA to SAM
-$PFSEARCHV3 -n -f -b -o 8 ./ecp.prf $TMPDIR/CVPBR322.fa | sort # FASTA to SAM
+$PFSEARCHV3 -n -t 1 -f    -o 8 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to SAM
+$PFSEARCHV3 -n -t 1 -f -b -o 8 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to SAM
 
-$PFSEARCHV3 -n -q    -o 7 ./hiv.prf ./hiv.fastq  | sort # FASTQ to TSV
-$PFSEARCHV3 -n -q -b -o 7 ./hiv.prf ./hiv.fastq  | sort # FASTQ to TSV
+$PFSEARCHV3 -n -t 1 -q    -o 7 ./hiv.prf ./hiv.fastq         # FASTQ to TSV
+$PFSEARCHV3 -n -t 1 -q -b -o 7 ./hiv.prf ./hiv.fastq         # FASTQ to TSV
 
-$PFSEARCHV3 -n -q    -o 8 ./hiv.prf ./hiv.fastq  | sort # FASTQ to SAM
-$PFSEARCHV3 -n -q -b -o 8 ./hiv.prf ./hiv.fastq  | sort # FASTQ to SAM
+$PFSEARCHV3 -n -t 1 -q    -o 8 ./hiv.prf ./hiv.fastq         # FASTQ to SAM
+$PFSEARCHV3 -n -t 1 -q -b -o 8 ./hiv.prf ./hiv.fastq         # FASTQ to SAM
 
 #----------------------------------------------------------------------#
 # Index can optionaly be used to speed-up database upload for pfsearch. 
@@ -175,14 +174,14 @@ $PFSEARCHV3 -n -q -b -o 8 ./hiv.prf ./hiv.fastq  | sort # FASTQ to SAM
 #----------------------------------------------------------------------#
 
 $PFINDEX -f -o $TMPDIR/CVPBR322.fa.idx $TMPDIR/CVPBR322.fa
-$PFSEARCHV3 -n -f                            -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa  | sort > $TMPDIR/A.out    # FASTA to TSV
-$PFSEARCHV3 -n -f -i $TMPDIR/CVPBR322.fa.idx -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa  | sort > $TMPDIR/B.out    # FASTA to TSV
-diff $TMPDIR/A.out  $TMPDIR/B.out 
+$PFSEARCHV3 -n -f                            -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa  > $TMPDIR/A.out    # FASTA to TSV
+$PFSEARCHV3 -n -f -i $TMPDIR/CVPBR322.fa.idx -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa  > $TMPDIR/B.out    # FASTA to TSV
+diff <(sort $TMPDIR/A.out) <(sort  $TMPDIR/B.out) 
 
 $PFINDEX -q -o $TMPDIR/hiv.fastq.idx ./hiv.fastq
-$PFSEARCHV3 -n -q -b -o 8 ./hiv.prf ./hiv.fastq | sort > $TMPDIR/A.out
-$PFSEARCHV3 -n -q -b -o 8 -i $TMPDIR/hiv.fastq.idx ./hiv.prf ./hiv.fastq | sort > $TMPDIR/B.out
-diff $TMPDIR/A.out  $TMPDIR/B.out
+$PFSEARCHV3 -n -q -b -o 8 ./hiv.prf ./hiv.fastq > $TMPDIR/A.out
+$PFSEARCHV3 -n -q -b -o 8 -i $TMPDIR/hiv.fastq.idx ./hiv.prf ./hiv.fastq > $TMPDIR/B.out
+diff <(sort $TMPDIR/A.out) <(sort  $TMPDIR/B.out)
 
 #----------------------------------------------------------------------#
 # Profile and/or sequence can be reversed on the fly. If both are 
@@ -193,18 +192,7 @@ $PFSEARCHV3 -f -a -r -R rand_dna.prf rand_dna.seq
 
 #----------------------------------------------------------------------#
 # There is a much better support of rev/comp search in DNA sequences, 
-# featuring the full IUPAC code
-#----------------------------------------------------------------------#
-# $PFSEARCH -n ./V4V6.prf V4V6.fastq  > V4V6.hit
-# $PFSEARCH -n ./V4V6.recomp.prf V4V6.fastq  >> V4V6.hit
-
-#----------------------------------------------------------------------#
-# Or simply for the same result
-#----------------------------------------------------------------------#
-
-# $PFSEARCH -n -b ./V4V6.prf V4V6.fastq  > V4V6.b.hit
-
-#----------------------------------------------------------------------#
+# featuring the full IUPAC code.
 # To illustrate these capabilities, let build a profile for bacterial
 # 16S sequence, starting from the Rfam seed RF00177.msa. First create 
 # an adhoc substitution matrix
@@ -232,11 +220,10 @@ cat ./SRR9619541.sample.fastq \
 
 
 $PFCALIBRATEV3 -F  $TMPDIR/permut.fa 16S.prf.tmp > 16S.prf
-
 $PFSEARCHV3 -qn 16S.prf SRR9619541.sample.fastq | sort -nr
 
 #----------------------------------------------------------------------#
-# Verify handling of characters not in the alphabet
+# Verify handling of characters not in the ptofile alphabet
 #----------------------------------------------------------------------#
 
 cat > $TMPDIR/ACGTAACGT.seq << EOI

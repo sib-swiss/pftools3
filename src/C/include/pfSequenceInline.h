@@ -137,19 +137,31 @@ extern inline PFSequence * __ALWAYS_INLINE TranslateSequenceToIndex(PFSequence *
 
 extern inline void __ALWAYS_INLINE ReverseTranslatedSequence(PFSequence * const Sequence)
 {
-  unsigned char * restrict const CharPtr = Sequence->ProfileIndex;
-  unsigned char * restrict const CharPtrOrig = Sequence->OriginalSequence;
-  const size_t SeqLength = Sequence->Length;
-  unsigned char * BackPtr = &CharPtr[SeqLength-1];
-  unsigned char * BackPtrOrig = CharPtrOrig + SeqLength - 1;
+  if (Sequence->OriginalSequence == NULL) {
+    unsigned char * restrict const CharPtr = Sequence->ProfileIndex;
+    const size_t SeqLength = Sequence->Length;
+    unsigned char * BackPtr = &CharPtr[SeqLength-1];
 
-  for (size_t i=0; i<SeqLength/2; ++i) {
-    unsigned char c = CharPtr[i];
-    CharPtr[i] = *BackPtr;
-    *BackPtr-- = c;
-    c = CharPtrOrig[i];
-    CharPtrOrig[i] = *BackPtrOrig;
-    *BackPtrOrig-- = c;
+    for (size_t i=0; i<SeqLength/2; ++i) {
+      const unsigned char c = CharPtr[i];
+      CharPtr[i] = *BackPtr;
+      *BackPtr-- = c;
+    }
+  } else {
+    unsigned char * restrict const CharPtr = Sequence->ProfileIndex;
+    unsigned char * restrict const CharPtrOrig = Sequence->OriginalSequence;
+    const size_t SeqLength = Sequence->Length;
+    unsigned char * BackPtr = &CharPtr[SeqLength-1];
+    unsigned char * BackPtrOrig = CharPtrOrig + SeqLength - 1;
+
+    for (size_t i=0; i<SeqLength/2; ++i) {
+      unsigned char c = CharPtr[i];
+      CharPtr[i] = *BackPtr;
+      *BackPtr-- = c;
+      c = CharPtrOrig[i];
+      CharPtrOrig[i] = *BackPtrOrig;
+      *BackPtrOrig-- = c;
+    }
   }
   //if (SeqLength & 0x1) {
   //    const unsigned char c = CharPtr[SeqLength/2];

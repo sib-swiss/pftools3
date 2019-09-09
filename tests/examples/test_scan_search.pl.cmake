@@ -35,6 +35,7 @@ if( $opt{h} or @ARGV != 3 ){
     exit 0;
 }
 my( $profile_file, $fasta_file, $test_dir ) = @ARGV;
+$tb->system( "mkdir -p $test_dir" ) unless -d $test_dir;
 $tb->die( "Dir does not exist: $test_dir" ) unless -d $test_dir;
 
 # ------------------------------------------------------------

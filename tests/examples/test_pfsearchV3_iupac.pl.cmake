@@ -44,6 +44,7 @@ if( $opt{h} or @ARGV != 1 ){
     exit 0;
 }
 my( $test_dir ) = @ARGV;
+$tb->system( "mkdir -p $test_dir" ) unless -d $test_dir;
 $tb->die( "Dir does not exist: $test_dir" ) unless -d $test_dir;
 $test_dir .= '/test.iupac';
 $opt{L} = 500  unless exists $opt{L};

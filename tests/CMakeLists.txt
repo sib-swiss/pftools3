@@ -23,6 +23,11 @@ FILE(GENERATE OUTPUT ${TESTS_DIRECTORY}/examples/test_V3.sh
               INPUT ${TESTS_DIRECTORY}/examples/test_V3.sh.tmp)
 FILE(REMOVE ${TESTS_DIRECTORY}/examples/test_V3.sh.cmake)
 
+CONFIGURE_FILE(${TESTS_DIRECTORY}/examples/test_V3_output.sh.cmake
+               ${TESTS_DIRECTORY}/examples/test_V3_output.sh.tmp @ONLY)
+FILE(GENERATE OUTPUT ${TESTS_DIRECTORY}/examples/test_V3_output.sh
+              INPUT ${TESTS_DIRECTORY}/examples/test_V3_output.sh.tmp)
+FILE(REMOVE ${TESTS_DIRECTORY}/examples/test_V3_output.sh.cmake)
 
 CONFIGURE_FILE(${TESTS_DIRECTORY}/examples/test_pfsearchV3_iupac.pl.cmake
                ${TESTS_DIRECTORY}/examples/test_pfsearchV3_iupac.pl.tmp @ONLY)

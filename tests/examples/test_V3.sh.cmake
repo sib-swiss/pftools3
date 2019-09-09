@@ -25,7 +25,8 @@ MAKE_IUPAC_CMP=@PERL_SCRIPT_DIR@/make_iupac_cmp.pl # FIXME: use cmake syntax
 SCRAMBLE=@PERL_SCRIPT_DIR@/scramble_fasta.pl # FIXME: use cmake syntax
 
 CMPDIR=@DATA_DIR@/Matrices
-TMPDIR=/tmp
+TMPDIR=/tmp/test_V3
+mkdir -p $TMPDIR
 
 #----------------------------------------------------------------------#
 # The PFTOOLS is a powerful software to align biological sequences. 
@@ -118,8 +119,8 @@ cat ./CVPBR322.embl \
 $PFSEARCHV3 -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa
 $PFSCANV3   -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa 
 
-$PFSEARCHV3 -n -t 1 -q ./hiv.prf ./hiv.fastq | sort -nr    # FASTQ
-$PFSCANV3   -n -t 1 -q ./hiv.prf ./hiv.fastq | sort -nr    # FASTQ
+$PFSEARCHV3 -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
+$PFSCANV3   -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
 
 #----------------------------------------------------------------------#
 # The following output formats are preserved between V2 and V3
@@ -132,7 +133,7 @@ diff -b $TMPDIR/sh3.VAV_HUMAN.2.hit $TMPDIR/sh3.VAV_HUMAN.3.hit # expecting no d
 
 $PFSEARCH      -fb ./ecp.prf $TMPDIR/CVPBR322.fa | sort -nr > $TMPDIR/ecp.CVPBR322.2.hit
 $PFSEARCHV3 -n -fb ./ecp.prf $TMPDIR/CVPBR322.fa | sort -nr > $TMPDIR/ecp.CVPBR322.3.hit
-diff -b $TMPDIR/ecp.CVPBR322.2.hit $TMPDIR/ecp.CVPBR322.3.hit  # expecting no difference # FIXME: it does not work
+diff -b $TMPDIR/ecp.CVPBR322.2.hit $TMPDIR/ecp.CVPBR322.3.hit  # expecting no difference
 
 #----------------------------------------------------------------------#
 # The different PSA (i.e FASTA) output formats differ by the content 
@@ -174,14 +175,14 @@ $PFSEARCHV3 -n -t 1 -q -b -o 8 ./hiv.prf ./hiv.fastq         # FASTQ to SAM
 #----------------------------------------------------------------------#
 
 $PFINDEX -f -o $TMPDIR/CVPBR322.fa.idx $TMPDIR/CVPBR322.fa
-$PFSEARCHV3 -n -f                            -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa  > $TMPDIR/A.out    # FASTA to TSV
-$PFSEARCHV3 -n -f -i $TMPDIR/CVPBR322.fa.idx -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa  > $TMPDIR/B.out    # FASTA to TSV
-diff <(sort $TMPDIR/A.out) <(sort  $TMPDIR/B.out) 
+$PFSEARCHV3 -n -f                            -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa | sort > $TMPDIR/A.out    # FASTA to TSV
+$PFSEARCHV3 -n -f -i $TMPDIR/CVPBR322.fa.idx -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa | sort > $TMPDIR/B.out    # FASTA to TSV
+diff $TMPDIR/A.out $TMPDIR/B.out 
 
 $PFINDEX -q -o $TMPDIR/hiv.fastq.idx ./hiv.fastq
-$PFSEARCHV3 -n -q -b -o 8 ./hiv.prf ./hiv.fastq > $TMPDIR/A.out
-$PFSEARCHV3 -n -q -b -o 8 -i $TMPDIR/hiv.fastq.idx ./hiv.prf ./hiv.fastq > $TMPDIR/B.out
-diff <(sort $TMPDIR/A.out) <(sort  $TMPDIR/B.out)
+$PFSEARCHV3 -n -q -b -o 8                          ./hiv.prf ./hiv.fastq | sort > $TMPDIR/A.out
+$PFSEARCHV3 -n -q -b -o 8 -i $TMPDIR/hiv.fastq.idx ./hiv.prf ./hiv.fastq | sort > $TMPDIR/B.out
+diff $TMPDIR/A.out $TMPDIR/B.out
 
 #----------------------------------------------------------------------#
 # Profile and/or sequence can be reversed on the fly. If both are 
@@ -208,7 +209,11 @@ cat ./RF00177.msa \
 | $PFW -m -N 25 - \
 | $PFMAKE -m -3 -S 0.01 -F 100 - $TMPDIR/iupac20-30.cmp \
 | perl -pe 's/^ID   SEQUENCE_PROFILE/ID   16S/' \
-> 16S.prf.tmp
+> $TMPDIR/16S.prf.tmp
+
+head -100 SRR9619541.sample.fastq > $TMPDIR/small.sample.fastq
+
+$PFSEARCHV3 -t 1 -n -q  $TMPDIR/16S.prf.tmp $TMPDIR/small.sample.fastq
 
 #----------------------------------------------------------------------#
 # Prepare a randomized databse to calibrate the profiles
@@ -218,16 +223,15 @@ cat ./SRR9619541.sample.fastq \
 | $SCRAMBLE -m permutation -M 10 - \
 > $TMPDIR/permut.fa
 
-
-$PFCALIBRATEV3 -F  $TMPDIR/permut.fa 16S.prf.tmp > 16S.prf
-$PFSEARCHV3 -qn 16S.prf SRR9619541.sample.fastq | sort -nr
+# $PFCALIBRATEV3 -F $TMPDIR/permut.fa $TMPDIR/16S.prf.tmp > $TMPDIR/16S.prf
+# $PFSEARCHV3 -t 1 -n -q $TMPDIR/16S.prf $TMPDIR/small.sample.fastq 
 
 #----------------------------------------------------------------------#
-# Verify handling of characters not in the ptofile alphabet
+# Verify handling of characters not in the profile alphabet
 #----------------------------------------------------------------------#
 
 cat > $TMPDIR/ACGTAACGT.seq << EOI
->ACGTAACGT weight=1.0
+>ACGTAACGT weight=10
 ACGTAACGT
 EOI
 cat > $TMPDIR/ACGTWACGT.seq << EOI

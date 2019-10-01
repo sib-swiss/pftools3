@@ -747,6 +747,40 @@ void PrintPfscanLOpt(const struct Profile * const prf, const char * * const Alig
     }
 }
 
+void PrintTurtle(const struct Profile * const prf, const char * * const AlignedSequence,
+										 const struct Alignment * const alignment, char * const Header,
+                     const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra)
+{ // replicates old pfscan with -l option output (e.g. L=0  32.064    9802 pos.       1 -     416 MF_00007|DNA primase DnaG [dnaG].)
+  // could be used by ps_scan.pl (>=1.87)
+    RawToNormalizedFunctionPtr RawToNormalizedFunction = prf->RawToNormalized;
+    const float * const restrict NormCoefs = prf->NormalizationCoefs;
+
+    for (unsigned int i=0; i<N; ++i) {
+        const float normtest = (RawToNormalizedFunction == NULL)
+                             ? 0.0f
+                             : RawToNormalizedFunction(alignment[i].Score, NormCoefs, RAVE, SequenceLength);
+        int level = -1;
+        for ( unsigned int j = 0; j < MAXC; j++ ) { // find match level
+            int icut = prf->CutOffData.Values[ j ].ICUT;
+            int mcle = prf->CutOffData.Values[ j ].MCLE;
+            if ( mcle == 0 && icut == 0 ) break;
+            if ( alignment[i].Score >= icut ) { level = mcle; break; }
+            level = mcle -1; // p.s. with -c option a match could have a score lower than the lowest defined level...
+        } // p.s. prf->CutOffData.Values follows CUT_OFF line order in profile src; highest level should come first...
+
+        fprintf(stdout, "yr:%s\n",
+                               // level,
+                               // normtest,
+                               // alignment[i].Score,
+                               // alignment[i].Region.Sequence.Begin,
+                               // alignment[i].Region.Sequence.End,
+                                prf->AC_Number
+                               // prf->Identification,
+                               // prf->Description
+                               );
+    }
+}
+
 void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequence,
               const struct Alignment * const alignment, char * const Header,
               const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra)

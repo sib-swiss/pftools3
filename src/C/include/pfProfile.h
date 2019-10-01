@@ -649,6 +649,10 @@ PFIMPEXP void PrintOneLine( const struct Profile * const prf, const char * * con
 														const struct Alignment * const alignment, char * const Header,
 														const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra);
 
+PFIMPEXP void PrintTurtle( const struct Profile * const prf, const char * * const AlignedSequence,
+														const struct Alignment * const alignment, char * const Header,
+														const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra);
+
 PFIMPEXP void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequence,
 											 const struct Alignment * const alignment, char * const Header,
 											 const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra);

@@ -336,7 +336,8 @@ int main (int argc, char *argv[])
 						case 6: PrintFunction = &PrintxPSA; break;
 						case 7: PrintFunction = &PrintTSV; break;
 						case 8: PrintFunction = &PrintSAM; break;
-						case 9: PrintFunction = (PrintFunctionPtr) &PrintClassification; break;
+                        case 9: PrintFunction = &PrintTurtle; break;
+						case 10: PrintFunction = (PrintFunctionPtr) &PrintClassification; break;
 						default:
 							fputs("Unrecognized ouput method.\n", stderr);
 							exit(1);

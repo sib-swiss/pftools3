@@ -750,8 +750,7 @@ void PrintPfscanLOpt(const struct Profile * const prf, const char * * const Alig
 void PrintTurtle(const struct Profile * const prf, const char * * const AlignedSequence,
 										 const struct Alignment * const alignment, char * const Header,
                      const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra)
-{ // replicates old pfscan with -l option output (e.g. L=0  32.064    9802 pos.       1 -     416 MF_00007|DNA primase DnaG [dnaG].)
-  // could be used by ps_scan.pl (>=1.87)
+{ // HAMAP as SPARQL compliant output.
     RawToNormalizedFunctionPtr RawToNormalizedFunction = prf->RawToNormalized;
     const float * const restrict NormCoefs = prf->NormalizationCoefs;
 
@@ -767,16 +766,26 @@ void PrintTurtle(const struct Profile * const prf, const char * * const AlignedS
             if ( alignment[i].Score >= icut ) { level = mcle; break; }
             level = mcle -1; // p.s. with -c option a match could have a score lower than the lowest defined level...
         } // p.s. prf->CutOffData.Values follows CUT_OFF line order in profile src; highest level should come first...
-
-        fprintf(stdout, "yr:%s\n",
-                               // level,
-                               // normtest,
-                               // alignment[i].Score,
-                               // alignment[i].Region.Sequence.Begin,
-                               // alignment[i].Region.Sequence.End,
+        const char *firstpipe = strchr(Header+1, '|');
+        if (firstpipe != NULL) {
+            const char *secondpipe = strchr(firstpipe+1, '|');
+            if (secondpipe != NULL) {
+                int _length = secondpipe - (firstpipe+1);
+//                 uint _length=6;
+                fprintf(stdout, "yr:%.*s up:sequence ys:%.*s ;", _length, firstpipe+1, _length, firstpipe+1);
+            } else {
+                fprintf(stdout, "yr:%s up:sequence ys:%s ;", firstpipe+1, firstpipe+1);
+            }
+        } else {
+            fprintf(stdout, "yr:%s up:sequence ys:%s ;", Header+1);
+        }
+        fprintf(stdout, " rdfs:seeAlso profile:%s .\n[ edam:is_output_of [\n  a edam:operation_0300 ;\n  edam:has_input profile:%s \n  ] ;\n",
+                                prf->AC_Number,
                                 prf->AC_Number
-                               // prf->Identification,
-                               // prf->Description
+                               );
+        fprintf(stdout, "  faldo:region [ faldo:begin [ faldo:position %d ; ] ; faldo:end [ faldo:position %d ; ] ] ] \n",
+                                alignment[i].Region.Sequence.Begin,
+                                alignment[i].Region.Sequence.End
                                );
     }
 }

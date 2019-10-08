@@ -767,26 +767,35 @@ void PrintTurtle(const struct Profile * const prf, const char * * const AlignedS
             level = mcle -1; // p.s. with -c option a match could have a score lower than the lowest defined level...
         } // p.s. prf->CutOffData.Values follows CUT_OFF line order in profile src; highest level should come first...
         const char *firstpipe = strchr(Header+1, '|');
+        const char * seqid;
+        int _length;
         if (firstpipe != NULL) {
             const char *secondpipe = strchr(firstpipe+1, '|');
             if (secondpipe != NULL) {
-                int _length = secondpipe - (firstpipe+1);
-//                 uint _length=6;
-                fprintf(stdout, "yr:%.*s up:sequence ys:%.*s ;", _length, firstpipe+1, _length, firstpipe+1);
+                _length = secondpipe - (firstpipe+1);
+                seqid=firstpipe+1;
             } else {
-                fprintf(stdout, "yr:%s up:sequence ys:%s ;", firstpipe+1, firstpipe+1);
+                seqid=firstpipe+1;
+                _length = strlen(seqid);
             }
         } else {
-            fprintf(stdout, "yr:%s up:sequence ys:%s ;", Header+1);
+            seqid=Header+1;
+            _length = strlen(seqid);
         }
-        fprintf(stdout, " rdfs:seeAlso profile:%s .\n[ edam:is_output_of [\n  a edam:operation_0300 ;\n  edam:has_input profile:%s \n  ] ;\n",
+        fprintf(stdout, "yr:%.*s up:sequence ys:%.*s ;\n", _length, seqid, _length, seqid);
+        fprintf(stdout, "  rdfs:seeAlso profile:%s .\n[ edam:is_output_of [\n  a edam:operation_0300 ;\n  edam:has_input profile:%s \n  ] ;\n",
                                 prf->AC_Number,
                                 prf->AC_Number
                                );
-        fprintf(stdout, "  faldo:region [ faldo:begin [ faldo:position %d ; ] ; faldo:end [ faldo:position %d ; ] ] ] \n",
+        fprintf(stdout, "  faldo:region [\n    faldo:begin [\n      faldo:position %d ;\n      faldo:reference ys:%.*s . ] ;\n    faldo:end [\n      faldo:position %d ;\n      faldo:reference ys:%.*s .] \n  ];\n  rdf:value",
                                 alignment[i].Region.Sequence.Begin,
-                                alignment[i].Region.Sequence.End
-                               );
+                                _length,
+                                seqid,
+                                alignment[i].Region.Sequence.End,
+                                _length,
+                                seqid);
+        
+        fprintf(stdout," '%s' . \n]\n", &AlignedSequence[i][1]);
     }
 }
 

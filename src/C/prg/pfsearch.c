@@ -179,7 +179,8 @@ static void __attribute__((noreturn)) Usage(FILE * stream)
     "                                     == 6 xPSA output\n"
 		"                                     == 7 tsv output (single line tab delimited)\n"
 		"                                     == 8 SAM output\n"
-		"                                     == 9 Family classification (ONLY for pfsearch)\n",
+		"                                     == 9 Family classification (ONLY for pfsearch)\n"
+		"                                     == 10 Turtle/RDF output for HAMAP as SPARQL style rules (pfsearch)\n",
 		stream);
 	fprintf(stream,
 		"   --output-length <uint>  [-W] : maximum number of column for sequence\n"
@@ -336,8 +337,8 @@ int main (int argc, char *argv[])
 						case 6: PrintFunction = &PrintxPSA; break;
 						case 7: PrintFunction = &PrintTSV; break;
 						case 8: PrintFunction = &PrintSAM; break;
-                        case 9: PrintFunction = &PrintTurtle; break;
-						case 10: PrintFunction = (PrintFunctionPtr) &PrintClassification; break;
+						case 9: PrintFunction = (PrintFunctionPtr) &PrintClassification; break;
+                        case 10: PrintFunction = &PrintTurtle; break;
 						default:
 							fputs("Unrecognized ouput method.\n", stderr);
 							exit(1);

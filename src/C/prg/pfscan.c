@@ -1000,7 +1000,17 @@ int main (int argc, char *argv[])
 					printf("@SQ\tSN:%.*s|%s\tLN:%zu\tDS:%s\n",
 							 	 AClen, prf->AC_Number, prf->Identification, prf->Length, prf->Description);
 				}
-			}
+			} else if (PrintFunction == &PrintTurtle) {
+                printf("PREFIX ys:<http://example.org/yoursequence/>\n");
+                printf("PREFIX yr:<http://example.org/yourrecord/>\n");
+                printf("PREFIX up:<http://purl.uniprot.org/core/>\n");
+                printf("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns>\n");
+                printf("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n");
+                printf("PREFIX faldo:<http://biohackathon.org/resource/faldo#>\n");
+                printf("PREFIX signature:<htp://purl.uniprot.org/hamap/>\n");
+                printf("PREFIX edam:<http://edamontology.org/>\n");
+                printf("PREFIX hamap:<http://hamap.expasy.org/rdf/>\n");
+            }
 
       /* Initialize the print mutex */
       pthread_mutex_init(&PrintLock, NULL);

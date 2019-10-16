@@ -1009,7 +1009,8 @@ int main (int argc, char *argv[])
                 printf("PREFIX faldo:<http://biohackathon.org/resource/faldo#>\n");
                 printf("PREFIX signature:<htp://purl.uniprot.org/hamap/>\n");
                 printf("PREFIX edam:<http://edamontology.org/>\n");
-                printf("PREFIX hamap:<http://hamap.expasy.org/rdf/>\n");
+                printf("PREFIX profile:<http://example.org/yourprofiledb>\n");
+                printf("PREFIX hamap:<https://hamap.expasy.org/rdf/>\n");
             }
 
       /* Initialize the print mutex */

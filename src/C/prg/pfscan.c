@@ -1007,10 +1007,13 @@ int main (int argc, char *argv[])
                 printf("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns>\n");
                 printf("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n");
                 printf("PREFIX faldo:<http://biohackathon.org/resource/faldo#>\n");
-                printf("PREFIX signature:<htp://purl.uniprot.org/hamap/>\n");
                 printf("PREFIX edam:<http://edamontology.org/>\n");
-                printf("PREFIX profile:<http://example.org/yourprofiledb>\n");
-                printf("PREFIX hamap:<https://hamap.expasy.org/rdf/>\n");
+                if (strstr(ProfileFile, "hamap") > 0) {
+                    printf("PREFIX profile:<http://purl.uniprot.org/hamap/>\n");
+                } else {
+                    printf("PREFIX profile:<http://example.org/yourprofiledb>\n");
+                }
+                
             }
 
       /* Initialize the print mutex */

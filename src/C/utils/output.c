@@ -767,7 +767,8 @@ void PrintTurtle(const struct Profile * const prf, const char * * const AlignedS
             level = mcle -1; // p.s. with -c option a match could have a score lower than the lowest defined level...
         } // p.s. prf->CutOffData.Values follows CUT_OFF line order in profile src; highest level should come first...
         const char *firstpipe = strchr(Header+1, '|');
-        const char * seqid;
+        const char *seqid;
+        const char *firstspace = strchr(Header+1, ' ');
         int _length;
         if (firstpipe != NULL) {
             const char *secondpipe = strchr(firstpipe+1, '|');
@@ -778,6 +779,9 @@ void PrintTurtle(const struct Profile * const prf, const char * * const AlignedS
                 seqid=firstpipe+1;
                 _length = strlen(seqid);
             }
+        } else if (firstspace != NULL) { // Cut of the ID at the first space
+            seqid=Header+1;
+            _length = (firstspace)-seqid;
         } else {
             seqid=Header+1;
             _length = strlen(seqid);

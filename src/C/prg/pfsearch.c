@@ -1542,7 +1542,7 @@ int main (int argc, char *argv[])
             printf("PREFIX ys:<http://example.org/yoursequence/>\n");
             printf("PREFIX yr:<http://example.org/yourrecord/>\n)");
             printf("PREFIX up:<http://purl.uniprot.org/core/>\n");
-            printf("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns>\n");
+            printf("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n");
             printf("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n");
             printf("PREFIX faldo:<http://biohackathon.org/resource/faldo#>\n");
             printf("PREFIX edam:<http://edamontology.org/>\n");

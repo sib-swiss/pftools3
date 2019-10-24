@@ -787,7 +787,7 @@ void PrintTurtle(const struct Profile * const prf, const char * * const AlignedS
             _length = strlen(seqid);
         }
         fprintf(stdout, "yr:%.*s up:sequence ys:%.*s ;\n", _length, seqid, _length, seqid);
-        fprintf(stdout, "  rdfs:seeAlso profile:%s .\n[ edam:is_output_of [\n  a edam:operation_0300 ;\n  edam:has_input profile:%s \n  ] ;\n",
+        fprintf(stdout, "  rdfs:seeAlso profile:%s .\n[ a edam:data_0869 ; edam:is_output_of [\n  a edam:operation_0300 ;\n  edam:has_input profile:%s \n  ] ;\n",
                                 prf->AC_Number,
                                 prf->AC_Number
                                );

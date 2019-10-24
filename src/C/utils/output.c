@@ -791,7 +791,7 @@ void PrintTurtle(const struct Profile * const prf, const char * * const AlignedS
                                 prf->AC_Number,
                                 prf->AC_Number
                                );
-        fprintf(stdout, "  faldo:region [\n    faldo:begin [\n      faldo:position %d ;\n      faldo:reference ys:%.*s  ] ;\n    faldo:end [\n      faldo:position %d ;\n      faldo:reference ys:%.*s ] \n  ];\n  rdf:value",
+        fprintf(stdout, "  faldo:location [\n    faldo:begin [\n      faldo:position %d ;\n      faldo:reference ys:%.*s  ] ;\n    faldo:end [\n      faldo:position %d ;\n      faldo:reference ys:%.*s ] \n  ];\n  rdf:value",
                                 alignment[i].Region.Sequence.Begin,
                                 _length,
                                 seqid,

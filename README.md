@@ -111,10 +111,11 @@ Other contributors:
 - Lorenzo Cerruti
 - Marco Pagni
 - Sébastien Moretti
-  <to be completed>
+- Jerven Tjalling Bolleman
 
 [SIB Swiss Institute of Bioinformatics](https://www.sib.swiss/)  
 [Vital-IT Group](https://www.vital-it.ch/)  
 Quartier Sorge - Batiment Amphipole  
 1015 Lausanne  
 Switzerland
+

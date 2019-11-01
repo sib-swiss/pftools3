@@ -2,16 +2,16 @@
 
 Contents:
 
-* Package description
+1. Package description
 ..* Profile format
 ..* Programs and manual pages
 ..* Compilation issues
-* Installation
+2. Installation
 ..* Compiling
 ..* Installing
-* File list
-* Testing
-* Contact
+3. File list
+4. Testing
+5. Contact
 
 
 ## Package description
@@ -33,6 +33,7 @@ can be found at the following URL:
 Release 2.3 contains FORTRAN 77 source code and manual pages for the following
 programs:
 
+```
    pfsearch
    pfscan
    psa2msa
@@ -45,6 +46,7 @@ programs:
    ptof
    6ft
    2ft
+```
 
 Some supplementary manual pages describing the *psa* and *xpsa* file formats
 have also been included.
@@ -73,20 +75,26 @@ of the g77 compiler; solution: replace "Integer*2" by "Integer".
 The compressed *tar* archive can be extracted to the current directory using
 the following command:
 
+```
    tar -xzvf pft2.3.tar.gz
+```
 
 This will create a directory containing the source and package files.
 
 In order to compile the programs on Unix like systems with a FORTRAN 77
 compiler, change into the source directory and simply type:
 
+```
    make all
+```
 
 This will create the 12 binaries listed above. To install the binaries and the
 corresponding manual pages, an installation script has been provided. It can
 be invoked using:
 
+```
    make install
+```
 
 The installation script will ask the user the destination directory for the
 *pftools* package. This directory will contain all the supplementary files,
@@ -106,6 +114,7 @@ privileges, if necessary contact your system administrator.
 ## File list
 Further included in this release are the following demo data files:
 
+```
    CVPBR322
    sh3.seq
    GTPA_HUMAN
@@ -121,9 +130,11 @@ Further included in this release are the following demo data files:
    coils.prf
    MYSA_HUMAN
    R76849.seq
+```
 
 plus the following additional substution matrices in old GCG format:
 
+```
    blosum30.cmp
    blosum50.cmp
    blosum62.cmp
@@ -140,7 +151,7 @@ plus the following additional substution matrices in old GCG format:
    pam220.cmp
    pam250.cmp
    pam400.cmp
-
+```
 
 ## Testing
 A test script is provided. It will simply execute all the *pftools* binaries
@@ -149,8 +160,10 @@ the same directory as the binaries and the demo files. An example test
 output file *test.out* is provided as a reference.
 To test the programs, type:
 
+```
    ./test.sh > out
    diff test.out out
+```
 
 Some rounding or formatting variation may occur with real number
 editing. With g77 there will be lots of small integer rounding
@@ -168,11 +181,13 @@ Please send bug reports to:
 The pftools package was originaly developed by _Philipp Bucher_ and was
 maintained by _Thierry Schuepbach_ at the:
 
+```
 SIB Swiss Institute of Bioinformatics
 Vital-IT Group
 Quartier Sorge, Batiment Amphipole
 CH-1015 Lausanne
 Switzerland
+```
 
 [SIB](https://www.sib.swiss)
 

@@ -1,60 +1,34 @@
-* README - Description of 'pftools' release 2.3 package and files.
-*          Package install instructions.
-*
-* Author:
-*    Philipp Bucher
-*
-* Maintainer:
-*    Thierry Schuepbach
-*
-*-----------------------------------------------------------------------------*
-*
-* Contact and bug reports:
-*    pftools@sib.swiss
-*
-*-----------------------------------------------------------------------------*
-*
-* Copyright:
-*    (c) 2003 SIB Swiss Institute of Bioinformatics
-*
-*-----------------------------------------------------------------------------*
-*-----------------------------------------------------------------------------*
+# Description of *pftools* release 2.3 package and files
 
 Contents:
 
- - Package description
-   . Profile format
-   . Programs and manual pages
-   . Compilation issues
+* Package description
+..* Profile format
+..* Programs and manual pages
+..* Compilation issues
+* Installation
+..* Compiling
+..* Installing
+* File list
+* Testing
+* Contact
 
- - Installation
-   . Compiling
-   . Installing
 
- - File list
-
- - Testing
-
- - Contact
-
-*-----------------------------------------------------------------------------*
-
-Package description:
--------------------
-The 'pftools' package is a collection of experimental programs supporting the
+## Package description
+The *pftools* package is a collection of experimental programs supporting the
 generalized profile format and search method of PROSITE.
 A description of the generalized profile format is given in the file:
 
-   doc/profile.txt
+   [doc/profile.txt](https://raw.githubusercontent.com/sib-swiss/pftools3/master/doc/profile.txt)
 
-The official web site for the 'pftools' package can be found under:
+The official web site for the *pftools* package can be found under:
 
-   https://web.expasy.org/pftools/
+   [pftools](https://web.expasy.org/pftools/)
 
-Further information on PROSITE specific applications of the 'pftools' programs
+Further information on PROSITE specific applications of the *pftools* programs
 can be found at the following URL:
 
-   https://prosite.expasy.org/
+   [PROSITE](https://prosite.expasy.org/)
 
 Release 2.3 contains FORTRAN 77 source code and manual pages for the following
 programs:
@@ -72,7 +46,7 @@ programs:
    6ft
    2ft
 
-Some supplementary manual pages describing the 'psa' and 'xpsa' file formats
+Some supplementary manual pages describing the *psa* and *xpsa* file formats
 have also been included.
 
 These programs have successfully been compiled and tested under Solaris,
@@ -82,23 +56,21 @@ compilers.
 For compilation with native f77 compilers, the Makefile needs to be modified
 according to instructions given therein.
 
-For use under HP-UX, the file 'sterr.f' should also be modified according to
+For use under HP-UX, the file *sterr.f* should also be modified according to
 instructions given therein.
 
-The buffer sizes in release 2.3 of the 'pftools' have been significantly
+The buffer sizes in release 2.3 of the *pftools* have been significantly
 increased to handle large sequences and profiles. Therefore it might be
 necessary to reduce the buffer sizes in order to run the programs on machines
-with less RAM. This can be achieved by modifying the file 'ardim.f' according
+with less RAM. This can be achieved by modifying the file *ardim.f* according
 to instructions given therein.
 
 The "Integer*2" declarations may cause problems with early versions
 of the g77 compiler; solution: replace "Integer*2" by "Integer".
 
-*-----------------------------------------------------------------------------*
 
-Installation:
-------------
-The compressed 'tar' archive can be extracted to the current directory using
+## Installation
+The compressed *tar* archive can be extracted to the current directory using
 the following command:
 
    tar -xzvf pft2.3.tar.gz
@@ -117,11 +89,11 @@ be invoked using:
    make install
 
 The installation script will ask the user the destination directory for the
-'pftools' package. This directory will contain all the supplementary files,
-as well as a 'bin' directory for the executable programs. The installer will
+*pftools* package. This directory will contain all the supplementary files,
+as well as a *bin* directory for the executable programs. The installer will
 then create symbolic links to the binary programs in a directory specified by
-the user. This directory should be included in the users 'PATH' variable for
-him to be able to execute the 'pftools' programs.
+the user. This directory should be included in the users *PATH* variable for
+him to be able to execute the *pftools* programs.
 In a last step, the installer will link the man pages in the system wide man
 page location, this location can also be specified by the user.
 After successful installation, the build directory can safely be deleted.
@@ -131,10 +103,7 @@ specified during installation. For system wide installation you may need root
 privileges, if necessary contact your system administrator.
 
 
-*-----------------------------------------------------------------------------*
-
-File list:
----------
+## File list
 Further included in this release are the following demo data files:
 
    CVPBR322
@@ -172,14 +141,12 @@ plus the following additional substution matrices in old GCG format:
    pam250.cmp
    pam400.cmp
 
-*-----------------------------------------------------------------------------*
 
-Testing:
--------
-A test script is provided. It will simply execute all the 'pftools' binaries
-with some example files. The test script 'test.sh' should be executed in
+## Testing
+A test script is provided. It will simply execute all the *pftools* binaries
+with some example files. The test script *test.sh* should be executed in
 the same directory as the binaries and the demo files. An example test
-output file 'test.out' is provided as a reference.
+output file *test.out* is provided as a reference.
 To test the programs, type:
 
    ./test.sh > out
@@ -190,19 +157,16 @@ editing. With g77 there will be lots of small integer rounding
 differences in the result of test 7.
 
 Note that the file pfam_sh3.hmm contains a hidden Markov model from the
-PFAM A collection release 4.0 (see http://www.sanger.ac.uk/Pfam).
+PFAM A collection release 4.0 (see [Pfam](http://pfam.xfam.org/)).
 
 
-*-----------------------------------------------------------------------------*
-
-Contact:
--------
+## Contact
 Please send bug reports to:
 
    pftools@sib.swiss
 
-The pftools package was originaly developed by Philipp Bucher and is
-currently maintained by Thierry Schuepbach at the:
+The pftools package was originaly developed by _Philipp Bucher_ and was
+maintained by _Thierry Schuepbach_ at the:
 
 SIB Swiss Institute of Bioinformatics
 Vital-IT Group
@@ -210,5 +174,5 @@ Quartier Sorge, Batiment Amphipole
 CH-1015 Lausanne
 Switzerland
 
-https://www.sib.swiss
+[SIB](https://www.sib.swiss)
 

@@ -479,8 +479,8 @@ IF(UNIX AND NOT WIN32)
     SET (CPACK_GENERATOR "TBZ2")
     SET (CPACK_DEB_COMPONENT_INSTALL ON)
     INSTALL(FILES "${PFTOOLS_SOURCE_DIR}/LICENSE"
-                  "${PFTOOLS_SOURCE_DIR}/README"
-                  "${PFTOOLS_SOURCE_DIR}/README.pftools.v2.3"
+                  "${PFTOOLS_SOURCE_DIR}/README.md"
+                  "${PFTOOLS_SOURCE_DIR}/README.pftools.v2.3.md"
                   "${PFTOOLS_SOURCE_DIR}/ChangeLog"
             DESTINATION .
             PERMISSIONS OWNER_READ GROUP_READ WORLD_READ

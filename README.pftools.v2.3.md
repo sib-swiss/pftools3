@@ -3,12 +3,12 @@
 Contents:
 
 1. Package description
-..* Profile format
-..* Programs and manual pages
-..* Compilation issues
+... Profile format
+... Programs and manual pages
+... Compilation issues
 2. Installation
-..* Compiling
-..* Installing
+... Compiling
+... Installing
 3. File list
 4. Testing
 5. Contact

@@ -141,7 +141,9 @@ static void __attribute__((noreturn)) Usage(FILE * stream)
 		"                                     == 5 Pfscan long\n"
     "                                     == 6 xPSA output\n"
 		"                                     == 7 tsv output (single line tab delimited)\n"
-		"                                     == 8 SAM output\n",
+		"                                     == 8 SAM output\n"
+		"                                     == 9 Print a classification\n"
+		"                                     == 10 Turtle/RDF output\n",
 		stream);
 	fprintf(stream,
     "   --output-length <uint>     [-W] : maximum number of column for sequence\n"
@@ -286,6 +288,7 @@ int main (int argc, char *argv[])
 						case 7: PrintFunction = &PrintTSV; break;
 						case 8: PrintFunction = &PrintSAM; break;
 						case 9: PrintFunction = (PrintFunctionPtr) &PrintClassification; break;
+                        case 10: PrintFunction = &PrintTurtle; break;
 						default:
 							fputs("Unrecognized ouput method.\n", stderr);
 							exit(1);
@@ -997,7 +1000,21 @@ int main (int argc, char *argv[])
 					printf("@SQ\tSN:%.*s|%s\tLN:%zu\tDS:%s\n",
 							 	 AClen, prf->AC_Number, prf->Identification, prf->Length, prf->Description);
 				}
-			}
+			} else if (PrintFunction == &PrintTurtle) {
+                printf("PREFIX ys:<http://example.org/yoursequence/>\n");
+                printf("PREFIX yr:<http://example.org/yourrecord/>\n");
+                printf("PREFIX up:<http://purl.uniprot.org/core/>\n");
+                printf("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n");
+                printf("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n");
+                printf("PREFIX faldo:<http://biohackathon.org/resource/faldo#>\n");
+                printf("PREFIX edam:<http://edamontology.org/>\n");
+                if (strstr(ProfileFile, "hamap") > 0) {
+                    printf("PREFIX profile:<http://purl.uniprot.org/hamap/>\n");
+                } else {
+                    printf("PREFIX profile:<http://example.org/yourprofiledb>\n");
+                }
+                
+            }
 
       /* Initialize the print mutex */
       pthread_mutex_init(&PrintLock, NULL);

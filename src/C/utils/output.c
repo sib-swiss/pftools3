@@ -747,6 +747,62 @@ void PrintPfscanLOpt(const struct Profile * const prf, const char * * const Alig
     }
 }
 
+void PrintTurtle(const struct Profile * const prf, const char * * const AlignedSequence,
+										 const struct Alignment * const alignment, char * const Header,
+                     const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra)
+{ // HAMAP as SPARQL compliant output.
+    RawToNormalizedFunctionPtr RawToNormalizedFunction = prf->RawToNormalized;
+    const float * const restrict NormCoefs = prf->NormalizationCoefs;
+
+    for (unsigned int i=0; i<N; ++i) {
+        const float normtest = (RawToNormalizedFunction == NULL)
+                             ? 0.0f
+                             : RawToNormalizedFunction(alignment[i].Score, NormCoefs, RAVE, SequenceLength);
+        int level = -1;
+        for ( unsigned int j = 0; j < MAXC; j++ ) { // find match level
+            int icut = prf->CutOffData.Values[ j ].ICUT;
+            int mcle = prf->CutOffData.Values[ j ].MCLE;
+            if ( mcle == 0 && icut == 0 ) break;
+            if ( alignment[i].Score >= icut ) { level = mcle; break; }
+            level = mcle -1; // p.s. with -c option a match could have a score lower than the lowest defined level...
+        } // p.s. prf->CutOffData.Values follows CUT_OFF line order in profile src; highest level should come first...
+        const char *firstpipe = strchr(Header+1, '|');
+        const char *seqid;
+        const char *firstspace = strchr(Header+1, ' ');
+        int _length;
+        if (firstpipe != NULL) {
+            const char *secondpipe = strchr(firstpipe+1, '|');
+            if (secondpipe != NULL) {
+                _length = secondpipe - (firstpipe+1);
+                seqid=firstpipe+1;
+            } else {
+                seqid=firstpipe+1;
+                _length = strlen(seqid);
+            }
+        } else if (firstspace != NULL) { // Cut of the ID at the first space
+            seqid=Header+1;
+            _length = (firstspace)-seqid;
+        } else {
+            seqid=Header+1;
+            _length = strlen(seqid);
+        }
+        fprintf(stdout, "yr:%.*s up:sequence ys:%.*s ;\n", _length, seqid, _length, seqid);
+        fprintf(stdout, "  rdfs:seeAlso profile:%s .\n[ a edam:data_0869 ; edam:is_output_of [\n  a edam:operation_0300 ;\n  edam:has_input profile:%s \n  ] ;\n",
+                                prf->AC_Number,
+                                prf->AC_Number
+                               );
+        fprintf(stdout, "  faldo:location [\n    faldo:begin [\n      faldo:position %d ;\n      faldo:reference ys:%.*s  ] ;\n    faldo:end [\n      faldo:position %d ;\n      faldo:reference ys:%.*s ] \n  ];\n  rdf:value",
+                                alignment[i].Region.Sequence.Begin,
+                                _length,
+                                seqid,
+                                alignment[i].Region.Sequence.End,
+                                _length,
+                                seqid);
+        
+        fprintf(stdout," \"%s\" \n] .\n", &AlignedSequence[i][1]);
+    }
+}
+
 void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequence,
               const struct Alignment * const alignment, char * const Header,
               const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra)

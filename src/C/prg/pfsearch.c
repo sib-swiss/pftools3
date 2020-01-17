@@ -236,16 +236,16 @@ int main (int argc, char *argv[])
 	unsigned int * restrict HeuristicScores=NULL;	/* Array of heuristic scores used when dumping both filter and heuristic scores */
 	unsigned int * restrict SequenceID = NULL;		/* Allocate memory for sequence ID to be done */
 	char * ProfileFile = NULL;          /* Profile file */
-	_Bool isFASTA = false;							/* FASTA sequence file */
+	_Bool isFASTA = true;				/* FASTA sequence file; default to true so that -f is not needed*/
 	_Bool isFASTQ = false;              /* FASTQ sequence file */
-	_Bool isEMBL = false;               /* SwissProt EMBL sequence file */
+	_Bool isEMBL  = false;              /* SwissProt EMBL sequence file */
 	const char * DBFileName = NULL;     /* Database pointer to use */
 	_Bool UsingRegex = false;           /* Are we in regex mode or not? */
-	_Bool IsAPattern = false;	          /* Is it a pattern rather than a regex */
+	_Bool IsAPattern = false;	        /* Is it a pattern rather than a regex */
 	_Bool RegexOnlyHeader=false;        /* Trigger search within header only */
 	_Bool RegexInFile = false;          /* Are regex provided on stdin or in file */
 	char * RegexSource = NULL;          /* Pointer to the regex source argument */
-	_Bool DoComplement = false;		 			/* Complementary mode to use*/
+	_Bool DoComplement = false;		 	/* Complementary mode to use*/
 	size_t * shares = 0;
 
 	struct ThreadData *threads_arg = NULL; /* Allocate stack memory for posix thread structures */
@@ -446,14 +446,18 @@ int main (int argc, char *argv[])
 				break;
 			case 'f':
 				isFASTA = true;
-				isEMBL = false;
+                isFASTQ = false;
+				isEMBL  = false;
 				break;
 			case 'q':
+                isFASTA = false;
 				isFASTQ = true;
-				isEMBL = false;
+                isEMBL  = false;
 				break;
 			case 'F':
-				isEMBL = true;
+                isFASTA = false;
+                isFASTQ = false;
+				isEMBL  = true;
 				break;
 			case 'U':
 				UnknownSymbol = optarg[0];
@@ -1325,8 +1329,8 @@ int main (int argc, char *argv[])
 	}
 	else if (!Optimal) {
 		if (!NoHeuristic) {
-			fprintf(stderr, "Profile %s (%s) is not calibrated for heuristic use.\n", prf->AC_Number, prf->Description);
-			goto END;
+            if (OutputVerbose) fprintf(stderr, "Profile %s (%s) is not calibrated for heuristic use.\n", prf->AC_Number, prf->Description);
+            NoHeuristic = true;
 		}
 		if (OutputVerbose) fputs("Bypassing heuristic computation...\n",stderr);
 

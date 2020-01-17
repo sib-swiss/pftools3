@@ -186,6 +186,19 @@ void PrintDefault(const struct Profile * const prf, const char * * const Aligned
 }
 
 
+int matchLevel( const struct Profile * const prf, const struct Alignment * const alignment, int i ) {
+    int level = -1;
+    for ( unsigned int j = 0; j < MAXC; j++ ) { // find match level
+        int icut = prf->CutOffData.Values[ j ].ICUT;
+        int mcle = prf->CutOffData.Values[ j ].MCLE;
+        if ( mcle == 0 && icut == 0 ) break;
+        if ( alignment[i].Score >= icut ) { level = mcle; break; }
+        level = mcle -1; // p.s. with -c option a match could have a score lower than the lowest defined level...
+    } // p.s. prf->CutOffData.Values follows CUT_OFF line order in profile src; highest level should come first...
+    return( level );
+}
+
+
 void PrintInterpro(const struct Profile * const prf, const char * * const AlignedSequence,
                    const struct Alignment * const alignment, char * const Header,
                    const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra)
@@ -206,13 +219,13 @@ void PrintInterpro(const struct Profile * const prf, const char * * const Aligne
 		
     RawToNormalizedFunctionPtr RawToNormalizedFunction = prf->RawToNormalized;
     const float * const restrict NormCoefs = prf->NormalizationCoefs;
-		const int level = prf->CutOffData.Values[ (int) prf->LevelIndex ].MCLE;
 		
     for (unsigned int i=0; i<N; ++i) {
         const float normtest = (RawToNormalizedFunction == NULL)
                              ? 0.0f
                              : RawToNormalizedFunction(alignment[i].Score, NormCoefs, RAVE, SequenceLength);
-        
+        int level = matchLevel( prf, alignment, i );
+
         if (N > 1)
         {
             fprintf(stdout, ">%s_%i L=%i %.3f %6i pos. %8i -%8i [%5i, %5i] %s %s\n",
@@ -290,14 +303,7 @@ void PrintPfscan(const struct Profile * const prf, const char * * const AlignedS
         const float normtest = (RawToNormalizedFunction == NULL)
                              ? 0.0f
                              : RawToNormalizedFunction(alignment[i].Score, NormCoefs, RAVE, SequenceLength);
-        int level = -1;
-        for ( unsigned int j = 0; j < MAXC; j++ ) { // find match level
-            int icut = prf->CutOffData.Values[ j ].ICUT;
-            int mcle = prf->CutOffData.Values[ j ].MCLE;
-            if ( mcle == 0 && icut == 0 ) break;
-            if ( alignment[i].Score >= icut ) { level = mcle; break; }
-            level = mcle -1; // p.s. with -c option a match could have a score lower than the lowest defined level...
-        } // p.s. prf->CutOffData.Values follows CUT_OFF line order in profile src; highest level should come first...
+        int level = matchLevel( prf, alignment, i );
 
         if (N > 1)
         {
@@ -400,14 +406,7 @@ void PrintPsScan(const struct Profile * const prf, const char * * const AlignedS
         const float normtest = (RawToNormalizedFunction == NULL)
                              ? 0.0f
                              : RawToNormalizedFunction(alignment[i].Score, NormCoefs, RAVE, SequenceLength);
-        int level = -1;
-        for ( unsigned int j = 0; j < MAXC; j++ ) { // find match level
-            int icut = prf->CutOffData.Values[ j ].ICUT;
-            int mcle = prf->CutOffData.Values[ j ].MCLE;
-            if ( mcle == 0 && icut == 0 ) break;
-            if ( alignment[i].Score > icut ) { level = mcle; break; }
-            level = mcle -1; // p.s. with -c option a match could have a score lower than the lowest defined level...
-        } // p.s. prf->CutOffData.Values follows CUT_OFF line order in profile src; highest level should come first...
+        int level = matchLevel( prf, alignment, i );
 
         {
             fprintf(stdout, ">%s L=%i %.3f %6i pos. %8i -%8i [%5i, %5i] %s|%s %s\n",
@@ -448,7 +447,7 @@ void PrintIncmatch( const struct Profile * const prf, const char * * const Align
                     const struct Alignment * const alignment, char * const Header,
                     const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra)
 { // replicates old pfsearch -zkx output
-		const static char DefaultID[] = "unknown";
+	const static char DefaultID[] = "unknown";
     const char * id;
     char * buffer = calloc(OutputPrintWidth+1,sizeof(char));
     char * cptr = Header;
@@ -475,7 +474,7 @@ void PrintIncmatch( const struct Profile * const prf, const char * * const Align
                 prf->Identification,
                 norm_score,
                 alignment[i].Score,
-								alignment[i].Region.Sequence.End - (int) SequenceLength - 1,
+				alignment[i].Region.Sequence.End - (int) SequenceLength - 1,
                 alignment[i].IPMB,
                 alignment[i].IPME
                );
@@ -548,7 +547,7 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
 								const struct Alignment * const alignment, char * const Header,
 								const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra)
 {
-	//PFSCANV3 NEWOUT   >fig|83333.1.peg.4317/36-219 motif=MF_00223|FolE norm_score=33.703 raw_score=4046 level_tag=! seq_end=-4 motif_start=1 motif_end=-1
+	//PFSCANV3 NEWOUT   >fig|83333.1.peg.4317/36-219 motif=MF_00223|FolE norm_score=33.703 raw_score=4046 level=0 level_tag=! motif_start=1 motif_end=-1 seq_end=-4 motif_rev=F strand=+
 	char * buffer = calloc(OutputPrintWidth+1,sizeof(char));
 	char * cptr;
 	
@@ -616,9 +615,11 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
 						}
 					}
 				}
-			} 
+			}
+
+            int level = matchLevel( prf, alignment, i );
 		
-			fprintf(stdout,	">%.*s/%i-%i motif=%s|%s norm_score=%.3f raw_score=%i level_tag=%s seq_end=%i motif_start=%i motif_end=%i motif_rev=%c strand=%c\n",
+			fprintf(stdout,	">%.*s/%i-%i motif=%s|%s norm_score=%.3f raw_score=%i level=%i level_tag=%s motif_start=%i motif_end=%i seq_end=%i motif_rev=%c strand=%c\n",
 							HeaderLength,
 							startHdr,
 							alignment[i].Region.Sequence.Begin,
@@ -627,11 +628,12 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
 							id,
 							normtest,
 							alignment[i].Score,
+                            level,
 							tag,
-							alignment[i].Region.Sequence.End - (int) SequenceLength, 
 							alignment[i].IPMB,
 							alignment[i].IPME,
-							prf->isReversed ? (int) 'T' : (int) 'F', 
+                            alignment[i].Region.Sequence.End - (int) SequenceLength - 1,
+                            prf->isReversed ? (int) 'T' : (int) 'F',
 							(int) strand
 			);
 
@@ -674,9 +676,11 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
 						}
 					}
 				}
-			} 
-		
-			fprintf(stdout,	">%.*s/%i-%i motif=%s|%s norm_score=%.3f raw_score=%i level_tag=%s seq_end=%i motif_start=%i motif_end=%i motif_rev=%c strand=%c\n",
+			}
+
+            int level = matchLevel( prf, alignment, i );
+
+			fprintf(stdout,	">%.*s/%i-%i motif=%s|%s norm_score=%.3f raw_score=%i level=%i level_tag=%s motif_start=%i motif_end=%i seq_end=%i motif_rev=%c strand=%c\n",
 							HeaderLength,
 							startHdr,
 							(int) SequenceLength - alignment[i].Region.Sequence.Begin + 1,
@@ -685,11 +689,12 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
 							id,
 							normtest,
 							alignment[i].Score,
+                            level,
 							tag,
-							alignment[i].Region.Sequence.End - (int) SequenceLength, 
 							alignment[i].IPMB,
 							alignment[i].IPME,
-							prf->isReversed ? (int) 'T' : (int) 'F', 
+                            alignment[i].Region.Sequence.End - (int) SequenceLength -1,
+                            prf->isReversed ? (int) 'T' : (int) 'F',
 							(int) strand
 			);
 
@@ -725,14 +730,7 @@ void PrintPfscanLOpt(const struct Profile * const prf, const char * * const Alig
         const float normtest = (RawToNormalizedFunction == NULL)
                              ? 0.0f
                              : RawToNormalizedFunction(alignment[i].Score, NormCoefs, RAVE, SequenceLength);
-        int level = -1;
-        for ( unsigned int j = 0; j < MAXC; j++ ) { // find match level
-            int icut = prf->CutOffData.Values[ j ].ICUT;
-            int mcle = prf->CutOffData.Values[ j ].MCLE;
-            if ( mcle == 0 && icut == 0 ) break;
-            if ( alignment[i].Score >= icut ) { level = mcle; break; }
-            level = mcle -1; // p.s. with -c option a match could have a score lower than the lowest defined level...
-        } // p.s. prf->CutOffData.Values follows CUT_OFF line order in profile src; highest level should come first...
+        int level = matchLevel( prf, alignment, i );
 
         fprintf(stdout, "L=%i %.3f %6i pos. %8i - %7i %s|%s %s\n",
                                 level,
@@ -758,14 +756,7 @@ void PrintTurtle(const struct Profile * const prf, const char * * const AlignedS
         const float normtest = (RawToNormalizedFunction == NULL)
                              ? 0.0f
                              : RawToNormalizedFunction(alignment[i].Score, NormCoefs, RAVE, SequenceLength);
-        int level = -1;
-        for ( unsigned int j = 0; j < MAXC; j++ ) { // find match level
-            int icut = prf->CutOffData.Values[ j ].ICUT;
-            int mcle = prf->CutOffData.Values[ j ].MCLE;
-            if ( mcle == 0 && icut == 0 ) break;
-            if ( alignment[i].Score >= icut ) { level = mcle; break; }
-            level = mcle -1; // p.s. with -c option a match could have a score lower than the lowest defined level...
-        } // p.s. prf->CutOffData.Values follows CUT_OFF line order in profile src; highest level should come first...
+        int level = matchLevel( prf, alignment, i );
         const char *firstpipe = strchr(Header+1, '|');
         const char *seqid;
         const char *firstspace = strchr(Header+1, ' ');

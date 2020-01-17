@@ -190,7 +190,7 @@ int main (int argc, char *argv[])
   char * ProfileFile;			              /* Profile file */
   enum ProfileType prfType = PF_PATTERN | PF_MATRIX; /* Type of profile to allow */
   char *DBFileName;				            /* FASTA sequence file */
-	_Bool isFASTA = false;							/* FASTA sequence file */
+	_Bool isFASTA = true;				/* FASTA sequence file */
 	_Bool isFASTQ = false;              /* FASTQ sequence file */
 	_Bool isEMBL = false;               /* SwissProt EMBL sequence file */
 
@@ -323,15 +323,19 @@ int main (int argc, char *argv[])
 				OtherVersion = SSE2;
 				break;
 			case 'f':
-				isFASTA = true;
-				isEMBL = false;
+                isFASTA = true;
+                isFASTQ = false;
+                isEMBL  = false;
 				break;
 			case 'q':
-				isFASTQ = true;
-				isEMBL = false;
+                isFASTA = false;
+                isFASTQ = true;
+                isEMBL  = false;
 				break;
 			case 'F':
-				isEMBL = true;
+                isFASTA = false;
+                isFASTQ = false;
+                isEMBL  = true;
 				break;
       case 'i':
 				ImportIndices = true;

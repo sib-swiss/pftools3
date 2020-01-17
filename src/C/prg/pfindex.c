@@ -75,7 +75,7 @@ static void __attribute__((noreturn)) Usage(FILE * stream)
 		"  Database\n"
 		"   --fasta                            [-f] : FASTA file database as input\n"
 		"   --fastq                            [-q] : FASTQ file database as input\n"
-		"   --embl                                  : SwissProt/EMBL file database as input, default\n\n"
+		//"   --embl                             [-F] : SwissProt/EMBL file database as input, default\n\n"
 		"  Output\n"
 		"   --output <file>                    [-o] : output index file name\n\n"
 		"  Other\n"
@@ -99,9 +99,9 @@ int main (int argc, char *argv[])
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	const char * DBFileName = NULL;     /* Database pointer to use */
 	const char * OutFileName = NULL;    /* Output index file name */
-	_Bool isFASTA = false;							/* FASTA sequence file */
+	_Bool isFASTA = true;				/* FASTA sequence file */
 	_Bool isFASTQ = false;              /* FASTQ sequence file */
-	_Bool isEMBL = true;                  /* SwissProt EMBL sequence file */
+	_Bool isEMBL  = false;              /* SwissProt EMBL sequence file */
 	_Bool OutputVerbose = false;
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,14 +122,18 @@ int main (int argc, char *argv[])
 				break;
 			case 'f':
 				isFASTA = true;
-				isEMBL = false;
+				isEMBL  = false;
+                isFASTQ = false;
 				break;
 			case 'q':
 				isFASTQ = true;
-				isEMBL = false;
+				isEMBL  = false;
+                isFASTA = false;
 				break;
 			case 'F':
-				isEMBL = true;
+				isEMBL  = true;
+                isFASTQ = false;
+                isFASTA = false;
 				break;
 			case 'o':
 				OutFileName = optarg;

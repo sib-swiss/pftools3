@@ -1,4 +1,4 @@
-# PfTools   v3.2.0
+# PfTools   v3.2
 
 (C) Copyright SIB Swiss Institute of Bioinformatics
 available from  https://github.com/sib-swiss/pftools3 under GPL v2. See LICENSE.

@@ -244,6 +244,13 @@ $PFSEARCHV3 -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTAACGT.seq # raw_score=450
 $PFSEARCHV3 -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTWACGT.seq # raw_score=383 PSA=ACGTWACGT (not ACGTXACGT)
 
 
+#----------------------------------------------------------------------#
+# extra & bug fix related tests
+
+# pfscanV3 should accept motif files containing patterns, and be able to ignore patterns with --matrix-only option
+$PFSCANV3 -o4 --matrix-only ./PS00741_PS50010.dat ./VAV_HUMAN.seq
+
+
 
 
 

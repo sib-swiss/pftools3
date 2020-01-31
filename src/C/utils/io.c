@@ -1533,7 +1533,7 @@ int ReadProfile(const char * const restrict FileName, struct Profile * const prf
     const int res = internalReadProfile(prfStream, newPrf, SetExtraTable, FileName, &Line);
     ++nprf;
     if (res == 0 ) {
-			if (ComplementAlphabet(prf)!= 0) {
+			if ( newPrf->Type == PF_MATRIX && ComplementAlphabet(newPrf)!= 0 ) {
 				fprintf(stderr, "Error complementing alphabet\n");
 				return -1;
 			}

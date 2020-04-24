@@ -11,20 +11,25 @@ RUN DEBIAN_FRONTEND=noninteractive \
       ca-certificates \
       git \
       cmake \
+      wget \
     && rm -fr /var/lib/apt/lists/* \
     && update-ca-certificates \
     && git clone "https://github.com/sib-swiss/pftools3.git" \
     && cd pftools3 \
-    && cmake -H. -Bbuild \
-    && cmake --build build -- -j $(nproc) \
-    && ln -s /var/lib/pftools/pftools3/build/src/C/pfscanV3 /usr/bin \
-    && ln -s /var/lib/pftools/pftools3/build/src/C/pfsearchV3 /usr/bin \
+    && cmake -DCMAKE_INSTALL_PREFIX:PATH=/var/lib/pftools -H. -Bbuild \
+    && cmake --build build -- -j $(nproc)  \
+    && cmake --build build -- install  \
+    && cd .. \
+    && rm -rf pftools3 \
     && apt-get remove -y --autoremove \
       build-essential \
       gfortran \
       ca-certificates \
       git \
       cmake \
+      wget \
+      libpcre++-dev \
+    && apt-get autoremove \
     && apt-get clean
-
+ENV PATH="/var/lib/pftools/bin/:${PATH}"
 CMD ["bash"]

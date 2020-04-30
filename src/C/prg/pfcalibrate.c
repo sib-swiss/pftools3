@@ -33,7 +33,7 @@
 # include <unistd.h>
 #endif
 
-#ifdef USE_PDF 
+#ifdef USE_PDF
 #ifdef USE_PLPLOT
 #define __WITH_REPORT__
 #include <float.h>
@@ -92,7 +92,7 @@ static const struct option long_options[] =
 	/*
 	 * These options set a flag.
 	 */
-	
+
 	/*
 	 * These options don't set a flag. We distinguish them by their indices.
 	 */
@@ -102,7 +102,7 @@ static const struct option long_options[] =
 	/* Print ouptut methods */
 	{"dump-filter-scores",			required_argument,	0,	'D'},
 	{"dump-heuristic-scores",		required_argument,	0,	'd'},
-	#ifdef __WITH_REPORT__	
+	#ifdef __WITH_REPORT__
 	{"report",									required_argument,	0,	'r'},
 	#endif
 	/* Database indexing options */
@@ -113,12 +113,12 @@ static const struct option long_options[] =
 	{"pfscale-logarithm-base",	required_argument,	0,	'B'},
 	{"pfscale-upper-threshold", required_argument,	0,	'!'},
 	{"pfscale-lower-threshold", required_argument,	0,	'?'},
-	
+
 	{"evd-bin-center",          required_argument,	0,	'3'},
 	{"evd-bin-width",						required_argument,	0,	'2'},
 	{"evd-average-length",			required_argument,	0,	'4'},
 	{"evd-tail-area",						required_argument,	0,	'5'},
-	
+
 	{"res_count",								required_argument,	0,	'z'},
 	{"first_rank",							required_argument,	0,	'0'},
 	{"last_rank",								required_argument,	0,	'1'},
@@ -129,7 +129,7 @@ static const struct option long_options[] =
 	{"profile-only-on-match",		no_argument,				0,	'z'},
 	{"quantile",								required_argument,	0,	'Q'},
 	{"max-exponential",					required_argument,	0,	'E'},
-	
+
 	{"normalized_score",				required_argument,	0,	'N'},
 	{"raw_score",								required_argument,	0,	'R'},
 	{"mode",										required_argument,	0,	'M'},
@@ -346,17 +346,17 @@ static int pfscale(const int * const restrict FilterScores, const size_t Sequenc
 		fputs("Unable to allocate memory for weights and Frequencies\n", stderr);
 		return 1;
 	}
-	
+
 	for (size_t iseq=0; iseq<N; ++iseq) {
 		const double dtmp = (double) (1+iseq);
 		Frequencies[iseq] = RDBS-RL*log(dtmp - 0.5);
 		Weights[iseq]     = dtmp*0.5;
 	}
-	
+
 	double TotalWeight      = 0.0;
 	double AverageFrequency = 0.0;
 	double AverageS         = 0.0;
-	
+
 	for (size_t iseq=0; iseq<N; ++iseq) {
 		if (Frequencies[iseq] >= Emin && Frequencies[iseq] <= Emax ) {
 			AverageS           += Weights[iseq]*(double)FilterScores[iseq];
@@ -366,7 +366,7 @@ static int pfscale(const int * const restrict FilterScores, const size_t Sequenc
 	}
 	AverageFrequency /= TotalWeight;
 	AverageS         /= TotalWeight;
-	
+
 	double XSV = 0.0, XFV = 0.0, XCO = 0.0;
 	for (size_t iseq=0; iseq<N; ++iseq) {
 		if (Frequencies[iseq] >= Emin && Frequencies[iseq] <= Emax ) {
@@ -380,11 +380,11 @@ static int pfscale(const int * const restrict FilterScores, const size_t Sequenc
 	XSV = sqrt(XSV/TotalWeight);
 	XFV = sqrt(XFV/TotalWeight);
 	XCO = (XCO/TotalWeight)/(XSV*XFV);
-	
-	
+
+
 	const float XB = (float) (XCO*XFV/XSV);
 	const float XA = (float) (AverageFrequency-XB*AverageS);
-	
+
 	//   fprintf(stdout, "# -LogP = %8.4f + %12.8f * raw-score\n#\n"
 	// 		  "#   rank  raw-score   -logFreq   -logProb\n"
 	// 		  "#\n", XA, XB);
@@ -392,11 +392,11 @@ static int pfscale(const int * const restrict FilterScores, const size_t Sequenc
 	//     const float dtmp = XA + XB*(float)FilterScores[iseq];
 	//     fprintf(stdout,"%8lu %10i %10.4f %10.4f %10.4f\n", 1+iseq, FilterScores[iseq], Frequencies[iseq], dtmp, Weights[iseq]);
 	//   }
-	
+
 	float * const restrict results = DATA;
 	results[0] = XA;
 	results[1] = XB;
-	
+
 #ifdef __WITH_REPORT__
 	/* Generate plot to be included in report */
 	if (CreatePDFReport) {
@@ -427,28 +427,28 @@ static int pfscale(const int * const restrict FilterScores, const size_t Sequenc
 				__minX = _mm_min_ps(__minX, __fX);
 				__fY1  = _mm_max_pd(__fY1, __fY2);
 				__maxY = _mm_max_pd(__maxY, __fY1);
-				
+
 				__m128d __X1 = _mm_cvtps_pd(__fX);
 				__m128d __X2 = _mm_cvtps_pd(_mm_movehl_ps(__fX, __fX));
-				
+
 				_mm_store_pd(&X[i-8], __X1);
 				_mm_store_pd(&X[i-6], __X2);
-			}    
+			}
 			i -= 4;
 			__m128 __zero = _mm_setzero_ps();
-			while (i < SequenceCount) { 
+			while (i < SequenceCount) {
 				__m128 __fX  = _mm_cvtsi32_ss(__zero, FilterScores[i]);
 				__maxY = _mm_max_sd(__maxY, *(__m128d*) &Frequencies[i]);
 				i += 1;
 				__maxX = _mm_max_ps(__maxX, __fX);
 				__minX = _mm_min_ps(__minX, __fX);
 				__m128d __X1 = _mm_cvtss_sd(_mm_castps_pd(__zero), __fX);
-				
+
 				_mm_store_sd( &X[i-1], __X1);
-				
+
 			}
 #endif
-			
+
 			// movhlps xmm1, xmm0	Move top two floats to lower part of xmm1
 			__m128 __tMaxX = _mm_movehl_ps(__maxX, __maxX);
 			__m128d __tMaxY = _mm_unpackhi_pd(__maxY, __maxY);
@@ -463,50 +463,50 @@ static int pfscale(const int * const restrict FilterScores, const size_t Sequenc
 			// maxps   xmm0,xmm1	Get minimum of the two remaining floats
 			__maxX = _mm_max_ps(__maxX, __tMaxX);
 			__minX = _mm_min_ps(__minX, __tMinX);
-			
+
 			float maxX, minX;
 			double maxY;
 			_mm_store_ss(&maxX, __maxX);
 			_mm_store_sd(&maxY, __maxY);
 			_mm_store_ss(&minX, __minX);
-			
+
 			PLFLT x_max = (PLFLT) (1.1*maxX);
 			PLFLT x_min = (PLFLT) (1.1*minX);
 			PLFLT y_max = (PLFLT) (1.1*maxY);
 			PLFLT y_min = (PLFLT) 0.0;
-			
+
 			plsdev("jpeg");
 			plsfnam(FilterTempName);
 			plscmap0(red, green, blue, 10);
 			plspage(0,0,1024,800,0,0);
-			
-			plinit(); 
+
+			plinit();
 			plfont(2);
-			
+
 			plenv(x_min, x_max, y_min, y_max, 0, 0);
-			if (logarithmic_base == BASE_E) 
+			if (logarithmic_base == BASE_E)
 				pllab("Scores", "-Ln(#gn)", "");
 			else
 				pllab("Scores", "-Log#d10#u(#gn)", "");
 			plcol0(2);
-			
+
 			plcol0(5);plssym(0,.75);
 			plpoin((PLINT) SequenceCount, X, Frequencies, 17);
-			
+
 			plcol0(3);
 			const PLFLT ymin = (PLFLT) (XA + x_min * XB);
 			const PLFLT ymax = (PLFLT) (XA + x_max * XB);
 			pljoin(x_min, ymin, x_max, ymax);
-			
+
 			plend();
 	#ifdef PL_DOUBLE
 			_mm_free(X);
 	#endif
-			
-			
-		} 
+
+
+		}
 	}
-	#endif	
+	#endif
 	_mm_free(Weights);
 	_mm_free(Frequencies);
 	return 0;
@@ -531,13 +531,13 @@ static int evd_full(const int * const restrict FilterScores, const size_t Sequen
 		const float value = (float) FilterScores[i];
 		AddToHistogram(H, value);
 	}
-	
+
 	ExtremeValueFitHistogram(H, 0, min, 99999.);
-	
+
 	float * restrict const result = DATA;
 	result[0] = (float) ((log(avgLength) - H->param[EVD_MU]*H->param[EVD_LAMBDA])/log(logarithmic_base));
 	result[1] = (float) (H->param[EVD_LAMBDA]/log(logarithmic_base));
-	
+
 	//   if (OutputVerbose) {
 	//     PrintASCIIHistogram(stdout, H);
 	//     fprintf(stdout, "# -LogP = %8.4f + %12.8f * raw-score\n#\n", result[0], result[1]);
@@ -564,13 +564,13 @@ static int evd_peak(const int * const restrict FilterScores, const size_t Sequen
 		const float value = (float) FilterScores[i];
 		AddToHistogram(H, value);
 	}
-	
+
 	ExtremeValueFitHistogram(H, 2, (min+max)/2, 99999.);
-	
+
 	float * restrict const result = DATA;
 	result[0] = (float) ((log(avgLength) - H->param[EVD_MU]*H->param[EVD_LAMBDA])/log(logarithmic_base));
 	result[1] = (float) (H->param[EVD_LAMBDA]/log(logarithmic_base));
-	
+
 	//   if (OutputVerbose) {
 	//     PrintASCIIHistogram(stdout, H);
 	//     fprintf(stdout, "# -LogP = %8.4f + %12.8f * raw-score\n#\n", result[0], result[1]);
@@ -595,7 +595,7 @@ static int evd_tail(const int * const restrict FilterScores, const size_t Sequen
 		const float value = (float) FilterScores[i];
 		AddToHistogram(H, value);
 	}
-	
+
 	const int TargetArea = (int) (tailArea*(float)SequenceCount);
 	int sum = 0;
 	int sc = H->highscore;
@@ -604,17 +604,17 @@ static int evd_tail(const int * const restrict FilterScores, const size_t Sequen
 		sum += H->histogram[sc-- - hmin];
 		if (sum >= TargetArea) break;
 	}
-	
+
 	ExtremeValueFitHistogram(H, 1, sc, 99999.);
 	float * restrict const result = DATA;
 	result[0] = (logf(avgLength) - H->param[EVD_MU]*H->param[EVD_LAMBDA])/logf(logarithmic_base);
 	result[1] = H->param[EVD_LAMBDA]/logf(logarithmic_base);
-	
+
 	if (OutputVerbose) {
 		PrintASCIIHistogram(stdout, H);
 		fprintf(stdout, "# -LogP = %8.4f + %12.8f * raw-score\n#\n", result[0], result[1]);
 	}
-	
+
 	FreeHistogram(H);
 }
 
@@ -635,7 +635,7 @@ static void iqsort(int * const restrict data, const int N)
 	int i,j;
 	int itmp;
 	int t,v;
-	
+
 	if (N<=1) return;
 	v = data[0];
 	i = 0;
@@ -660,35 +660,35 @@ static void iqsort(int * const restrict data, const int N)
 	iqsort(data+i,N-i);
 }
 
-static int dumpScores(const int FilterScores[], const int HeuristicScores[], 
+static int dumpScores(const int FilterScores[], const int HeuristicScores[],
                       const char * const restrict SequenceFile, FILE * const restrict stream,
 											const struct Profile * const restrict prf, const float * const restrict Coeffs,
 											const DBSequence_t * restrict const DB)
 {
 	Sequence SeqData;
-	
+
 	/* Allocate memory to hold sequence */
 	SeqData.Data.Memory = malloc(DB->MaxSequenceSize*sizeof(unsigned char));
 	if (SeqData.Data.Memory == NULL) {
 		fputs("Thread Cannot allocate memory for sequence.\n", stderr);
 		return 1;
 	}
-	
+
 	/* Open sequence file*/
 	SETUP_DATABASE_ACCESS(SequenceFile);
 	register const size_t N = DB->SequenceCount;
-	
+
 	fputs("# Sequence Normalized_score Filter_score Heuristic_score\n", stream);
 	for (size_t i=0; i<N; ++i) {
 		PFSequence * const PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(DB->DataPtr[i].Sequence));
 		const float NormalizedScore = prf->RawToNormalized(FilterScores[i], Coeffs, 0, 0);
 		fprintf(stream, "%s\t%f\t%i\t%i\n", &SeqData.Data.Header[1], NormalizedScore, FilterScores[i], HeuristicScores[i]);
 	}
-	
+
 	/* close sequence file */
 	UNSET_DATABASE_ACCESS();
 	free(SeqData.Data.Memory);
-	
+
 	return 0;
 }
 
@@ -698,16 +698,16 @@ int main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// LOCAL STRUCTURES
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	struct Profile * restrict prf;	/* Profile */
 	DBSequence_t DB;    			      /* Sequence Database File */
 	Sequence SeqData;			          /* Sequence data to work on */
 	struct timeval _t0, _t1;		    /* Timing structures */
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// LOCAL DATA
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	PFSequence * PFSeq;															/* Pointer to translated alphabet sequence */
 	size_t nCPUs=0;																	/* number of threads */
 	size_t nCPUsHeuristic=0;              					/* maximum number of threads for heuristic phase */
@@ -735,15 +735,15 @@ int main(int argc, char *argv[])
 	SNormalizationItem NewFilterNormItem;						/* Holds the new normalization for filter*/
 	SNormalizationItem NewHeuristicNormItem;				/* Holds the new normalization for heuristic*/
 	char * outputFile = NULL;												/* Output profile to given file */
-	char * HeuristicScoresOutputFile = NULL;				/* Output filter - heuristic scores to given file */ 
-	char * FilterScoresOutputFile = NULL;						/* Output filter scores to given file */ 
+	char * HeuristicScoresOutputFile = NULL;				/* Output filter - heuristic scores to given file */
+	char * FilterScoresOutputFile = NULL;						/* Output filter scores to given file */
 	double quantile = 0.05;													/* Quantile value used in heuristic calibration */
 	float MaxExponent = 8.0f;												/* Maximum exponent to the exponential in generating sequences from the profile */
 	unsigned int ProfileSampling = 50;							/* When heuristic-db = profile, this gives the number of generated sequences */
 	enum Version HeuristicVersion = SSE2;						/* Trigger which sse version to use in the heuristic */
 	enum Version OtherVersion = SSE2;								/* Trigger which sse version to use in the filter and alignment */
 	enum GeneratedSequenceOptions GenOpts = GENERATE_MATCH | GENERATE_INSERTION | GENERATE_DELETION;
-	
+
 	size_t * shares = 0;
 	struct ThreadData *threads_arg = NULL;					/* Allocate stack memory for posix thread structures */
 	#if !defined(__USE_WINAPI__)
@@ -770,19 +770,19 @@ int main(int argc, char *argv[])
 	size_t HeuristicDBSize = 0;											/* Used in PDF creation */
 #endif
 	_Bool HeuristicSequencesFromProfile = false;		/* Used to clean generated profile sequence file */
-	
-	
+
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// SYSTEM ARCHITECTURE ANALYSIS
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	getSystemInfo(&System);
-	
+
 	/* Check for minimum requirement */
 	if (!(System.Extensions & MM_SSE2)) {
 		fputs("pfsearch requires at least a CPU capable of SSE 2.\n", stderr);
 		exit(1);
 	}
-	
+
 	/* Allow fast SSE 4.1 extensions ? */
 	if (System.Extensions & MM_SSE41) {
 		xali1_ptr = xali1_sse41;
@@ -794,19 +794,19 @@ int main(int argc, char *argv[])
 		HeuristicVersion = SSE2;
 		OtherVersion = SSE2;
 	}
-	
+
 	/* Thousands separator requires this */
 	setlocale(LC_ALL, "");
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// OPTIONS
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	while (1) {
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
-		
+
 		const int c = getopt_long (argc, argv, opt_to_test, long_options, &option_index);
-		
+
 		/* Detect the end of the options. */
 		if (c == -1) break;
 		switch (c) {
@@ -945,15 +945,15 @@ int main(int argc, char *argv[])
 				Usage(stdout);
 		}
 	}
-	
+
 	if (optind >= argc) {
 		fputs("Expecting arguments after options\n", stderr);
 		Usage(stderr);
 	}
 	if (optind < argc) ProfileFile = argv[optind];
-	
+
 	if ( method < 0 ) method = 5;
-	
+
 	if (OutputVerbose) {
 		fputs(HEADER
 #ifdef __USE_MMAP__
@@ -963,30 +963,30 @@ int main(int argc, char *argv[])
 		printSystemInfo(stderr, &System);
 		if ( HeuristicVersion == SSE2 && (System.Extensions & MM_SSE41)) fputs("Enforcing SSE 2...\n", stderr);
 		fprintf(stderr, "Using method %i: %s\n", method, Methods[method].name);
-		
+
 	}
-	
+
 	if (HasFilterData && method < 0 ) {
 		fputs("Filter calibration or statictics requires at least a method.\n", stderr);
 		exit(1);
 	}
-	
+
 	if (From_perl_script) {
 		upperProbRange = 0.0;
 		lowerProbRange = 0.0;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// INPUT ANALYSIS
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	/* allocates memory for the profile structure */
 	prf = (struct Profile *) _mm_malloc(sizeof(struct Profile), 16);
 	if (prf == NULL) {
 		fputs("Unable to allocate memory for the profile structure\n", stderr);
 		exit(1);
 	}
-	
+
 	/*
 	 * Read the profile and output some infos
 	 */
@@ -1000,20 +1000,20 @@ int main(int argc, char *argv[])
 	if (OutputVerbose) {
 		const double T = (double) (_t1.tv_sec - _t0.tv_sec) + (double) (_t1.tv_usec - _t0.tv_usec) * 0.000001;
 		fprintf(stderr, "Profile reading took %lf seconds.\n", T);
-		
+
 		fprintf(stderr,"Profile %s has length %lu and alphabet size of %lu\n",
 						ProfileFile, prf->Length, prf->Alphabet_Length);
-		
+
 		fputs("Alphabet Mapping\n",stderr);
 		for (size_t i=0; i<ALPHABET_SIZE; ++i) {
 			fprintf(stderr,"Map %c=%2u  ", (char) ((unsigned char) 'A' + (unsigned char) i), (unsigned int) prf->Alphabet_Mapping[i]);
 			if ((i+1) % 8 == 0 ) fputs("\n",stderr);
 		}
 		fputs("\n\n",stderr);
-		
+
 		fprintf(stderr,"Disjoint set: %i to %i\n", prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1]);
 	}
-	
+
 	/*
 	 * test existance of both level and mode
 	 */
@@ -1024,12 +1024,12 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 	}
-		
+
 	/*
 	 * Retrieve number of cores
 	 */
 	nCPUs = (nCPUs == 0) ? (size_t) System.nOverallCores : nCPUs;
-	
+
 #ifdef USE_AFFINITY
   if (noAffinity) {
     // -----------------------------------------------------------------------------
@@ -1117,11 +1117,11 @@ int main(int argc, char *argv[])
   }
 #endif
 	if (OutputVerbose) fprintf(stderr, "Job will be dispatched over %lu cores.\n", nCPUs);
-	
+
 	if (HasHeuristicData && PamSampling>0) {
 		/* Correct PamDistanceStart*/
 		if (PamDistanceStart == 0) PamDistanceStart = 1;
-		
+
 		/* Compute the number of pam distances to execute */
 		size_t count = 0;
 		for (size_t i=PamDistanceStart; i<=PamDistanceStop; i+=PamDistanceStep) ++count;
@@ -1129,7 +1129,7 @@ int main(int argc, char *argv[])
 		if (OutputVerbose) fprintf(stderr, "Pam distances from %lu to %lu by %lu, overall %lu distances.\n",
 			PamDistanceStart, PamDistanceStop, PamDistanceStep, PamDistanceCounter);
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// SPECIAL METHOD REQUIRING NO DATABASES
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1139,7 +1139,7 @@ int main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/* Prepare structure common to filter and alignment */
 	shares = alloca((nCPUs+1)*sizeof(size_t));
-	
+
 	/* Allocate stack memory for posix thread structures */
 	threads_arg = alloca(nCPUs*sizeof(struct ThreadData));
 #if !defined(__USE_WINAPI__)
@@ -1147,7 +1147,7 @@ int main(int argc, char *argv[])
 #else
 	threads = (HANDLE*) alloca(nCPUs*sizeof(HANDLE));
 #endif
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// FILTER
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1158,12 +1158,12 @@ int main(int argc, char *argv[])
 		gettimeofday(&_t0,0);
 		res = AnalyzeFASTAStructure(DBFileName, &DB);
 		gettimeofday(&_t1,0);
-		
+
 #ifdef __WITH_REPORT__
 		FilterDBSequenceCount = DB.SequenceCount;
 		FilterDBSize = (size_t) DB.FileSize;
 #endif
-		
+
 		if (OutputVerbose) {
 			const double T = (double) (_t1.tv_sec - _t0.tv_sec) + (double) (_t1.tv_usec - _t0.tv_usec) * 0.000001;
 			fprintf(stderr, "Sequence file indexing took %lf seconds.\n", T);
@@ -1179,22 +1179,22 @@ int main(int argc, char *argv[])
 							"\tBiggest sequence entry is %lu bytes\n",
 					 DBFileName, DB.SequenceCount, DB.FileSize, DB.MaxSequenceSize);
 		}
-				
+
 		/* Allocate memory for the filter scores */
 		FilterScores = _mm_malloc(DB.SequenceCount*sizeof(int), 16);
 		if (FilterScores == NULL) {
 			fputs("Unable to allocate memory for the filter scores\n",stderr);
 			exit(1);
 		}
-		
+
 		/* Compute the new share for each thread */
 		size_t SequenceShare = DB.SequenceCount / nCPUs;
 		SequenceShare += (DB.SequenceCount % nCPUs) > (nCPUs-1) ? 1 : 0;
 		shares[0] = 0;
 		for (size_t i=1; i<nCPUs; ++i) shares[i] = i*SequenceShare;
-		
+
 		shares[nCPUs] = DB.SequenceCount;
-		
+
 #ifdef __USE_MMAP__
 		const int fd = open(DBFileName, O_RDONLY );
 		const size_t length = (size_t) DB.FileSize;
@@ -1207,7 +1207,7 @@ int main(int argc, char *argv[])
 #else
 		const char * const restrict SequenceFile = DB;
 #endif
-		
+
 		/* Dispatch to threads */
 		{
 			gettimeofday(&_t0,0);
@@ -1222,7 +1222,7 @@ int main(int argc, char *argv[])
 				threads_arg[i].FilterScores              = FilterScores;
 				/* dumps real filter score, does not quit if above threshold */
 				threads_arg[i].counter                   = 1L;
-				
+
 				if (pthread_create (&threads[i],
 #ifdef USE_AFFINITY
 					&threads_attr[i],
@@ -1236,12 +1236,12 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-		
+
 		for (size_t i=0; i<nCPUs; i++) {
 			pthread_join(threads[i], NULL);
 		}
 		gettimeofday(&_t1,0);
-		
+
 		if ( avgLength <= 0.0 ) {
 			unsigned long TotalSequenceLength = 0;
 			for (size_t i=0; i<nCPUs; i++) TotalSequenceLength += threads_arg[i].counter;
@@ -1249,25 +1249,25 @@ int main(int argc, char *argv[])
 			avgLength = resCount/(float)DB.SequenceCount;
 			if (OutputVerbose)
 				fprintf(stderr, "Database file %s contains %lu residues, average is %lf\n", DBFileName, TotalSequenceLength,avgLength);
-			
+
 		}
 		else {
 			if (OutputVerbose) fprintf(stderr, "Database average sequence residue length is set to %lf\n", avgLength);
 			resCount = (int) ((float)DB.SequenceCount*avgLength + 0.5f);
 		}
-		
+
 		if (OutputVerbose) {
 			const double t = (double) (_t1.tv_sec - _t0.tv_sec) + (double) (_t1.tv_usec - _t0.tv_usec) * 0.000001;
 			fprintf(stderr, "Filter took %lf seconds to treat on %li cores.\n", t, nCPUs);
 		}
-		
+
 		/* Call the correct method */
 		if (Methods[method].fct) {
 			memset(&NewFilterNormItem, 0, sizeof(SNormalizationItem));
 			memset(&NewCutItem, 0, sizeof(SCutOffItem));
 			/* Sort the score from higher to lower */
 			iqsort(FilterScores, (int) DB.SequenceCount);
-			
+
 			if (Methods[method].fct(FilterScores, DB.SequenceCount, (void*) &(NewFilterNormItem.RNOP[0])) >= 0) {
 				ProfileChanged = true;
 			}
@@ -1296,7 +1296,7 @@ int main(int argc, char *argv[])
 					fputs("Unknown method after filter performed!\n", stderr);
 			}
 		}
-		
+
 		if (FilterScoresOutputFile) {
 			FILE * const outscore = fopen(FilterScoresOutputFile,"w");
 			if (outscore == NULL) {
@@ -1308,14 +1308,14 @@ int main(int argc, char *argv[])
 					fprintf(stderr, "Unable to allocate memory for heuristic scores\n");
 					exit(1);
 				}
-				
+
 				TransposeMatrix TIMatch;
 				if (HeuristicVersion == SSE41) {
 					TIMatch.i = TransposeAndConvertMatchMatrix(&(prf->Scores), prf->Alphabet_Length, prf->Length);
 				} else {
 					TIMatch.f = TransposeAndConvertToFloatMatchMatrix(&(prf->Scores), prf->Alphabet_Length, prf->Length);
 				}
-				
+
 				for (size_t i=0; i<nCPUs; ++i) {
 					threads_arg[i].prf              = prf;
 					threads_arg[i].DB               = &DB;
@@ -1339,39 +1339,39 @@ int main(int argc, char *argv[])
 						return 1;
 					}
 				}
-				
+
 				for (size_t i=0; i<nCPUs; i++) {
 					pthread_join(threads[i], NULL);
 				}
-				
+
 				if (dumpScores(FilterScores, TempHeurisiticScores, SequenceFile, outscore, prf, &(NewFilterNormItem.RNOP[0]), &DB) < 0) {
 					fputs("Error within dumpScores\n", stderr);
 					exit(1);
 				}
-				
+
 				free(TempHeurisiticScores);
 				fclose(outscore);
 			}
 		}
-		
-		
-		
+
+
+
 		/* Close the database file */
 #ifdef __USE_MMAP__
 		munmap((void*)SequenceFileMap, length);
 		close(fd);
 #endif
 		FreeDBStructure(&DB);
-		
+
 		_mm_free(FilterScores);
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// HEURISTIC
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	if ( HasHeuristicData ) {
-		/* 
-		 * Do we need to create on the fly some sequences from the profile 
+		/*
+		 * Do we need to create on the fly some sequences from the profile
 		 * to calibrate the heuristic
 		 */
 		if (strncmp(SeqDB, "profile", 7) == 0) {
@@ -1381,7 +1381,7 @@ int main(int argc, char *argv[])
 																					GenOpts, ProfileSampling);
 				if (res == 0) {
 					SeqDB = GeneratedSequencesFile;
-					if (OutputVerbose) fprintf(stderr, "Heuristic DB generated sequences placed in %s\n", GeneratedSequencesFile); 
+					if (OutputVerbose) fprintf(stderr, "Heuristic DB generated sequences placed in %s\n", GeneratedSequencesFile);
 				}
 				else {
 					fputs("Error within the creation of sequences from the profile\n", stderr);
@@ -1410,11 +1410,11 @@ int main(int argc, char *argv[])
 			}
 			HeuristicSequencesFromProfile = true;
 		}
-		
-		
+
+
 		/* Set initial data */
 		memset(&NewHeuristicNormItem, 0, sizeof(SNormalizationItem));
-		
+
 		gettimeofday(&_t0,0);
 		res = AnalyzeFASTAStructure(SeqDB, &DB);
 		gettimeofday(&_t1,0);
@@ -1437,7 +1437,7 @@ int main(int argc, char *argv[])
 							"\tBiggest sequence entry is %lu bytes\n",
 					 SeqDB, DB.SequenceCount, DB.FileSize, DB.MaxSequenceSize);
 		}
-		
+
 		gettimeofday(&_t0,0);
 		TransposeMatrix TIMatch;
 #ifdef USE_AFFINITY
@@ -1457,10 +1457,10 @@ int main(int argc, char *argv[])
 			const double t = (double) (_t1.tv_sec - _t0.tv_sec) + (double) (_t1.tv_usec - _t0.tv_usec) * 0.000001;
 			fprintf(stderr,"Transposing Match matrix took %lf seconds.\n", t);
 		}
-		
+
 		/* Limit number of threads for heuristic */
 		if ( nCPUsHeuristic == 0) nCPUsHeuristic = nCPUs;
-		
+
 		/* Share according to file size */
 		{
 			size_t FileShare = (size_t) DB.FileSize / nCPUsHeuristic;
@@ -1475,7 +1475,7 @@ int main(int argc, char *argv[])
 			}
 			shares[nCPUsHeuristic] = DB.SequenceCount;
 		}
-		
+
 		const size_t PamMemory = (1 + PamSampling*PamDistanceCounter);
 		/* Allocate memory for sequence heuristic scores */
 		HeuristicScores = _mm_malloc( DB.SequenceCount*PamMemory*sizeof(unsigned int), 16);
@@ -1483,21 +1483,21 @@ int main(int argc, char *argv[])
 			fputs("Unable to allocate memory for weights and Frequencies\n", stderr);
 			exit(1);
 		}
-		
+
 		/* Allocate memory for the filter scores */
 		FilterScores = _mm_malloc(DB.SequenceCount*PamMemory*sizeof(int), 16);
 		if (FilterScores == NULL) {
 			fputs("Unable to allocate memory for the filter scores\n",stderr);
 			exit(1);
 		}
-		
+
 		/* Allocate memory for pam types */
 		PamTypes = (unsigned char *) malloc(DB.SequenceCount*PamMemory*sizeof(unsigned char));
 		if (PamTypes == NULL) {
 			fputs("Unable to allocate memory for the pam types\n",stderr);
 			exit(1);
 		}
-		
+
 #ifdef __USE_MMAP__
 		const int fd = open(SeqDB, O_RDONLY );
 		const size_t length = (size_t) DB.FileSize;
@@ -1510,7 +1510,7 @@ int main(int argc, char *argv[])
 #else
 		const char * const restrict SequenceFile = SeqDB;
 #endif
-		
+
 		gettimeofday(&_t0,0);
 		for (size_t i=0; i<nCPUsHeuristic; ++i) {
 			threads_arg[i].prf             = prf;
@@ -1546,15 +1546,15 @@ int main(int argc, char *argv[])
 			t = (double) (_t1.tv_sec - _t0.tv_sec) + (double) (_t1.tv_usec - _t0.tv_usec) * 0.000001;
 			fprintf(stderr,"Heuristic calibration took %lf seconds to treat on %li cores.\n", t, nCPUsHeuristic);
 		}
-		
+
 		/* Free some memory already */
 		_mm_free(TIMatch.f);
 #ifdef USE_AFFINITY
 		if (split) _mm_free(TIMatch1.f);
 #endif
-		
 
-				
+
+
 		/* Calibrate with quantile regression */
 		if (quantile > 0.0 ) {
 			int result = QuantileRegression(HeuristicScores, FilterScores, &NewHeuristicNormItem.RNOP[0], quantile,
@@ -1567,9 +1567,9 @@ int main(int argc, char *argv[])
 				ProfileChanged = true;
 			}
 		}
-		else 
+		else
 			ProfileChanged = true;
-		
+
 		/* Now output the data */
 		if (HeuristicScoresOutputFile) {
 			FILE * const outscore = fopen(HeuristicScoresOutputFile,"w");
@@ -1583,7 +1583,7 @@ int main(int argc, char *argv[])
 					fputs("Thread Cannot allocate memory for sequence.\n", stderr);
 					return 1;
 				}
-				
+
 				/* Open sequence file*/
 				SETUP_DATABASE_ACCESS(SequenceFile);
 				fputs("# Sequence Normalized_score Filter_score Heuristic_score\n", outscore);
@@ -1598,27 +1598,27 @@ int main(int argc, char *argv[])
 				/* close sequence file */
 				UNSET_DATABASE_ACCESS();
 				free(SeqData.Data.Memory);
-				
+
 				fclose(outscore);
 			}
 		}
-		
+
 		/* Close the database file */
 #ifdef __USE_MMAP__
 		munmap((void*)SequenceFileMap, length);
 		close(fd);
 #endif
 		FreeDBStructure(&DB);
-		
+
 		if (HeuristicSequencesFromProfile) {
 			if (unlink(SeqDB) != 0) {
 				perror("Error in removing generated sequence file");
 			}
 			else {
-				if (OutputVerbose) fprintf(stderr, "Cleaning temporary file %s\n", SeqDB); 
+				if (OutputVerbose) fprintf(stderr, "Cleaning temporary file %s\n", SeqDB);
 			}
 		}
-		
+
 #ifdef __WITH_REPORT__
 		/* Generate plot to be included in report */
 		if (CreatePDFReport) {
@@ -1636,7 +1636,7 @@ int main(int argc, char *argv[])
 				__m128 __maxX = _mm_set1_ps(FLT_MIN);
 				__m128 __minX = _mm_set1_ps(FLT_MAX);
 				__m128 __maxY = __maxX;
-				
+
 				while (i < SequenceCount) {
 					__m128 __fH = _mm_cvtepi32_ps(*(__m128i*) &HeuristicScores[i-4]);
 					__m128 __fF = _mm_cvtepi32_ps(*(__m128i*) &FilterScores[i-4]);
@@ -1646,10 +1646,10 @@ int main(int argc, char *argv[])
 					__maxY = _mm_max_ps(__maxY, __fH);
 					_mm_store_ps((float*) &HeuristicScores[i-8], __fH);
 					_mm_store_ps((float*) &FilterScores[i-8], __fF);
-				}    
+				}
 				i -= 4;
 				__m128 __zero = _mm_setzero_ps();
-				while (i < SequenceCount) { 
+				while (i < SequenceCount) {
 					__m128 __fH = _mm_cvtsi32_ss(__zero, HeuristicScores[i]);
 					__m128 __fF = _mm_cvtsi32_ss(__zero, FilterScores[i]);
 					i += 1;
@@ -1684,15 +1684,15 @@ int main(int argc, char *argv[])
 					__m128d __Y1 = _mm_cvtps_pd(__fH);
 					__m128d __X2 = _mm_cvtps_pd(_mm_movehl_ps(__fF, __fF));
 					__m128d __Y2 = _mm_cvtps_pd(_mm_movehl_ps(__fH, __fH));
-					
+
 					_mm_store_pd(&X[i-8], __X1);
 					_mm_store_pd(&X[i-6], __X2);
 					_mm_store_pd(&Y[i-8], __Y1);
 					_mm_store_pd(&Y[i-6], __Y2);
-				}    
+				}
 				i -= 4;
 				__m128 __zero = _mm_setzero_ps();
-				while (i < SequenceCount) { 
+				while (i < SequenceCount) {
 					__m128 __fH = _mm_cvtsi32_ss(__zero, HeuristicScores[i]);
 					__m128 __fF = _mm_cvtsi32_ss(__zero, FilterScores[i]);
 					i += 1;
@@ -1701,12 +1701,12 @@ int main(int argc, char *argv[])
 					__maxY = _mm_max_ss(__maxY, __fH);
 					__m128d __X1 = _mm_cvtss_sd(_mm_castps_pd(__zero), __fF);
 					__m128d __Y1 = _mm_cvtss_sd(_mm_castps_pd(__zero), __fH);
-					
+
 					_mm_store_sd( &X[i-1], __X1);
 					_mm_store_sd( &Y[i-1], __Y1);
 				}
 #endif
-				
+
 				// movhlps xmm1, xmm0	Move top two floats to lower part of xmm1
 				__m128 __tMaxX = _mm_movehl_ps(__maxX, __maxX);
 				__m128 __tMaxY = _mm_movehl_ps(__maxY, __maxY);
@@ -1723,34 +1723,34 @@ int main(int argc, char *argv[])
 				__maxX = _mm_max_ps(__maxX, __tMaxX);
 				__maxY = _mm_max_ps(__maxY, __tMaxY);
 				__minX = _mm_min_ps(__minX, __tMinX);
-				
+
 				float maxX, maxY, minX;
 				_mm_store_ss(&maxX, __maxX);
 				_mm_store_ss(&maxY, __maxY);
 				_mm_store_ss(&minX, __minX);
-				
+
 				PLFLT x_max = (PLFLT) maxX;
 				PLFLT x_min = (PLFLT) minX;
 				PLFLT y_max = (PLFLT) (1.1*maxY);
 				PLFLT y_min = (PLFLT) 0.0;
-				
+
 				plsdev("jpeg");
 				plsfnam(HeuristicTempName);
 				plscmap0(red, green, blue, 10);
 				plspage(0,0,1024,800,0,0);
-				
-				plinit(); 
+
+				plinit();
 				plfont(2);
-				
+
 				x_min -= 10;
 				x_max += 10;
 				y_min -= 10;
 				y_max += 10;
-				
+
 				plenv(x_min, x_max, y_min, y_max, 0, 0);
 				pllab("Filter scores", "Heuristic scores", "");
 				plcol0(2);
-				
+
 				// 	plcol0(5);plssym(0,.75);
 				// 	plpoin((PLINT) SequenceCount, X, Y, 17);
 				plscmap1n((PLINT) (1+PamDistanceCounter));
@@ -1759,28 +1759,28 @@ int main(int argc, char *argv[])
 				const PLFLT Green[] = {0, 0, 0, 1, 1};
 				const PLFLT Blue[]  = {0, 1, 1, 0, 0};
 				const PLFLT Intensity[] = {0,0.1,0.9*invMaxType, 1-0.45*invMaxType, 1};
-				
+
 				plscmap1l ((PLBOOL) 1, 5, Intensity, Red, Green, Blue, NULL);
 				plssym(0,.75);
-				
+
 				for (size_t ival=0; ival<DB.SequenceCount*PamMemory; ival++) {
 					PLFLT color;
 					if (PamTypes[ival] != 0) {
 						color = (PLFLT) 0.3 + (((float)PamTypes[ival])*invMaxType);
 						color = color > 0.99999 ? 0.99999 : color;
 					}
-					else 
+					else
 						color = (PLFLT) 0.0;
 
 					plcol1(color);
 					plpoin((PLINT) 1, &X[ival], &Y[ival], 17);
 				}
-				
+
 				plcol0(3);
 				const PLFLT ymin = (PLFLT) (NewHeuristicNormItem.RNOP[0] + x_min * NewHeuristicNormItem.RNOP[1]);
 				const PLFLT ymax = (PLFLT) (NewHeuristicNormItem.RNOP[0] + x_max * NewHeuristicNormItem.RNOP[1]);
 				pljoin(x_min, ymin, x_max, ymax);
-				
+
 				plend();
 #ifdef PL_DOUBLE
 				_mm_free(X);
@@ -1789,13 +1789,13 @@ int main(int argc, char *argv[])
 			}
 		}
 #endif
-		
+
 		/* Free last memory */
 		_mm_free(FilterScores);
 		_mm_free(HeuristicScores);
 		free(PamTypes);
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// APPLY PROFILE MODIFICATION
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1808,17 +1808,17 @@ int main(int argc, char *argv[])
 				fprintf(stderr,"New normalization coefficients from method %s are Rx=(%lf, %lf)\n",
 								Methods[method].name, NewFilterNormItem.RNOP[0], NewFilterNormItem.RNOP[1]);
 			}
-			
+
 			/* Add remaining information to the normalization item */
 			memcpy(NewFilterNormItem.CNTX, Methods[method].NormalizationText, 32*sizeof(char)); // setup TEXT
 			NewFilterNormItem.MNOR = 0; 		// setup FUNCTION to LINEAR, refer to io.c
 			NewFilterNormItem.NNOR = Mode;	// setup MODE
 			NewFilterNormItem.NNPR = 0;			// setup PRIORITY to 0
-			
+
 			/* Update the normalization item */
 			memcpy(&prf->NormalizationData.Values[prf->ModeIndex], &NewFilterNormItem, sizeof(SNormalizationItem));
 		}
-		
+
 		/*
 		 * Modifications in the heuristic calibration
 		 */
@@ -1833,7 +1833,7 @@ int main(int argc, char *argv[])
 				/* Do we have enough space left */
 				if ( prf->NormalizationData.JNOR < MAXN) {
 					HeuristicModeIndex = prf->NormalizationData.JNOR++;
-				} 
+				}
 				else {
 					fputs("Not enough space left to store a new normalization mode, skipping.\n", stderr);
 					goto NO_WRITE;
@@ -1844,24 +1844,24 @@ int main(int argc, char *argv[])
 				NewHeuristicNormItem.NNPR = 0;				// Priority as read in profile PRIORITY
 			}
 			else {
-				const SNormalizationItem * const Modeptr = &prf->NormalizationData.Values[HeuristicModeIndex]; 
+				const SNormalizationItem * const Modeptr = &prf->NormalizationData.Values[HeuristicModeIndex];
 				strncpy(NewHeuristicNormItem.CNTX, Modeptr->CNTX, 32); 	// setup TEXT
 				NewHeuristicNormItem.MNOR = 0; 			     	 // setup FUNCTION to LINEAR, refer to io.c
 				NewHeuristicNormItem.NNOR = Modeptr->NNOR; // setup MODE
 				NewHeuristicNormItem.NNPR = Modeptr->NNPR; // setup PRIORITY to 0
 			}
-			
+
 			/* Update the normalization item */
 			memcpy(&prf->NormalizationData.Values[HeuristicModeIndex], &NewHeuristicNormItem, sizeof(SNormalizationItem));
-			
+
 			NO_WRITE:
 			if (OutputVerbose) {
 				fprintf(stderr,"New heuristic normalization coefficients are Rx=(%lf, %lf)\n",
 								NewHeuristicNormItem.RNOP[0], NewHeuristicNormItem.RNOP[1]);
 			}
-			
+
 		}
-		
+
 		/* Update the all the cutoff item using that mode */
 		/* WARNING: ASSUMPTION ON THE FACT THAT THERE IS ONLY 1 MODE PER CUTOFF LEVEL */
 		const int cutCount = prf->CutOffData.JCUT;
@@ -1883,7 +1883,7 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-		
+
 		/* Write the new profile */
 		char line[512];
 		snprintf(line, 512, "CC   %s", argv[0]);
@@ -1895,7 +1895,7 @@ int main(int argc, char *argv[])
 			char * pos = &line[strlen(line)];
 			sprintf(pos, " %s\n", argv[argc-1]);
 		}
-		
+
 		if (outputFile != NULL) {
 			FILE * const out = fopen(outputFile,"w");
 			if (out == NULL) {
@@ -1908,7 +1908,7 @@ int main(int argc, char *argv[])
 		else {
 			WriteProfile(ProfileFile, prf, line, stdout);
 		}
-		
+
 		////////////////////////////////////////////////////////////////////////////////////////////////
 		// CREATE PDF REPORT
 		////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1923,7 +1923,7 @@ int main(int argc, char *argv[])
 			HPDF_Font font;
 			HPDF_Page page;
 			char fname[256] __attribute__((aligned(16)));
-			
+
 			/* Create file name */
 			{
 				const size_t NameLength = strlen(ReportFileName);
@@ -1932,36 +1932,36 @@ int main(int argc, char *argv[])
 						ReportFileName[NameLength-3] == 'p' &&
 						ReportFileName[NameLength-4] == '.') {
 						ReportFileName[NameLength-4] = '\0';
-					} 
+					}
 					snprintf(fname, 255, "%s.pdf", ReportFileName);
 			}
-			if (OutputVerbose) fprintf(stderr, "Creating PDF report in %s\n", fname);  
-			
+			if (OutputVerbose) fprintf(stderr, "Creating PDF report in %s\n", fname);
+
 			pdf = HPDF_New (error_handler, NULL);
 			if (!pdf) {
 				printf ("Error: cannot create PdfDoc object\n");
 				exit(1);
 			}
-			
+
 			if (setjmp(env)) {
 				HPDF_Free (pdf);
 				exit(1);
 			}
-			
+
 			/* create default-font */
 			font = HPDF_GetFont (pdf, "Helvetica", NULL);
-			
+
 			/* add a new page object. */
 			page = HPDF_AddPage (pdf);
-			
+
 			/* set to A4 format */
 			HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
 			const HPDF_REAL PageWidth  = HPDF_Page_GetWidth(page) - 2.0f*BORDER_SIZE - LEFT_MARGIN - RIGHT_MARGIN;
 			const HPDF_REAL PageHeight = HPDF_Page_GetHeight(page) - 2.0f*BORDER_SIZE - TOP_MARGIN - BOTTOM_MARGIN;
-			
+
 			/* print the lines of the page. */
 			HPDF_Page_SetLineWidth (page, 0.0);
-			
+
 			/*
 			 * Header -------------------------------------------------------------------------
 			 */
@@ -1973,14 +1973,14 @@ int main(int argc, char *argv[])
 											 PageWidth, 20 );
 			HPDF_Page_Fill(page);
 			HPDF_Page_SetGrayFill(page, 0);
-			
+
 			cptr = "Profile data";
 			HPDF_Page_SetFontAndSize (page, font, 16);
 			HPDF_Page_BeginText (page);
 			HPDF_Page_MoveTextPos (page, BORDER_SIZE+LEFT_MARGIN + 10, BORDER_SIZE+BOTTOM_MARGIN + PageHeight - 16);
 			HPDF_Page_ShowText (page, cptr);
 			HPDF_Page_EndText (page);
-			
+
 			/*HPDF_Page_TextRect  (HPDF_Page            page,
 			 *                     HPDF_REAL            left,
 			 *                     HPDF_REAL            top,
@@ -1988,7 +1988,7 @@ int main(int argc, char *argv[])
 			 *                     HPDF_REAL            bottom,
 			 *                     const char          *text,
 			 *                     HPDF_TextAlignment   align,
-			 *                     HPDF_UINT           *len);   */  
+			 *                     HPDF_UINT           *len);   */
 #define WRITE_ALIGN(TEXT1,TEXT2, ROW) {\
 		const HPDF_REAL center_x = BORDER_SIZE+LEFT_MARGIN + 10 + center;\
 		const HPDF_REAL center_y = BORDER_SIZE+BOTTOM_MARGIN + PageHeight - 20 -5 - ROW*(0 + 10);\
@@ -2030,8 +2030,8 @@ int main(int argc, char *argv[])
 			HPDF_UINT len = 0;
 			const HPDF_UINT Total = strlen(prf->Sequence);
 			HPDF_Page_SetFontAndSize (page, font, 8);
-			
-			
+
+
 			while (len < Total) {
 				HPDF_Page_BeginText (page);
 				HPDF_Page_MoveTextPos (page, center_x+5, center_y);
@@ -2042,10 +2042,10 @@ int main(int argc, char *argv[])
 				lastYpos -= 10;
 				HPDF_Page_EndText (page);
 			}
-			
-		}    
+
+		}
 #undef WRITE_ALIGN
-		
+
 		lastYpos -= 5; //BORDER_SIZE+BOTTOM_MARGIN + PageHeight - 20 -5 - 9*(0 + 10);
 		HPDF_Page_SetGrayFill(page, 0.8);
 		HPDF_Page_Rectangle(page,
@@ -2059,7 +2059,7 @@ int main(int argc, char *argv[])
 		HPDF_Page_MoveTextPos (page, BORDER_SIZE+LEFT_MARGIN + 10 + 10, lastYpos - 5 - 12);
 		HPDF_Page_ShowText (page, cptr);
 		HPDF_Page_EndText (page);
-		
+
 		const char (*CNOR)[16] = (const char (*)[16]) prf->NormalizationData.CNOR;
 		center = 75;
 		lastYpos -= 5 + 15 + 10;
@@ -2081,12 +2081,12 @@ int main(int argc, char *argv[])
 				const size_t l = strlen(Text);
 				snprintf(&Text[l], 128-l, " R%1.1i: %lf", 1+i, normItem->RNOP[i]);
 			}
-			
+
 			HPDF_Page_MoveTextPos (page, center_x+5, center_y);
 			HPDF_Page_ShowText(page, Text);
 			HPDF_Page_EndText(page);
 		}
-		
+
 		lastYpos -=  prf->NormalizationData.JNOR*(0 + 10);HPDF_Page_SetGrayFill(page, 0.8);
 		HPDF_Page_Rectangle(page,
 												BORDER_SIZE+LEFT_MARGIN+10, lastYpos - 5 - 15,
@@ -2098,7 +2098,7 @@ int main(int argc, char *argv[])
 		HPDF_Page_MoveTextPos (page, BORDER_SIZE+LEFT_MARGIN + 10 + 10, lastYpos - 5 - 12);
 		HPDF_Page_ShowText (page, cptr);
 		HPDF_Page_EndText (page);
-		
+
 		lastYpos -= 5 + 15 + 10;
 		HPDF_Page_SetFontAndSize (page, font, 10);
 		for (int iCut=0;iCut<prf->CutOffData.JCUT; ++iCut) {
@@ -2124,28 +2124,28 @@ int main(int argc, char *argv[])
 			HPDF_Page_ShowText(page, Text);
 			HPDF_Page_EndText(page);
 		}
-		
+
 		lastYpos -= 5 + prf->CutOffData.JCUT*(0 + 10);
 		HPDF_Page_SetGrayFill(page, 0.8);
 		HPDF_Page_Rectangle(page,
 												BORDER_SIZE+LEFT_MARGIN, lastYpos-20,
 												PageWidth, 20 );
 		HPDF_Page_Fill(page);HPDF_Page_SetGrayFill(page, 0.);
-		
+
 		snprintf(Text, 128, "Calibration of mode %i", Mode);
 		HPDF_Page_SetFontAndSize (page, font, 16);
 		HPDF_Page_BeginText (page);
 		HPDF_Page_MoveTextPos (page, BORDER_SIZE+LEFT_MARGIN + 10, lastYpos - 16);
 		HPDF_Page_ShowText (page, Text);
 		HPDF_Page_EndText (page);
-		lastYpos -= 5 + 20; 
+		lastYpos -= 5 + 20;
 		//       HPDF_REAL tw = HPDF_Page_TextWidth (page, cptr);
 		//       HPDF_Page_BeginText (page);
 		//       HPDF_Page_MoveTextPos (page, (HPDF_Page_GetWidth(page) - tw) / 2,
 		// 		  HPDF_Page_GetHeight (page) - BORDER_SIZE - TOP_MARGIN);
 		//       HPDF_Page_ShowText (page, cptr);
 		//       HPDF_Page_EndText (page);
-		
+
 		//       HPDF_Page_BeginText (page);
 		//       HPDF_Page_MoveTextPos (page, BORDER_SIZE, HPDF_Page_GetHeight (page) - BORDER_SIZE);
 		//       HPDF_Page_ShowText (page, prf->Sequence);
@@ -2166,7 +2166,7 @@ int main(int argc, char *argv[])
 			HPDF_Page_MoveTextPos (page, BORDER_SIZE+LEFT_MARGIN + 10 + 10, lastYpos - 5 - 12);
 			HPDF_Page_ShowText (page, cptr);
 			HPDF_Page_EndText (page);
-			
+
 			lastYpos -= 5 + 15;
 #define WRITE_ALIGN(TEXT1,TEXT2, ROW) {\
 		const HPDF_REAL center_x = BORDER_SIZE+LEFT_MARGIN + 10 + center;\
@@ -2181,12 +2181,12 @@ int main(int argc, char *argv[])
 		HPDF_Page_ShowText (page, TEXT2);\
 		HPDF_Page_EndText (page);\
 	}
-		
+
 		HPDF_Page_SetFontAndSize (page, font, 10);
 		center = 75;
 		{
 			char * cptr;
-			for (size_t i=0; i<strlen(DBFileName);++i) if (DBFileName[i] == '/') cptr = &DBFileName[i+1]; 
+			for (size_t i=0; i<strlen(DBFileName);++i) if (DBFileName[i] == '/') cptr = &DBFileName[i+1];
 			WRITE_ALIGN("Database", cptr, 1);
 		}
 		snprintf(Text, 128, "%'lu bytes\n", FilterDBSize);
@@ -2209,25 +2209,25 @@ int main(int argc, char *argv[])
 			WRITE_ALIGN("Upper probability", Text, 10);
 			snprintf(Text, 128, "%lg", lowerProbRange);
 			WRITE_ALIGN("Lower probability", Text, 11);
-			
+
 			const SNormalizationItem * const normItem = &(prf->NormalizationData.Values[prf->ModeIndex]);
 			WRITE_ALIGN("Function", CNOR[normItem->MNOR], 13);
 			char template[] = "R1";
 			for (int i=0; i<prf->NormalizationData.JNOP[normItem->MNOR]; ++i) {
-				template[1] += (unsigned char) i; 
+				template[1] += (unsigned char) i;
 				snprintf(Text, 128, "%lf", normItem->RNOP[i]);
 				WRITE_ALIGN(template, Text, 14+i);
 			}
 		}
-		
+
 		HPDF_Image JPGScores = HPDF_LoadJpegImageFromFile(pdf, FilterTempName);
 		HPDF_REAL iw = HPDF_Image_GetWidth (JPGScores);
 		HPDF_REAL ih = HPDF_Image_GetHeight (JPGScores);
 		if (iw > Graph_width*PageWidth) {
 			ih *= Graph_width*PageWidth/iw;
-			iw = Graph_width*PageWidth; 
+			iw = Graph_width*PageWidth;
 		}
-		
+
 		HPDF_Page_DrawImage (page, JPGScores, BORDER_SIZE+LEFT_MARGIN+(1.- Graph_width)*PageWidth, lastYpos - ih - 5, iw, ih);
 		lastYpos -= ih;
 		}
@@ -2240,7 +2240,7 @@ int main(int argc, char *argv[])
 			HPDF_REAL ih = HPDF_Image_GetHeight (JPGScores);
 			if (iw > Graph_width*PageWidth) {
 				ih *= Graph_width*PageWidth/iw;
-				iw = Graph_width*PageWidth; 
+				iw = Graph_width*PageWidth;
 			}
 			if (lastYpos < ih+BORDER_SIZE+BOTTOM_MARGIN) {
 				HPDF_Page_SetFontAndSize (page, font, 6);
@@ -2260,7 +2260,7 @@ int main(int argc, char *argv[])
 				page = HPDF_AddPage(pdf);
 				lastYpos = BORDER_SIZE+BOTTOM_MARGIN+PageHeight;
 			}
-			// 	lastYpos -= 5 + 20; 
+			// 	lastYpos -= 5 + 20;
 			HPDF_Page_SetGrayFill(page, 0.8);
 			HPDF_Page_Rectangle(page,
 													BORDER_SIZE+LEFT_MARGIN+10, lastYpos - 5 - 15,
@@ -2272,13 +2272,13 @@ int main(int argc, char *argv[])
 			HPDF_Page_MoveTextPos (page, BORDER_SIZE+LEFT_MARGIN + 10 + 10, lastYpos - 5 - 12);
 			HPDF_Page_ShowText (page, cptr);
 			HPDF_Page_EndText (page);
-			
+
 			lastYpos -= 5 + 15;
 			HPDF_Page_SetFontAndSize (page, font, 10);
 			int ROW;
 			if (!HeuristicSequencesFromProfile) {
 				char * cptr = SeqDB;
-				for (size_t i=0; i<strlen(SeqDB);++i) if (SeqDB[i] == '/') cptr = &SeqDB[i+1]; 
+				for (size_t i=0; i<strlen(SeqDB);++i) if (SeqDB[i] == '/') cptr = &SeqDB[i+1];
 				WRITE_ALIGN("Database", cptr, 1);
 				snprintf(Text, 128, "%'lu bytes\n", HeuristicDBSize);
 				WRITE_ALIGN("Database size", Text, 2);
@@ -2306,28 +2306,28 @@ int main(int argc, char *argv[])
 				snprintf(Text ,128, "%lu", PamDistanceCounter);
 				WRITE_ALIGN("# PAM", Text, ROW+7);
 				ROW += 5;
-			} 
+			}
 			const size_t npoints = HeuristicDBSequenceCount*(1+PamDistanceCounter*PamSampling);
 			snprintf(Text ,128, "%'lu", npoints);
 			WRITE_ALIGN("# points", Text, ROW+3);
 			snprintf(Text, 128, "%.2f%%", 100.0*quantile);
 			WRITE_ALIGN("Quantile", Text, ROW+4);
-			
+
 			const SNormalizationItem * const normItem = &(prf->NormalizationData.Values[prf->HeuristicModeIndex]);
 			WRITE_ALIGN("Function", CNOR[NewHeuristicNormItem.MNOR], ROW+6);
 			char template[] = "R1";
 			for (int i=0; i<prf->NormalizationData.JNOP[NewHeuristicNormItem.MNOR]; ++i) {
-				template[1] += (unsigned char) i; 
+				template[1] += (unsigned char) i;
 				snprintf(Text, 128, "%lf", NewHeuristicNormItem.RNOP[i]);
 				WRITE_ALIGN(template, Text, ROW+7+i);
 			}
-			
-#undef WRITE_ALIGN    
-			
+
+#undef WRITE_ALIGN
+
 			HPDF_Page_DrawImage (page, JPGScores, BORDER_SIZE+LEFT_MARGIN+(1.- Graph_width)*PageWidth, lastYpos - ih - 5, iw, ih);
-			
+
 		}
-		
+
 		/*
 		 * Footer -------------------------------------------------------------------------
 		 */

@@ -204,6 +204,11 @@ static void __attribute__((noreturn)) Usage(FILE * stream)
 {
 	fprintf(stream,
 					"Calibrate a profile:\n"
+					"\n"
+					"################################################################################\n\n"
+					"\tThis is an Alpha release of pfcalibrate, not ready for production\n"
+					"\t\t\tUse it at your own risk\n\n"
+					"################################################################################\n\n"
 					"pfcalibrate [options] --method <method> --mode <mode> profile\n"
 					"E.g. pfcalibrate --method pfscale --filter-db window20.seq --heuristic-db profile --profile-sampling 25 <profile>\n"
 					"     pfcalibrate --filter-db window20.seq --heuristic-db profile --profile-sampling 25 <profile>\n\n"

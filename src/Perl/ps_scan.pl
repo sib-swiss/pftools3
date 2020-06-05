@@ -2,9 +2,9 @@
 
 # ps_scan - a PROSITE scanning program
 #
-# Revision: 1.87
+# Revision: 1.89
 #
-# Copyright (C) 2001-2011 SIB Swiss Institute of Bioinformatics
+# Copyright (C) 2001-2020 Swiss Institute of Bioinformatics
 # Authors:
 #   edouard.decastro@sib.swiss
 #   Alexandre Gattiker
@@ -310,145 +310,6 @@ sub prositeToRegexp {
     return $regexp;
 }
 
-
-# Checks that a user-entered pattern is parseable, returning an error message
-# or undef TODO: <A-T-[<GE] should be an error
-sub checkPatternSyntax {
-    my $pattern = shift;
-    my $c1 = 0;
-    my $c2 = 0;
-    my ($c_open_square, $c_open_curly, $c_open_paren) = (0, 0, 0);
-    my ($c_close_square, $c_close_curly, $c_close_paren) = (0, 0, 0);
-    if ($pattern =~ /(-){2,}/ || $pattern =~ /([,\-\(\)\{\}\[\]\<\>]){2,}]/) {
-        return "duplicate character \"$1\"";
-    }
-    if ($pattern !~ /[a-zA-Z]/) {
-        return "pattern has no characters";
-    }
-    if ($pattern =~ /-\(/) {
-        return "dash before (";
-    }
-    if ($pattern =~ /([JOU])/i) {
-        return "pattern contains letter \"$1\" which is not an amino acid";
-    }
-    if (length($pattern) > 200) {
-        return "pattern is longer than the limit of 200 characters";
-    }
-    elsif ($pattern =~ /^\[[a-z]+\]$/i) {
-        return "pattern is too degenerate";
-    }
-    else {
-        my $ambig;
-        my $ambig_complement;
-        my $range;
-        my %count;
-        my @ambig;
-        foreach (split(//,$pattern)) {
-            unless ($c1 == $c2 || $c1 == $c2 +1) {
-            # always close parentheses before opening a new one!
-                return "nested parentheses are forbidden";
-            }
-            if (/[\[\{\(]/) {
-                $c1++;
-                if (/\[/) {
-                    $ambig = " ";
-                    $c_open_square++;
-                }
-                elsif (/\{/) {
-                    $ambig_complement = " ";
-                    $c_open_curly++;
-                }
-                elsif (/\(/) {
-                    $range = " ";
-                    $c_open_paren++;
-                }
-            }
-            elsif (/[\]\}\)]/) {
-                $c2++;
-                if (/\]/) {
-                    %count = ();
-                    if (length($ambig) < 3) {
-                        return "no real ambiguity inside []";
-                    }
-                    else {
-                        @ambig = split(//, $ambig);
-                        for (@ambig) {
-                            $count{$_}++;
-                        }
-                        for (sort keys %count) {
-                            if ($count{$_} ne 1) {
-                            return "string inside square brackets \"
-                                $ambig\" contains duplicates";
-                            }
-                        }
-                    }
-                    $ambig = "";
-                    $c_close_square++;
-                }
-                elsif (/\}/) {
-                    $ambig_complement = "";
-                    $c_close_curly++;
-                }
-                elsif (/\)/) {
-                    $range =~ s/^\s+//;
-                    if ($range =~ /^(\d+),(\d+)$/) {
-                        if ($1 >= $2) {
-                            return "range \"$range\" is invalid
-                                (second term must be greater than first)";
-                        }
-                    }
-                    elsif ($range !~ /^\d+$/){
-                        return "range \"$range\" is invalid";
-                    }
-                    $range = "";
-                    $c_close_paren++;
-                }
-            }
-            elsif ($range) {
-                if (!/[\d,]/) {
-                    return "incorrect range \"$range\"";
-                }
-                $range .= $_;
-            }
-            elsif ($ambig) {
-                if (!/[A-Z<>]/) {# [G>] is allowed, e.g. PS00267, PS00539
-                    return "wrong syntax for ambiguity : \"$ambig \"";
-                }
-                if (/([BZ])/) {
-                    return "ambiguous amino acid \"
-                        $1\" not allowed within ambiguity";
-                }
-                $ambig .= $_;
-            }
-            elsif ($ambig_complement) {
-                if (!/[A-Z]/) {
-                    return "wrong syntax for ambiguity :
-                        \"$ambig_complement\"";
-                }
-                $ambig_complement .= $_;
-            }
-            else {# amino acid or anchor, or * quantifier
-                if (/([^A-Zx\-<>*])/) {
-                    return "invalid character : \"$1\"";
-                }
-            }
-        }
-        if ($c1 != $c2) {
-            return "unbalanced (), [] or {}";
-        }
-        elsif ($c_open_square != $c_close_square) {
-            return "unbalanced []";
-        }
-        elsif ($c_open_curly != $c_close_curly) {
-            return "unbalanced {}";
-        }
-        elsif ($c_open_paren != $c_close_paren) {
-            return "unbalanced ()";
-        }
-    }
-    return undef;
-}
-
 sub parseProsite {
     local $_ = shift;
     my $ac = $1 if /^AC   (\w+)/m;
@@ -677,7 +538,7 @@ sub group_matches
 # initializations & parameters processing
 
 BEGIN {
-   $VERSION = '1.87';
+   $VERSION = '1.88';
 }
 
 # Can we use the IPC::Open2 module to communicate with
@@ -756,7 +617,7 @@ Other expert options:
                        normalized score value. -R and -C options can be
                        combined.
   --pfscan <path>    : pathname to pfscan executable (if not defined will be
-                       'pfscan', so executable has to be found within PATH env).
+                       'pfscan', so executable has to be found within PATH env). 
                        This option could be used e.g. to use pftool v3 pfscanV3.
 
 Note:
@@ -1860,7 +1721,7 @@ sub do_profile_scan {
             }
             close DETECT;
         }
-        @pre_command = ( $use_pfsearchV3 ?
+        @pre_command = ( $use_pfsearchV3 ? 
         	"$opt_pfsearch -o1 -c$cutoff $PROSITE" : "$opt_pfsearch $fasta -lxz $PROSITE" );
         	# p.s. if input is not fasta, pfsearchV3 will fail!
         @post_command = ( $use_pfsearchV3 ? "" : "C=$cutoff" );
@@ -1869,7 +1730,7 @@ sub do_profile_scan {
         if ($level_arg eq 0) { # yes default scan l=0 is internally run at -1 (so that postprocessing could consider weak matches)
             $level_arg = -1;
         }
-        @pre_command  = $use_pfscan_v3 ? "$PFSCAN --matrix-only -L$level_arg $PROSITE" : "$PFSCAN -flxz -v -C$level_arg";
+        @pre_command  = $use_pfscan_v3 ? "$PFSCAN --matrix-only -o4 -L$level_arg $PROSITE" : "$PFSCAN -flxz -v -C$level_arg";
         @post_command = $use_pfscan_v3 ? "" : $PROSITE;
     }
     my $out;
@@ -1887,7 +1748,7 @@ sub do_profile_scan {
         }
         my $cmd = "@pre_command $seqfile @post_command > $PFSCAN_TMP";
         # launch pftool scan command
-        system $cmd and die "Could not execute $cmd";
+        system $cmd and die "Could not execute $cmd: $!";
         unlink $seqfile unless defined $seqfile_to_scan;
         my $pfscan_fh = new IO::File($PFSCAN_TMP)
             or die "Cannot open $PFSCAN_TMP: $!";
@@ -1916,6 +1777,7 @@ sub do_profile_scan {
         $out = scanProfiles($reader, $level_min-1);
         close $reader or die "Error $? with $cmd";
         waitpid $pid, 0; #avoid defunct kid processes
+	die "Could not execute $cmd: $!" if $?;
     }
     unlink $PFSCAN_TMP;
     if ($opt_format eq "msa") {# if output format is MSA run psa2msa

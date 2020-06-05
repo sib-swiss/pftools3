@@ -4,7 +4,7 @@
 #
 # Revision: 1.89
 #
-# Copyright (C) 2001-2020 Swiss Institute of Bioinformatics
+# Copyright (C) 2001-2020 SIB Swiss Institute of Bioinformatics
 # Authors:
 #   edouard.decastro@sib.swiss
 #   Alexandre Gattiker
@@ -538,7 +538,7 @@ sub group_matches
 # initializations & parameters processing
 
 BEGIN {
-   $VERSION = '1.88';
+   $VERSION = '1.89';
 }
 
 # Can we use the IPC::Open2 module to communicate with
@@ -617,7 +617,7 @@ Other expert options:
                        normalized score value. -R and -C options can be
                        combined.
   --pfscan <path>    : pathname to pfscan executable (if not defined will be
-                       'pfscan', so executable has to be found within PATH env). 
+                       'pfscan', so executable has to be found within PATH env).
                        This option could be used e.g. to use pftool v3 pfscanV3.
 
 Note:
@@ -1721,7 +1721,7 @@ sub do_profile_scan {
             }
             close DETECT;
         }
-        @pre_command = ( $use_pfsearchV3 ? 
+        @pre_command = ( $use_pfsearchV3 ?
         	"$opt_pfsearch -o1 -c$cutoff $PROSITE" : "$opt_pfsearch $fasta -lxz $PROSITE" );
         	# p.s. if input is not fasta, pfsearchV3 will fail!
         @post_command = ( $use_pfsearchV3 ? "" : "C=$cutoff" );

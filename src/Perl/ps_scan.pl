@@ -1777,7 +1777,7 @@ sub do_profile_scan {
         $out = scanProfiles($reader, $level_min-1);
         close $reader or die "Error $? with $cmd";
         waitpid $pid, 0; #avoid defunct kid processes
-	die "Could not execute $cmd: $!" if $?;
+	die "Could not execute $cmd; returned: $?" if $?;
     }
     unlink $PFSCAN_TMP;
     if ($opt_format eq "msa") {# if output format is MSA run psa2msa

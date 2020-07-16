@@ -1,10 +1,10 @@
 #########################################################################################
 # PfTools versioning
 #
-SET(VERSION "3.2.4")
+SET(VERSION "3.2.5")
 SET(MAJOR_VERSION "3")
 SET(MINOR_VERSION "2")
-SET(PATCH_VERSION "4")
+SET(PATCH_VERSION "5")
 SET(DATA_PATH "share/data"     CACHE STRING "Installation data folder" )
 SET(DOC_PATH  "share/doc"      CACHE STRING "Installation doc folder" )
 SET(MAN1_PATH "share/man/man1" CACHE STRING "Installation man1 folder" )
@@ -17,7 +17,7 @@ MESSAGE(STATUS "+---------------------------------------------------------------
 MESSAGE(STATUS "|                          PfTools   v${VERSION}                          |")
 MESSAGE(STATUS "+--------------------------------------------------------------------+")
 MESSAGE(STATUS "|     (C) Copyright SIB Swiss Institute of Bioinformatics            |")
-MESSAGE(STATUS "|         Thierry Schuepbach (thierry.schuepbach@sib.swiss)          |")
+MESSAGE(STATUS "|         Thierry Schuepbach (projects@vital-it.ch)                  |")
 MESSAGE(STATUS "|                                                                    |")
 MESSAGE(STATUS "|     PfTools is available from                                      |")
 MESSAGE(STATUS "|         https://github.com/sib-swiss/pftools3                      |")

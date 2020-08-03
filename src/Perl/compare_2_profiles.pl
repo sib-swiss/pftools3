@@ -9,7 +9,6 @@ use diagnostics;
 # pfcalibrate -m pfscale --filter-db /db/shuffled/window20.seq --heuristic-db profile    -M 1 -o $OUT/$shortname $prf -r $OUT/${shortname/.prf/.pdf} --verbose 2>$OUT/${shortname/.prf/.log} --nthreads 4
 
 use File::Slurp;
-use String::Numeric qw(:all);
 
 # Get profiles
 my $old_prf = $ARGV[0]  or die "\n\t$0 old_prf new_prf\n\n";
@@ -89,28 +88,39 @@ sub read_prf {
         }
         # MA   /NORMALIZATION: MODE=1; FUNCTION=LINEAR; R1=7.4199743; R2=0.0003973; TEXT='-LogE';
         elsif ( $line =~ /^MA   \/NORMALIZATION: MODE=1; FUNCTION=LINEAR; R1=([^;]+); R2=([^;]+);/ ){
-            $param->{'M1_R1'} = is_float($1) ? $1 : undef;
-            $param->{'M1_R2'} = is_float($2) ? $2 : undef;
+            $param->{'M1_R1'} = &is_float($1) ? $1 : undef;
+            $param->{'M1_R2'} = &is_float($2) ? $2 : undef;
         }
         # MA   /NORMALIZATION: MODE=-1; FUNCTION=LINEAR; R1=-1288983.5; R2=117.584267; TEXT='Heuristic';
         elsif ( $line =~ /^MA   \/NORMALIZATION: MODE=-1; FUNCTION=LINEAR; R1=([^;]+); R2=([^;]+);/ ){
-            $param->{'M-1_R1'} = is_float($1) ? $1 : undef;
-            $param->{'M-1_R2'} = is_float($2) ? $2 : undef;
+            $param->{'M-1_R1'} = &is_float($1) ? $1 : undef;
+            $param->{'M-1_R2'} = &is_float($2) ? $2 : undef;
         }
         # MA   /CUT_OFF: LEVEL=1; SCORE=19660; H_SCORE=1022723; N_SCORE=15.23; MODE=1; TEXT='!';
         elsif ( $line =~ /^MA   \/CUT_OFF: LEVEL=1; SCORE=([^;]+);/ ){
-            $param->{'L1_score'} = is_int($1) ? $1 : undef;
+            $param->{'L1_score'} = &is_int($1) ? $1 : undef;
         }
         # MA   /CUT_OFF: LEVEL=0; SCORE=19660; H_SCORE=1022723; N_SCORE=15.23; MODE=1; TEXT='?';
         elsif ( $line =~ /^MA   \/CUT_OFF: LEVEL=0; SCORE=([^;]+);/ ){
-            $param->{'L0_score'} = is_int($1) ? $1 : undef;
+            $param->{'L0_score'} = &is_int($1) ? $1 : undef;
         }
         # MA   /CUT_OFF: LEVEL=-1; SCORE=2719; H_SCORE=-969271; N_SCORE=8.5; MODE=1; TEXT='??';
         elsif ( $line =~ /^MA   \/CUT_OFF: LEVEL=\-1; SCORE=([^;]+);/ ){
-            $param->{'L-1_score'} = is_int($1) ? $1 : undef;
+            $param->{'L-1_score'} = &is_int($1) ? $1 : undef;
         }
     }
 
     return $param;
 }
 
+sub is_float {
+    @_ == 1 || croak(q/Usage: is_float(string)/);
+    local $_ = $_[0];
+    return ( defined && /\A-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\z/ );
+}
+
+sub is_int {
+    @_ == 1 || croak(q/Usage: is_int(string)/);
+    local $_ = $_[0];
+    return ( defined && /\A-?(?:0|[1-9][0-9]*)\z/ );
+}

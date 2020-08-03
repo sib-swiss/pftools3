@@ -1,23 +1,23 @@
-*       Program pfscale 
-*----------------------------------------------------------------------*     
+*       Program pfscale
+*----------------------------------------------------------------------*
 * $Id: pfscale.f,v 2.11 2003/11/28 11:53:33 vflegel Exp $
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 *       Function: Fits paramters of an extreme value distribution to a
 *                 profile score distribution. Input: sorted score list.
 *       Author:   Philipp Bucher
 *       Contact:  pftools@sib.swiss
 *       Version:  File under developpment for release 2.3
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * DATA
 *----------------------------------------------------------------------*
 
 * array sizes, I/O units
 
-      Include          'ardim.f' 
+      Include          'ardim.f'
 
       Parameter        (NOUT=   6)
       Parameter        (NSCL=  10)
-      Parameter        (NPRF=  11)    
+      Parameter        (NPRF=  11)
 
 
 * function return types
@@ -27,8 +27,8 @@
 
 * Parameters and options
 
-      Character*512     FSCL  
-      Character*512     FPRF  
+      Character*4096    FSCL
+      Character*4096    FPRF
 
       Real*8            DL
       Integer           NN
@@ -48,7 +48,7 @@
       Include          'sterr.f'
       Include          'cvini.f'
 
-* score statistics  
+* score statistics
 
       Real              XSCO(IDMC)
       Real              XFRQ(IDMC)
@@ -66,13 +66,13 @@
       LRNM=.FALSE.
       LEOF=.FALSE.
 
-* read command line 
+* read command line
 
       Call Repar(FSCL,FPRF,LLLT,DL,NN,RP,RQ,LMNB,IMNB,IRC)
       If(IRC.NE.0) then
          Write(NERR,'(/,
      *      ''pfscale 2.3 revision 5.d'',//
-     *      ''Usage: pfscale [ -lhLMNPQ ] [ score-list | - ] '' 
+     *      ''Usage: pfscale [ -lhLMNPQ ] [ score-list | - ] ''
      *      ''[ profile-file ] [ parameters ]'',/
      *      )')
          Write(NERR,'(
@@ -102,9 +102,9 @@
      *      )')
          Call Exit(IRC)
       End if
-         
+
       If(FSCL.NE.' '.AND.FSCL.NE.'-') then
-         MSCL=NSCL 
+         MSCL=NSCL
          Open(MSCL,File=FSCL,Status='OLD',Err=900)
       Else
          MSCL=5
@@ -126,14 +126,14 @@
          XWGT(I1)=I1*0.5
  5    Continue
 
- 10   NSCO=I1-1       
+ 10   NSCO=I1-1
       If(NSCO.LT.1) Go to 904
 
       XSM=0
       XFM=0
       XWM=0
       Do  20 I1=1,NSCO
-         If(XFRQ(I1).GE.EMIN.AND.XFRQ(I1).LE.EMAX) then 
+         If(XFRQ(I1).GE.EMIN.AND.XFRQ(I1).LE.EMAX) then
             XSM=XSM+XWGT(I1)*XSCO(I1)
             XFM=XFM+XWGT(I1)*XFRQ(I1)
             XWM=XWM+XWGT(I1)
@@ -147,8 +147,8 @@
       XFV=0
       XCO=0
       Do  30 I1=1,NSCO
-         If(XFRQ(I1).GE.EMIN.AND.XFRQ(I1).LE.EMAX) then 
-            XSV=XSV+XWGT(I1)*( (XSCO(I1)-XSM)**2 ) 
+         If(XFRQ(I1).GE.EMIN.AND.XFRQ(I1).LE.EMAX) then
+            XSV=XSV+XWGT(I1)*( (XSCO(I1)-XSM)**2 )
             XFV=XFV+XWGT(I1)*( (XFRQ(I1)-XFM)**2 )
             XCO=XCO+XWGT(I1)*(XFRQ(I1)-XFM)*(XSCO(I1)-XSM)
          End if
@@ -160,19 +160,19 @@
       XB=XCO*XFV/XSV
       XA=XFM-XB*XSM
 
-      If(FPRF.NE.' ') Go to  50 
+      If(FPRF.NE.' ') Go to  50
 
 * Case 1: no profile input file - print list
 
       Write(NOUT,
-     *   '(''# -LogP ='',F8.4,'' + '',F12.8,'' * raw-score'')') XA,XB 
-      
+     *   '(''# -LogP ='',F8.4,'' + '',F12.8,'' * raw-score'')') XA,XB
+
       Write(NOUT,'(''#'')')
       Write(NOUT,'(''#   rank raw-score  -logFreq  -logProb'')')
       Write(NOUT,'(''#'')')
 
       Do  40 I1=1,NSCO
-         XPRE=XA+XB*XSCO(I1) 
+         XPRE=XA+XB*XSCO(I1)
          Write(NOUT,'(I8,F10.2,F10.4,F10.4)')
      *      I1,XSCO(I1),XFRQ(I1),XPRE
  40   Continue
@@ -180,7 +180,7 @@
 
 * Case 2: Modify profile input file
 
- 50   Continue 
+ 50   Continue
 
       Call REPRF
      *   (NPRF,FPRF,
@@ -212,14 +212,14 @@
             If(NNPR(I1).LT.K1) then
                K1=NNPR(I1)
                J1=I1
-            End if 
-         End do 
+            End if
+         End do
       End if
 
  55   CNTX(J1)='-LogE'
       If(MNOR(J1).NE.1) go to 902
- 
-* add normalisation parameters: 
+
+* add normalisation parameters:
 
       RNOP(1,J1)=XA
       RNOP(2,J1)=XB
@@ -235,7 +235,7 @@
             End if
          End do
  60      Continue
-      End do 
+      End do
 
 * rescaling command
 
@@ -289,11 +289,11 @@
 
       End
 *----------------------------------------------------------------------*
-      Subroutine Repar(FSCL,FPRF,LLLT,DL,NN,RP,RQ,LMNB,IMNB,IRC) 
+      Subroutine Repar(FSCL,FPRF,LLLT,DL,NN,RP,RQ,LMNB,IMNB,IRC)
 
       Include          'sterr.f'
 
-      Character*(*)     FSCL  
+      Character*(*)     FSCL
       Character*(*)     FPRF
 
       Real*8            DL
@@ -304,7 +304,7 @@
       Logical           LMNB
       Integer           IMNB
 
-      Character*512     CARG 
+      Character*4096    CARG
 
 * initializations
 
@@ -319,7 +319,7 @@
       RQ=0.000001
       IRC=0
 
-* interpret command line arguments 
+* interpret command line arguments
 
       N1=Iargc()
 
@@ -333,7 +333,7 @@
             If(Index(CARG,'L').NE.0) then
                If(CARG(3:3).NE.' ') then
                   If(CARG(3:3).EQ.'e'.OR.CARG(3:3).EQ.'E') then
-                     DL=EXP(1.0) 
+                     DL=EXP(1.0)
                   Else
                      Read(CARG(3:),*,Err=900) DL
                   End if
@@ -341,7 +341,7 @@
                   I2=I2+1
                   Call GetArg(I2,CARG)
                   If(CARG(1:1).EQ.'e'.OR.CARG(1:1).EQ.'E') then
-                     DL=EXP(1.0) 
+                     DL=EXP(1.0)
                   Else
                      Read(CARG,*,Err=900) DL
                   End if
@@ -387,11 +387,11 @@
             End if
 
          Else if(CARG(1:3).EQ.'L=e'.OR.CARG(1:3).EQ.'L=E') then
-            DL=EXP(1.0) 
+            DL=EXP(1.0)
          Else if(CARG(1:2).EQ.'L=') then
-            Read(CARG(3:),*,Err=900) DL 
+            Read(CARG(3:),*,Err=900) DL
          Else if(CARG(1:2).EQ.'N=') then
-            Read(CARG(3:),*,Err=900) NN 
+            Read(CARG(3:),*,Err=900) NN
          Else if(CARG(1:2).EQ.'P=') then
             Read(CARG(3:),*,Err=900) RP
          Else if(CARG(1:2).EQ.'Q=') then
@@ -412,7 +412,7 @@ C            Go to 900
          I2=I2+1
          If(I2.GT.N1) Go to 20
       End do
-      
+
  20   If(DL.LE.1) Go to 901
       If(NN.LT.1) Go to 902
       If(RP.LT.0.OR.RP.GT.1) Go to 903

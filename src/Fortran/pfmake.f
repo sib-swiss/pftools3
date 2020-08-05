@@ -1,13 +1,13 @@
 *       Program pfmake
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * $Id: pfmake.f,v 2.11 2003/11/28 11:53:33 vflegel Exp $
-*----------------------------------------------------------------------*     
-*       Function: Constructs a profile from a multiple sequence 
-*                 alignment 
+*----------------------------------------------------------------------*
+*       Function: Constructs a profile from a multiple sequence
+*                 alignment
 *       Author:   Philipp Bucher
 *       Contact:  pftools@sib.swiss
 *       Version:  File under developpment for release 2.3
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * DATA
 *----------------------------------------------------------------------*
 
@@ -36,13 +36,13 @@ C      Parameter        (IDM2=   2048)
 
 C      Character*64      FOUT
 
-* weights and distances 
+* weights and distances
 
       Real*4            RWGT(IDMF)
 
 * multiple sequence alignment:
 
-      Character*512     FMSF
+      Character*4096    FMSF
 
       Character*64      SQID(IDMF)
       Character         CSEQ(IDMS)
@@ -62,13 +62,13 @@ C      Character*64      FOUT
 
 * symbol comparison table
 
-      Character*512     FCMP
+      Character*4096    FCMP
 
       Real              RCMP(26,26)
 
 * profile
 
-      Character*512     FPRF
+      Character*4096    FPRF
       Character*30      FDAT
 
 
@@ -84,35 +84,35 @@ C      Character*64      FOUT
       Logical           OPT2
       Logical           OPT3
       Logical           OPTC
-      Logical           LLLT    
-      Logical           OPTM    
-      Logical           LRNM   
+      Logical           LLLT
+      Logical           OPTM
+      Logical           LRNM
       Logical           LEOF
 
-      Logical           LBLK  
-      Logical           LSYM  
+      Logical           LBLK
+      Logical           LSYM
       Logical           LWGE
       Real              RE
       Real              RF
       Real              RG
-      Real              RH 
-      Real              RI 
-      Real              RL 
+      Real              RH
+      Real              RI
+      Real              RL
       Real              RM
       Real              RS
       Real              RT
       Real              RX
 
-* character translation 
-      
+* character translation
+
       Character*27      ABCU
       Character*27      ABCL
-      
+
       Data              ABCU/'ABCDEFGHIJKLMNOPQRSTUVWXYZ-'/
       Data              ABCL/'abcdefghijklmnopqrstuvwxyz.'/
-      
+
 * initialization of controlled vocabularies
-      
+
       Include          'cvini.f'
 
 *----------------------------------------------------------------------*
@@ -125,7 +125,7 @@ C      Character*64      FOUT
       LEOF=.FALSE.
       LRNM=.FALSE.
 
-* read command line 
+* read command line
 
       Call Repar
      *   (FMSF,FCMP,FPRF,OPT0,OPT1,OPT2,OPT3,OPTC,LSYM,LWGE,LBLK,
@@ -212,12 +212,12 @@ C      Character*64      FOUT
       End if
       If(IRC.NE.0) go to 100
 
-* read score-matrix 
+* read score-matrix
 
       Call RECMP(NERR,NCMP,FCMP,NABC,CABC,RCMP,IRC)
       If(IRC.NE.0) go to 100
 
-* read input profile  
+* read input profile
 
       If(FPRF.NE.' ')
      *   Call REPRF
@@ -244,18 +244,18 @@ C      Character*64      FOUT
          LHDR=0
          LFTR=0
       End if
-      
+
 *----------------------------------------------------------------------*
-* DATA PROCESSING SECTION 
+* DATA PROCESSING SECTION
 *----------------------------------------------------------------------*
 
-* normalize weights 
+* normalize weights
 
       R1=0.0
       Do I1=1,NSEQ
          R1=R1+RWGT(I1)
       End do
-      If(R1.EQ.0.0) then 
+      If(R1.EQ.0.0) then
          R1=1/Real(NSEQ)
          Do I1=1,NSEQ
             RWGT(I1)=R1
@@ -264,9 +264,9 @@ C      Character*64      FOUT
          Do I1=1,NSEQ
             RWGT(I1)=RWGT(I1)/R1
          End do
-      End if 
+      End if
 
-* make sequences uppercase 
+* make sequences uppercase
 
       Do I1=1,LSEQ*NSEQ
          If     (Index(ABCU,CSEQ(I1)).EQ.0) then
@@ -281,8 +281,8 @@ C      Character*64      FOUT
 
 * remove endgaps
 
-      If(.NOT.LWGE) then 
-         J1=0 
+      If(.NOT.LWGE) then
+         J1=0
          Do  10 I1=1,NSEQ
             Do   6 I2=J1+1,J1+LSEQ
                If(CSEQ(I2).NE.'-') go to  7
@@ -300,15 +300,15 @@ C      Character*64      FOUT
       End if
 
 * make frequency profile
-*    
-*   for residue i and profile position j: 
+*
+*   for residue i and profile position j:
 *      RPRF(i,j) = residue frequency(residue,position)
-*   for profile position j: 
+*   for profile position j:
 *      FUNK(  j) = fraction of unknown residues
-*      FRES(  j) = fraction of residues and gaps 
-*      RDEL(  l) = fraction of gaps 
+*      FRES(  j) = fraction of residues and gaps
+*      RDEL(  l) = fraction of gaps
 
-* - initialize 
+* - initialize
 
       Do  12  I1=1,LSEQ
          Do  11 I2=1,NABC
@@ -334,22 +334,22 @@ C      Character*64      FOUT
  16         Continue
 
             FRES(   K2)=FRES(   K2)+RWGT(K1)
-            If     (IX.NE.0) then 
+            If     (IX.NE.0) then
                RPRF(IX,K2)=RPRF(IX,K2)+RWGT(K1)
             else if(CSEQ(I2).EQ.'-') then
                FDEL(   K2)=FDEL(   K2)+RWGT(K1)
             else if(CSEQ(I2).EQ.' ') then
                FRES(   K2)=FRES(   K2)-RWGT(K1)
-            else 
+            else
                FUNK(   K2)=FUNK(   K2)+RWGT(K1)
-            end if  
+            end if
             K2=K2+1
  19      Continue
          J1=J1+LSEQ
          K1=K1+1
  20   Continue
 
-* normalize frequencies: 
+* normalize frequencies:
 
       Do  25 I1=1,LSEQ
          FDEL(I1)=FDEL(I1)/FRES(I1)
@@ -361,12 +361,12 @@ C      Character*64      FOUT
  25   Continue
 
 * construct score profile:
-*    
-*   for known residue i and profile match position j: 
+*
+*   for known residue i and profile match position j:
 *      SPRF(i,j) = match extension score
-*   for profile position j: 
-*      SDEL(  j) = gap penalty multipliers for deletion gaps  
-*      SINS(  j) = gap penalty multipliers for insertion gaps 
+*   for profile position j:
+*      SDEL(  j) = gap penalty multipliers for deletion gaps
+*      SINS(  j) = gap penalty multipliers for insertion gaps
 
 * - gap penalty multipliers:
 
@@ -375,18 +375,18 @@ C      Character*64      FOUT
       SINS(0)=1.0
       Do   30 I1=1,LSEQ
          If(FDEL(I1).LE.RT) then
-            If(K1.GT.0) then 
+            If(K1.GT.0) then
                XDEL=RM/(1.0+K1*RI)
                SINS(J1-1)=XDEL
                Do  27 I2=J1,I1-1
                   SINS(I2)=XDEL
                   SDEL(I2)=XDEL
  27            Continue
-               K1=0 
-            End if  
+               K1=0
+            End if
             SINS(I1)=1.0
             SDEL(I1)=1.0
-         else 
+         else
             If(K1.EQ.0) J1=I1
             K1=K1+1
          end if
@@ -394,35 +394,35 @@ C      Character*64      FOUT
 
       K1=0
       J1=0
-      Do  50 I1=1,LSEQ  
-         If(FDEL(I1).GT.1-RX) then 
+      Do  50 I1=1,LSEQ
+         If(FDEL(I1).GT.1-RX) then
 
 * - gap excision
 
-            J1=J1+1 
-         else 
+            J1=J1+1
+         else
             K1=K1+1
 
-* - score matrix application 
+* - score matrix application
 
-            Do  33 I2=1,NABC  
+            Do  33 I2=1,NABC
                SPRF(I2,K1)=0.0
-               Do  32 I3=1,NABC 
+               Do  32 I3=1,NABC
                   SPRF(I2,K1)=SPRF(I2,K1)+RCMP(I3,I2)*RPRF(I3,I1)
  32            Continue
                SPRF(I2,K1)=RS*SPRF(I2,K1)
 C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
  33         Continue
-            If(J1.GT.0) then 
+            If(J1.GT.0) then
                SINS(K1-1)=-SINS(I1-1)
                J1=0
-            End if 
+            End if
             SDEL(K1)=SDEL(I1)
             SINS(K1)=SINS(I1)
             FDEL(K1)=FDEL(I1)
-         end if 
+         end if
  50   Continue
-      If(J1.GT.0) SINS(K1)=-SINS(K1)  
+      If(J1.GT.0) SINS(K1)=-SINS(K1)
       LPRF=K1
 
 
@@ -442,17 +442,17 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
       If(CPDE.EQ.' ') CPDE='Generated from MSF file: '''
      *   // FMSF(1:Lblnk(FMSF))
      *   // '''.'
-      
+
 * - accessories
-      
-      If(MDIS.EQ.0) then 
+
+      If(MDIS.EQ.0) then
          MDIS=2
-         N1=MIN(5,LPRF/10) 
+         N1=MIN(5,LPRF/10)
          NDIP(1)=1   +N1
          NDIP(2)=LPRF-N1
       End If
-      
-      If(JNOR.EQ.0.OR.JCUT.EQ.0) then 
+
+      If(JNOR.EQ.0.OR.JCUT.EQ.0) then
          JNOR=1
          MNOR(1)=1
          NNOR(1)=1
@@ -461,7 +461,7 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
          RNOP(1,1)=0.0
          RNOP(2,1)=1/RF
       End if
-      
+
       If(JCUT.EQ.0) then
          JCUT=2
 
@@ -479,28 +479,28 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
          RCUT(1,2)=6.5
          MCUT(1,2)=1
       End if
-      
+
 * - defaults for match and insert position
-      
+
       CHID='-'
       Do  65 I1=1,26
          IIPD(I1)=0
  65   Continue
 
       If(LSYM) then
-         N1=-NINT(RF*RG/2) 
-         N2=-NINT(RF*RG/2) 
+         N1=-NINT(RF*RG/2)
+         N2=-NINT(RF*RG/2)
       Else
-         N1=-NINT(RF*RG) 
+         N1=-NINT(RF*RG)
          N2=0
       End if
       N3=-NINT(RF*RE)
-      
+
       IIPD(B0)=0
       IIPD(B1)=NLOW
       IIPD(E0)=0
       IIPD(E1)=NLOW
-      
+
       IIPD(BM)=0
       IIPD(BI)=NLOW
       IIPD(BD)=NLOW
@@ -517,7 +517,7 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
       IIPD(DI)=NLOW
       IIPD(DD)=0
       IIPD(DE)=NLOW
-      
+
       IIPD(I0)=0
 
       CHMD='X'
@@ -526,7 +526,7 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
          IIPD(I1)=N3
          IMPD(I1)=0
  66   Continue
-      
+
       IIPD(M0)=0
 
       IMPD(D )=N3
@@ -543,15 +543,15 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
 
          Do I2=0,46
             IIPP(I2,I1)=IIPD(I2)
-         End do  
-         
-         If(SINS(I1).LT.0) then 
+         End do
+
+         If(SINS(I1).LT.0) then
             XINS=0.0
             SINS(I1)=-SINS(I1)
          Else
             XINS=SINS(I1)
          End if
-         
+
          NINS=-NINT(RF*RE*SINS(I1))
          Do  I2=1,NABC
             IIPP(I2,I1)=NINS
@@ -563,53 +563,53 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
             If(XINS.EQ.0) then
                If(I1.NE.LPRF) IIPP(MD,I1)=-NINT(RF*RG*SINS(I1)  /2)
                If(I1.NE.   0) IIPP(DM,I1)=-NINT(RF*RG*SINS(I1)  /2)
-            Else 
+            Else
                If(I1.NE.LPRF) IIPP(MD,I1)=-NINT(RF*RG*SDEL(I1+1)/2)
                If(I1.NE.   0) IIPP(DM,I1)=-NINT(RF*RG*SDEL(I1  )/2)
             End if
-         Else if(I1.NE.LPRF) then 
+         Else if(I1.NE.LPRF) then
             IIPP(MI,I1)=-NINT(RF*RG*SDEL(I1+1))
             IIPP(MD,I1)=-NINT(RF*RG*SDEL(I1+1))
          End if
 
  75   Continue
-      
+
 * - build match position
 
       Do  80 I1=1,LPRF
          Do  I2=0,27
             IMPP(I2,I1)=IMPD(I2)
          End do
-         IMPP( D,I1)=-NINT(RF*RE*SDEL(I1)) 
+         IMPP( D,I1)=-NINT(RF*RE*SDEL(I1))
          Do  I2=1,NABC
             IMPP(I2,I1)=NINT(RF*SPRF(I2,I1))
-         End do  
-
-         J2=0 
-         K2=0 
-         Do I2=1,NABC
-            If(IMPP(I2,I1).GT.K2) then 
-               J2=I2 
-               K2=IMPP(I2,I1)
-            End if 
          End do
-         If(J2.NE.0) then 
+
+         J2=0
+         K2=0
+         Do I2=1,NABC
+            If(IMPP(I2,I1).GT.K2) then
+               J2=I2
+               K2=IMPP(I2,I1)
+            End if
+         End do
+         If(J2.NE.0) then
             CHMP(I1)=CABC(J2)
          Else
-            CHMP(I1)=CHMD  
-         End if 
+            CHMP(I1)=CHMD
+         End if
  80   Continue
 
 * block profile
 
-      If(LBLK) then 
+      If(LBLK) then
          K1=0
          J1=0
- 85      J1=J1+1 
+ 85      J1=J1+1
          If((FDEL(J1).LE.RT.AND.K1+1.NE.J1).OR.
-     *      (FDEL(J1).GT.RT.AND.J1.EQ.LPRF)) then 
-            
-* - gap region: define center position 
+     *      (FDEL(J1).GT.RT.AND.J1.EQ.LPRF)) then
+
+* - gap region: define center position
 
             N1=K1
             N3=J1-1
@@ -624,14 +624,14 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
 
             If(N3.EQ.LPRF) then
                N2=N1
-               Go to 90 
-            End if 
+               Go to 90
+            End if
 
 * - - gap excision position ?
 
             N2=N1
             Do I1=N1,N3
-               If(IIPP(MI,I1).EQ.0) then 
+               If(IIPP(MI,I1).EQ.0) then
                   N2=I1
                   Go to  90
                End if
@@ -643,27 +643,27 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
             R2=0
             Do I1=N1+1,N3
                R1=R1+FDEL(I1)-FDEL(I1-1)
-               If(R1.GT.R2) then 
+               If(R1.GT.R2) then
                   N2=I1
                   R2=R1
-               End if 
-            End do 
+               End if
+            End do
 
-* - edit gap region 
+* - edit gap region
 
- 90         Continue 
+ 90         Continue
             Do I1=N1,N3
                If(I1.LT.N2) then
                   IIPP(DM,I1)=IIPD(DM)
-                  IIPP(IM,I1)=IIPD(IM) 
-                  IIPP(MI,I1)=IIPD(MI) 
+                  IIPP(IM,I1)=IIPD(IM)
+                  IIPP(MI,I1)=IIPD(MI)
                End if
                If(I1.GT.N2) then
                   IIPP(MD,I1)=IIPD(MD)
-                  IIPP(IM,I1)=IIPD(IM) 
-                  IIPP(MI,I1)=IIPD(MI) 
+                  IIPP(IM,I1)=IIPD(IM)
+                  IIPP(MI,I1)=IIPD(MI)
                End if
-            End do 
+            End do
 
 * - gap region done
 
@@ -678,7 +678,7 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
 
       End if
 
-* begin-to, to-end scores 
+* begin-to, to-end scores
 
       IIPP(BM,   0)=IIPP(MM,   0)
       IIPP(BI,   0)=IIPP(MI,   0)
@@ -686,18 +686,18 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
       IIPP(ME,LPRF)=IIPP(MM,LPRF)
       IIPP(IE,LPRF)=IIPP(IM,LPRF)
       IIPP(DE,LPRF)=IIPP(DM,LPRF)
-      
+
 * alignment mode
 
-* - define high and low init/term scores in integer units 
+* - define high and low init/term scores in integer units
 
-      NH=NLOW 
+      NH=NLOW
       If(RH.GT.Real(NLOW)) then
          RH=-RH*RF
-         If(RH.GT.Real(NLOW)) NH=NINT(RH) 
-      End if      
+         If(RH.GT.Real(NLOW)) NH=NINT(RH)
+      End if
       NL=NLOW
-      If(-RF*RL.GT.Real(NLOW)) NL=NINT(-RL*RF) 
+      If(-RF*RL.GT.Real(NLOW)) NL=NINT(-RL*RF)
 
 * - global alignment mode (also initialization for other modes)
 
@@ -723,8 +723,8 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
          IIPP(B1,   0)=NL
          IIPP(E1,LPRF)=NL
       End if
-      
-* - semiglobal alignment mode        
+
+* - semiglobal alignment mode
 
       If(OPT2.OR.OPT3) then
          Do I1=0,LPRF
@@ -736,17 +736,17 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
       End if
 
 * - local alignment mode
-      
+
       If(OPT3) then
          Do I1=1,LPRF-1
             IIPP(B1,I1)=NL
             IIPP(E1,I1)=NL
-         End do 
+         End do
          IIPD(B1)=NL
          IIPD(E1)=NL
       End if
 
-* - default M0 value: 
+* - default M0 value:
 
       R=0.0
       Do I1=1,LPRF
@@ -758,28 +758,28 @@ C                Write(6,'(I4,1x,A,F10.4)') K1,CABC(I2),SPRF(I2,K1)
 
       Do I1=1,LPRF
          IMPP(M0,I1)=IMPD(M0)
-      End do 
+      End do
 
-* linear or circular profile ? 
+* linear or circular profile ?
 
-      If(OPTC) then 
-         Do I1=0,46 
+      If(OPTC) then
+         Do I1=0,46
             K1=MAX(IIPP(I1,   0),IIPP(I1,LPRF))
             IIPP(I1,   0)=K1
             IIPP(I1,LPRF)=K1
          End do
-         IIPP(MM,0)=MAX(IIPP(MM,0),IIPP(BM,0),IIPP(ME,0)) 
+         IIPP(MM,0)=MAX(IIPP(MM,0),IIPP(BM,0),IIPP(ME,0))
          IIPP(MI,0)=MAX(IIPP(MI,0),IIPP(BI,0))
          IIPP(MD,0)=MAX(IIPP(MD,0),IIPP(BD,0))
          IIPP(IM,0)=MAX(IIPP(IM,0),IIPP(IE,0))
          IIPP(DM,0)=MAX(IIPP(DM,0),IIPP(DE,0))
          LPCI=.TRUE.
-      Else 
+      Else
          LPCI=.FALSE.
       End if
 
 *----------------------------------------------------------------------*
-* OUTPUT SECTION 
+* OUTPUT SECTION
 *----------------------------------------------------------------------*
 
 C      FOUT='stdout'
@@ -815,8 +815,8 @@ C      FOUT='stdout'
      *   (FMSF,FCMP,FPRF,OPT0,OPT1,OPT2,OPT3,OPTC,LSYM,LWGE,LBLK,
      *   LLLT,OPTM,RE,RF,RG,RH,RI,RL,RM,RS,RT,RX,NLOW,IRC)
 
-      Character*512     CPAR
-      Character*(*)     FMSF 
+      Character*4096    CPAR
+      Character*(*)     FMSF
       Character*(*)     FCMP
       Character*(*)     FPRF
 
@@ -828,7 +828,7 @@ C      FOUT='stdout'
       Logical           LLLT
       Logical           OPTM
 
-      Logical           LBLK 
+      Logical           LBLK
       Logical           LSYM
       Logical           LWGE
 
@@ -843,7 +843,7 @@ C      FOUT='stdout'
       LBLK=.FALSE.
       LSYM=.TRUE.
       LWGE=.FALSE.
-      
+
       RE=0.2
       RF=100
       RG=2.1
@@ -864,22 +864,22 @@ C      FOUT='stdout'
 
       K1=0
       I2=1
-      Do  10 I1=1,N1 
+      Do  10 I1=1,N1
          Call GetArg(I2,CPAR)
          If     (CPAR(1:1).EQ.'-'.AND.CPAR(2:2).NE.' ') then
             If(Index(CPAR,'0').NE.0) then
-               OPT0=.TRUE. 
+               OPT0=.TRUE.
                OPT2=.FALSE.
             else if(Index(CPAR,'1').NE.0) then
-               OPT1=.TRUE. 
+               OPT1=.TRUE.
                OPT2=.FALSE.
             else if(Index(CPAR,'2').NE.0) then
-               OPT2=.TRUE. 
+               OPT2=.TRUE.
             else if(Index(CPAR,'3').NE.0) then
-               OPT3=.TRUE. 
+               OPT3=.TRUE.
                OPT2=.FALSE.
-            End if                
-            If(Index(CPAR,'h').NE.0) then 
+            End if
+            If(Index(CPAR,'h').NE.0) then
                IRC=1
                Goto 100
             End if
@@ -980,7 +980,7 @@ C      FOUT='stdout'
                   Read(CPAR,*,Err=900) RX
                End if
             End if
-            
+
          Else if(CPAR(1:2).EQ.'E=') then
             Read(CPAR(3:),*,Err=900) RE
          Else if(CPAR(1:2).EQ.'F=') then
@@ -1001,7 +1001,7 @@ C      FOUT='stdout'
             Read(CPAR(3:),*,Err=900) RT
          Else if(CPAR(1:2).EQ.'X=') then
             Read(CPAR(3:),*,Err=900) RX
-            
+
          Else if(FMSF.EQ.' ') then
             FMSF=CPAR
          Else if(FCMP.EQ.' ') then
@@ -1010,17 +1010,17 @@ C      FOUT='stdout'
             FPRF=CPAR
          End if
          I2=I2+1
-         If(I2.GT.N1) Go to 20         
+         If(I2.GT.N1) Go to 20
  10   Continue
 
  20   If(FMSF.EQ.' '.OR.FCMP.EQ.' ') go to 900
-      
+
       If(LBLK) then
          LSYM=.TRUE.
          LWGE=.FALSE.
       End if
 
- 100  Return 
+ 100  Return
  900  IRC=1
       Go to 100
       End
@@ -1029,24 +1029,24 @@ C      FOUT='stdout'
 
       Character*(*)    FCMP
 
-      Integer          NABC 
-      Character        CABC(0:26) 
+      Integer          NABC
+      Character        CABC(0:26)
 
       Real             RCMP(26,26)
 
-      Character*512    RCIN 
+      Character*512    RCIN
       Character*32     CMIS
 
 
       Open(NCMP,File=FCMP,Status='OLD',Err=900)
 
       CMIS='..'
- 1    Read(NCMP,'(A)',Err=901,End=902) RCIN        
+ 1    Read(NCMP,'(A)',Err=901,End=902) RCIN
       IX=Index(RCIN,'..')
       If(IX.EQ.0) go to   1
 
-* read alphabet  
-      
+* read alphabet
+
       NABC=0
       Do  10 I1=1,IX-1
          If(RCIN(I1:I1).NE.' ') then
@@ -1057,12 +1057,12 @@ C      FOUT='stdout'
 
       If(NABC.LE.0.OR.NABC.GT.26) go to 905
       Do  20  I1=1,NABC
- 11      Read(NCMP,'(A)',Err=901,End=903) RCIN        
-         If(RCIN.EQ.' ') go to  11 
+ 11      Read(NCMP,'(A)',Err=901,End=903) RCIN
+         If(RCIN.EQ.' ') go to  11
          Read(RCIN,*,Err=904)(RCMP(I1,ii1),ii1=I1,NABC)
          Read(RCIN,*,Err=904)(RCMP(ii1,I1),ii1=I1,NABC)
  20   Continue
-      
+
  100  Return
 
 * errors
@@ -1102,4 +1102,4 @@ C      FOUT='stdout'
       Include          'wrprf.f'
       Include          'lblnk.f'
       Include          'Xblnk.f'
-      
+

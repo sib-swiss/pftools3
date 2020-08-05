@@ -1,27 +1,27 @@
-*       Program ptof 
-*----------------------------------------------------------------------*     
+*       Program ptof
+*----------------------------------------------------------------------*
 * $Id: ptof.f,v 2.12 2003/12/01 13:33:04 vflegel Exp $
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 *       Function: converts a protein profile into a framesearch profile
 *       Author:   Philipp Bucher
 *       Contact:  pftools@sib.swiss
 *       Version:  File under developpment for release 2.3
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * DATA
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 
 * array dimensions and I/O units
 
-      Include          'ardim.f' 
+      Include          'ardim.f'
 
-      Parameter        (NOUT=   6)    
+      Parameter        (NOUT=   6)
 
       Parameter        (NPRF=  11)
       Parameter        (NNUL=  12)
 
-* profile 
+* profile
 
-      Character*512     FPRF
+      Character*4096    FPRF
 
       Include          'psdat.f'
       Include          'gsdat.f'
@@ -47,9 +47,9 @@
       Real              RB
       Real              RF
       Real              RI
-      Real              RX 
-      Real              RY 
-      Real              RZ 
+      Real              RX
+      Real              RY
+      Real              RZ
 
       Integer           INBP
       Logical           LEOF
@@ -57,11 +57,11 @@
 
 * initialization of controlled vocabularies
 
-      Include          'cvini.f' 
+      Include          'cvini.f'
 
-*----------------------------------------------------------------------*     
-* INPUT SECTION 
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
+* INPUT SECTION
+*----------------------------------------------------------------------*
 
       IRC=0
       FPRF='stdout'
@@ -69,7 +69,7 @@
       INBP=0
 
 * command line arguments
-      
+
       Call Repar(FPRF,OPTR,LLLT,RB,RF,RI,RX,RY,RZ,IRC)
       If(IRC.NE.0) then
          Write(NERR,'(/,
@@ -115,7 +115,7 @@
       End if
 
 * read profile
-      
+
       If(FPRF.EQ.'-') then
          MPRF=5
       Else
@@ -147,37 +147,37 @@
       If(LFTR.GT.1024) LFTR=1024
       Do I1=LFTR,2,-1
          CFTR(I1)=CFTR(I1-1)
-      End do 
+      End do
 
       CFTR(1)='CC   /GENERATED_BY="'
       Call Recmd(CFTR(1)(21:130))
       IC=Lblnk(CFTR(1))
       CFTR(1)(IC+1:)='";'
 
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * CONVERSION SECTION
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 
-* Adjust frame search parameters to normalization function      
+* Adjust frame search parameters to normalization function
 
       If(OPTR) then
-         R2=0.01 
+         R2=0.01
          K1=1
          J1=NNPR( 1)
          Do I1=2,JNOR
             If(NNPR(I1).LT.J1) then
                K1=I1
-               JN=NNPR(I1) 
+               JN=NNPR(I1)
             End if
          End do
          If(MNOR(K1).EQ.1) R2=RNOP(2,K1)
-         
+
          RB=RB / R2
          RF=RF / R2
          RX=RX / R2
          RY=RY / R2
          RZ=RZ / R2
-      End if 
+      End if
 
 * Expand alphabet
 
@@ -201,7 +201,7 @@
             J2=J2+IIPP(I2,I1)
          End do
          IIPP(NABC,I1)=J2/(NABC-1)
-      End do 
+      End do
 
 * - default begin, end score
 
@@ -221,41 +221,41 @@
      *         IIPP(I2,I1)=IIPP(I2,I1)+IIPP(II,I1)
          End do
          IIPP(II,I1)=0
-      End do       
+      End do
 
 * Expand profile
 
-* -define architecture of profile according to topology 
+* -define architecture of profile according to topology
 
-      If(LPCI) then 
+      If(LPCI) then
          NBB=1
          NB=2
          NE=3*LPRF-1
          NEE=3*LPRF
-      Else 
+      Else
          NBB=1
          NB=1
          NE=3*LPRF-2
          NEE=3*LPRF-2
-      End if       
+      End if
 
 * - move last insert position to new end of profile
 
       Do I1=0,46
          IIPP(I1,NEE)=IIPP(I1,LPRF)
-      End do 
+      End do
       CHIP(NEE)=CHIP(LPRF)
 
-* - move other positions 
+* - move other positions
 
       K1=NE
       Do I1=LPRF,1,-1
          Do I2=0,27
-            IMPP(I2,K1)=IMPP(I2,I1) 
+            IMPP(I2,K1)=IMPP(I2,I1)
          End do
          CHMP(K1)=CHMP(I1)
          K1=K1-3
-      End do 
+      End do
 
       K1=NE-2
       Do I1=LPRF-1,1,-1
@@ -267,7 +267,7 @@
          End do
          CHIP(K1)=CHIP(I1)
          K1=K1-3
-      End do 
+      End do
 
 * - fill in m-1, m+1 positions
 
@@ -286,9 +286,9 @@
          End do
          CHMP(I1)='<'
       End do
-      
-*- fill i-1 position 
-      
+
+*- fill i-1 position
+
       Do I2= 0,26
          IIPP(I2,NB)=0
       End do
@@ -306,10 +306,10 @@
             IIPP(I2,I1)=IIPP(I2,NB)
          End do
          CHIP(I1)='*'
-      End do 
+      End do
 
-* - fill i+1 position 
-      
+* - fill i+1 position
+
       J1=3
       If(LPCI) J1=1
       Do I2= 0,26
@@ -329,11 +329,11 @@
             IIPP(I2,I1)=IIPP(I2,J1)
          End do
          CHIP(I1)=':'
-      End do 
+      End do
 
-* frameshift deletetion scores: 
+* frameshift deletetion scores:
 
-      J1=2   
+      J1=2
       If(LPCI) J1=1
       K1=3
       If(LPCI) K1=1
@@ -341,63 +341,63 @@
          IIPP(MD,K1)=(NINT(RF-IMPP( D,K1+1))/2)
          IIPP(DM,K1+1)=NINT(RF-IIPP(MD,K1)-IMPP( D,K1+1))
          K1=K1+3
-      End do 
+      End do
 
 * begin and end scores
 
       If(.NOT.LPCI) then
          Do I1=2,NEE,3
             IIPP(B0,I1-1)=IIPP(B0,I1)
-            IIPP(B1,I1-1)=IIPP(B1,I1) 
-            IIPP(BM,I1-1)=IIPP(BM,I1) 
-            IIPP(BI,I1-1)=IIPP(BI,I1) 
-            IIPP(BD,I1-1)=IIPP(BD,I1) 
+            IIPP(B1,I1-1)=IIPP(B1,I1)
+            IIPP(BM,I1-1)=IIPP(BM,I1)
+            IIPP(BI,I1-1)=IIPP(BI,I1)
+            IIPP(BD,I1-1)=IIPP(BD,I1)
             IIPP(E0,I1-1)=IIPP(E0,I1)
             IIPP(E1,I1-1)=IIPP(E1,I1)
-            IIPP(ME,I1-1)=IIPP(ME,I1) 
-            IIPP(IE,I1-1)=IIPP(IE,I1) 
-            IIPP(DE,I1-1)=IIPP(DE,I1) 
+            IIPP(ME,I1-1)=IIPP(ME,I1)
+            IIPP(IE,I1-1)=IIPP(IE,I1)
+            IIPP(DE,I1-1)=IIPP(DE,I1)
             IIPP(B0,I1+1)=IIPP(B0,I1)
             IIPP(B1,I1+1)=IIPP(B1,I1)
-            IIPP(BM,I1+1)=IIPP(BM,I1) 
-            IIPP(BI,I1+1)=IIPP(BI,I1) 
-            IIPP(BD,I1+1)=IIPP(BD,I1) 
+            IIPP(BM,I1+1)=IIPP(BM,I1)
+            IIPP(BI,I1+1)=IIPP(BI,I1)
+            IIPP(BD,I1+1)=IIPP(BD,I1)
             IIPP(E0,I1+1)=IIPP(E0,I1)
             IIPP(E1,I1+1)=IIPP(E1,I1)
-            IIPP(ME,I1+1)=IIPP(ME,I1) 
-            IIPP(IE,I1+1)=IIPP(IE,I1) 
-            IIPP(DE,I1+1)=IIPP(DE,I1) 
+            IIPP(ME,I1+1)=IIPP(ME,I1)
+            IIPP(IE,I1+1)=IIPP(IE,I1)
+            IIPP(DE,I1+1)=IIPP(DE,I1)
          End do
       Else
          Do I1=2,NEE,3
             IIPP(B0,I1-1)=IIPP(B0,I1-2)
-            IIPP(B1,I1-1)=IIPP(B1,I1-2) 
-            IIPP(BM,I1-1)=IIPP(BM,I1-2) 
-            IIPP(BI,I1-1)=IIPP(BI,I1-2) 
-            IIPP(BD,I1-1)=IIPP(BD,I1-2) 
+            IIPP(B1,I1-1)=IIPP(B1,I1-2)
+            IIPP(BM,I1-1)=IIPP(BM,I1-2)
+            IIPP(BI,I1-1)=IIPP(BI,I1-2)
+            IIPP(BD,I1-1)=IIPP(BD,I1-2)
             IIPP(E0,I1-1)=IIPP(E0,I1-2)
             IIPP(E1,I1-1)=IIPP(E1,I1-2)
-            IIPP(ME,I1-1)=IIPP(ME,I1-2) 
-            IIPP(IE,I1-1)=IIPP(IE,I1-2) 
-            IIPP(DE,I1-1)=IIPP(DE,I1-2) 
+            IIPP(ME,I1-1)=IIPP(ME,I1-2)
+            IIPP(IE,I1-1)=IIPP(IE,I1-2)
+            IIPP(DE,I1-1)=IIPP(DE,I1-2)
             IIPP(B0,I1  )=IIPP(B0,I1+1)
             IIPP(B1,I1  )=IIPP(B1,I1+1)
-            IIPP(BM,I1  )=IIPP(BM,I1+1) 
-            IIPP(BI,I1  )=IIPP(BI,I1+1) 
-            IIPP(BD,I1  )=IIPP(BD,I1+1) 
+            IIPP(BM,I1  )=IIPP(BM,I1+1)
+            IIPP(BI,I1  )=IIPP(BI,I1+1)
+            IIPP(BD,I1  )=IIPP(BD,I1+1)
             IIPP(E0,I1  )=IIPP(E0,I1+1)
             IIPP(E1,I1  )=IIPP(E1,I1+1)
-            IIPP(ME,I1  )=IIPP(ME,I1+1) 
-            IIPP(IE,I1  )=IIPP(IE,I1+1) 
-            IIPP(DE,I1  )=IIPP(DE,I1+1) 
+            IIPP(ME,I1  )=IIPP(ME,I1+1)
+            IIPP(IE,I1  )=IIPP(IE,I1+1)
+            IIPP(DE,I1  )=IIPP(DE,I1+1)
          End do
-      End if 
+      End if
 
       Do I1=NBB,NEE-1
-         IIPP(B0,I1)=MAX(IIPD(B0),IIPP(B0,I1)) 
-         IIPP(B1,I1)=MAX(IIPD(B1),IIPP(B1,I1)) 
-         IIPP(E0,I1)=MAX(IIPD(E0),IIPP(E0,I1)) 
-         IIPP(E1,I1)=MAX(IIPD(E1),IIPP(E1,I1)) 
+         IIPP(B0,I1)=MAX(IIPD(B0),IIPP(B0,I1))
+         IIPP(B1,I1)=MAX(IIPD(B1),IIPP(B1,I1))
+         IIPP(E0,I1)=MAX(IIPD(E0),IIPP(E0,I1))
+         IIPP(E1,I1)=MAX(IIPD(E1),IIPP(E1,I1))
       End do
 
 * disjointness definition
@@ -411,9 +411,9 @@
 
       LPRF=NEE
 
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * OUTPUT SECTION
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 
 * write profile
 
@@ -449,7 +449,7 @@
      *   (FPRF,OPTR,LLLT,RB,RF,RI,RX,RY,RZ,IRC)
 
       Character*(*)     FPRF
-      Character*512     CARG 
+      Character*4096    CARG
 
       Logical           OPTR
       Logical           LLLT
@@ -461,7 +461,7 @@
       Real              RZ
 
       IRC=0
-      
+
 * initializations
 
       FPRF='-'
@@ -474,7 +474,7 @@
       RX=-100
       RY=-300
       RZ=-1
-      
+
       N1=Iargc()
 
       K1=0
@@ -547,9 +547,9 @@
                End if
             End if
          Else if(CARG(1:2).EQ.'B=') then
-            Read(CARG(3:),*,Err=900) RB 
+            Read(CARG(3:),*,Err=900) RB
          Else if(CARG(1:2).EQ.'F=') then
-            Read(CARG(3:),*,Err=900) RF 
+            Read(CARG(3:),*,Err=900) RF
          Else if(CARG(1:2).EQ.'I=') then
             Read(CARG(3:),*,Err=900) RI
          Else if(CARG(1:2).EQ.'X=') then
@@ -571,14 +571,14 @@
       End do
 
  20   Continue
-      
+
  100  Return
- 900  IRC=-1   
+ 900  IRC=-1
       Go to 100
       End
 *----------------------------------------------------------------------*
       Include          'reprf.f'
       Include          'recmd.f'
       Include          'wrprf.f'
-      Include          'lblnk.f' 
+      Include          'lblnk.f'
       Include          'Xblnk.f'

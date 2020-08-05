@@ -1,29 +1,29 @@
 *       Program pfsearch
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * $Id: pfsearch.f,v 2.30 2003/12/09 13:42:42 vflegel Exp $
-*----------------------------------------------------------------------*     
-*       Function: Scan a protein or DNA sequence library for profile 
-*                 matches 
+*----------------------------------------------------------------------*
+*       Function: Scan a protein or DNA sequence library for profile
+*                 matches
 *       Author:   Philipp Bucher
 *       Contact:  pftools@sib.swiss
 *       Version:  File under developpment for release 2.3
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * DATA
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 
 * array dimensions and I/O units
-      
-      Include          'ardim.f' 
-      
-      Parameter        (NOUT=   6)    
-      
-      Parameter        (NPRF=  11)    
-      Parameter        (NSEQ=  12)    
-      
-* profile 
 
-      Character*512     FPRF
-      
+      Include          'ardim.f'
+
+      Parameter        (NOUT=   6)
+
+      Parameter        (NPRF=  11)
+      Parameter        (NSEQ=  12)
+
+* profile
+
+      Character*4096    FPRF
+
       Include          'psdat.f'
       Include          'gsdat.f'
       Include          'djdat.f'
@@ -42,23 +42,23 @@
       Logical           LPFA
       Logical           LEOF
       Logical           LOUT
-      
+
 * sequence
-      
-      Character*512     FSEQ
-      
+
+      Character*4096    FSEQ
+
       Character*64      CSID
       Character*64      CSAC
       Character*64      CSFH
       Character*512     CSDE
-      
+
       Integer           LSEQ
       Integer           BSEQ
 
       Integer*2         ISEQ(IDMS)
-      
+
       Logical           LCKS(IDMS)
-      
+
       Integer*2         IS
 
 * number of sequences read
@@ -75,16 +75,16 @@
 * options and command line parameters
 
       Logical           OPTA
-      Logical           OPTB 
-      Logical           OPTF 
-      Logical           OPTL 
-      Logical           OPLU 
-      Logical           OPTR 
-      Logical           OPTS 
-      Logical           OPTU 
-      Logical           OPTX 
-      Logical           OPTY 
-      Logical           OPTZ 
+      Logical           OPTB
+      Logical           OPTF
+      Logical           OPTL
+      Logical           OPLU
+      Logical           OPTR
+      Logical           OPTS
+      Logical           OPTU
+      Logical           OPTX
+      Logical           OPTY
+      Logical           OPTZ
       Logical           OPTM
       Logical           OPTK
       Logical           OPTJ
@@ -93,11 +93,11 @@
       Logical           OPTV
 
       Logical           LCMM
-      
+
       Integer           NCUC
       Integer           KCUC
       real              XCUC
-      Logical           LDRS   
+      Logical           LDRS
 * alignments
 
       Integer           NALI
@@ -106,11 +106,11 @@
       Integer           IAL1(IDMN)
       Integer           IAL2(IDMN)
       Integer           IALE(IDMN)
-      
+
       Integer           LALI
-      Character         CALI(IDMA) 
+      Character         CALI(IDMA)
       Character         CPMA(IDMM)
-      
+
 * multiple matches of circular profile
 
       Integer           NMAT(IDMN)
@@ -129,19 +129,19 @@ C      Integer           IMME(IDMN,IDML)
       Integer           IMSC(IDML)
 
 * path matrix fields
-      
+
       Integer           IOPM(0:IDMP)
       Integer           IOPI(0:IDMP)
       Integer           IOPD(0:IDMP)
-      
+
       Integer           IOMB(0:IDMP)
       Integer           IOM1(0:IDMP)
       Integer           IOM2(0:IDMP)
-      
+
       Integer           IOIB(0:IDMP)
       Integer           IOI1(0:IDMP)
       Integer           IOI2(0:IDMP)
-      
+
       Integer           IODB(0:IDMP)
       Integer           IOD1(0:IDMP)
       Integer           IOD2(0:IDMP)
@@ -153,21 +153,21 @@ C     Character*1024    RCOUT
 
 * initialization of controlled vocabularies
 
-      Include          'cvini.f' 
+      Include          'cvini.f'
 
-*----------------------------------------------------------------------*     
-* INPUT SECTION 
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
+* INPUT SECTION
+*----------------------------------------------------------------------*
 
       IRC=0
-      
+
       LUNI=.FALSE.
       LNOR=.FALSE.
       LREV=.FALSE.
       LTRA=.FALSE.
       LPFA=.FALSE.
       LDRS=.FALSE.
-      
+
       LEOF=.FALSE.
       CABC(0)='-'
 
@@ -179,7 +179,7 @@ C     Character*1024    RCOUT
       Call Repar(
      *   OPTA,OPTB,OPTF,OPTL,OPLU,OPTR,OPTS,OPTU,OPTX,OPTY,OPTZ,OPTM,
      *   OPTK,OPTJ,FPRF,FSEQ,NCUC,KCUC,XCUC,NW,NMOD,OPTO,OPTD,OPTV,IRC)
-      If(IRC.NE.0) then 
+      If(IRC.NE.0) then
          Write(NERR,'(/,
      *      ''pfsearch 2.3 revision 5.d'',//
      *      ''Usage: pfsearch [ -abCdfhlLmMkrsuvWxyz ] [ profile-file'',
@@ -230,14 +230,14 @@ C     Character*1024    RCOUT
      *      )')
          Call Exit(IRC)
       End if
-      
-      If(FSEQ.EQ.'-') then 
+
+      If(FSEQ.EQ.'-') then
          MSEQ=5
       Else
          MSEQ=NSEQ
       End if
-      
-      If(FPRF.EQ.'-') then 
+
+      If(FPRF.EQ.'-') then
          MPRF=5
       Else
          MPRF=NPRF
@@ -246,7 +246,7 @@ C     Character*1024    RCOUT
       If(OPTR) then
          LDRS=.TRUE.
       End if
-    
+
       If(OPTJ) then
           OPTK=.TRUE.
       End if
@@ -258,16 +258,16 @@ C     Character*1024    RCOUT
      *   CPID,CPAC,CPDT,CPDE,LHDR,CHDR,LFTR,CFTR,NABC,CABC,LPRF,LPCI,
      *   BLOG,FABC,P0,
      *   CDIS,JDIP,MDIS,NDIP,
-     *   CNOR,JNOP,JNOR,MNOR,NNOR,NNPR,CNTX,RNOP, 
-     *   JCUT,MCLE,CCUT,ICUT,JCNM,RCUT,MCUT, 
+     *   CNOR,JNOP,JNOR,MNOR,NNOR,NNPR,CNTX,RNOP,
+     *   JCUT,MCLE,CCUT,ICUT,JCNM,RCUT,MCUT,
      *   IDMP,CHIP,IIPP,CHMP,IMPP,CHIL,IIPL,ILIP,
      *   CHID,IIPD,CHMD,IMPD,
      *   INBP,LEOF,OPTV,IRC)
-      
+
       If(IRC.GT.0) go to 100
 
 * check parameter consistency
-      
+
       If(.NOT.OPTV.AND.OPTM.AND..NOT.LPCI) then
          Write(NERR,*) 'Warning: Profile not circular. ',
      *      'Ignoring option -m.'
@@ -288,7 +288,7 @@ C     Character*1024    RCOUT
      *      ' integer command line cut-off (option -C) values.'
          NCUC=0
       End if
-      
+
 * get cut-off for mode nb specified on command line
 
       KCUT=0
@@ -300,7 +300,7 @@ C     Character*1024    RCOUT
  1       Continue
 *   exit if mode number not specified in profile
          If(J1.EQ.0) Go to 901
-         
+
 *   if cut-off value was specified on command line do not search levels
          If(NCUC.EQ.2) then
             LNOR=.TRUE.
@@ -315,7 +315,7 @@ C     Character*1024    RCOUT
             INOR=0
             Do 3 I1=1,JCUT
                If(MCLE(I1).EQ.0) then
-                  If(JCNM(I1).NE.0) then 
+                  If(JCNM(I1).NE.0) then
                      J2=0
                      Do 2 I2=1,JCNM(I1)
                         If(MCUT(I2,I1).EQ.NMOD) J2=I2
@@ -335,13 +335,13 @@ C     Character*1024    RCOUT
             If(INOR.EQ.0) Go to 901
          End if
       Else
-         
+
 * get cut-off and normalisation modes from profile
-         
+
          Do   6 I1=1,JCUT
             If(MCLE(I1).EQ.0) then
                INOR=0
-               If(JCNM(I1).NE.0) then 
+               If(JCNM(I1).NE.0) then
                   LNOR=.TRUE.
 *               J2=1
                   Do  5 I2=1,JCNM(I1)
@@ -350,25 +350,25 @@ C     Character*1024    RCOUT
                         If(MCUT(I2,I1).EQ.NNOR(I3)) J3=I3
  4                   Continue
                      If(J3.EQ.0) Go to 904
-                     
-                     If     (I2.EQ.1) then 
+
+                     If     (I2.EQ.1) then
                         INOR=J3
                         MNUM=NNOR(J3)
-                        NPRI=NNPR(J3)    
+                        NPRI=NNPR(J3)
                         IFUN=MNOR(J3)
                         KCUT=ICUT(I1)
                         XCUT=RCUT(I2,I1)
                      Else if(NNPR(J3).LT.NPRI) then
                         INOR=J3
                         MNUM=NNOR(J3)
-                        NPRI=NNPR(J3)    
+                        NPRI=NNPR(J3)
                         IFUN=MNOR(J3)
                         KCUT=ICUT(I1)
                         XCUT=RCUT(I2,I1)
                      End if
  5                Continue
-               End if 
-               
+               End if
+
                If(JCNM(I1).EQ.0.OR.INOR.EQ.0) then
                   KCUT=ICUT(I1)
                   LNOR=.FALSE.
@@ -376,10 +376,10 @@ C     Character*1024    RCOUT
             End if
  6       Continue
       End if
-      
-* cut-off from command line 
-      
-      If(NCUC.EQ.1) then 
+
+* cut-off from command line
+
+      If(NCUC.EQ.1) then
          KCUT=KCUC
          OPTR=.TRUE.
       Else if(NCUC.EQ.2.AND.LNOR) then
@@ -404,47 +404,47 @@ C     Character*1024    RCOUT
       End if
 
 * - initialize profile lock
-      
+
       If(.NOT.LPCI) then
-         Do  8 I1=0,NDIP(1)-1 
+         Do  8 I1=0,NDIP(1)-1
             IIPP(E0,I1)=NLOW
             IIPP(E1,I1)=NLOW
  8       Continue
-         
-         Do  9 I1=NDIP(2),LPRF 
+
+         Do  9 I1=NDIP(2),LPRF
             IIPP(B0,I1)=NLOW
             IIPP(B1,I1)=NLOW
  9       Continue
       End if
-      
+
 C      End if
 
 * profile extra parameters
-      
+
       MLOW=NLOW/4*3
       Do  10 I1=0,LPRF
-         IIPX( XM,I1) = MAX(MLOW,IIPP( B1,I1) + IIPP( BM,I1)) 
-         IIPX( XI,I1) = MAX(MLOW,IIPP( B1,I1) + IIPP( BI,I1)) 
-         IIPX( XD,I1) = MAX(MLOW,IIPP( B1,I1) + IIPP( BD,I1)) 
-         IIPX( YM,I1) = MAX(MLOW,IIPP( B0,I1) + IIPP( BM,I1)) 
-         IIPX( YI,I1) = MAX(MLOW,IIPP( B0,I1) + IIPP( BI,I1)) 
-         IIPX( YD,I1) = MAX(MLOW,IIPP( B0,I1) + IIPP( BD,I1)) 
-         IIPX( MX,I1) = MAX(MLOW,IIPP( E1,I1) + IIPP( ME,I1)) 
-         IIPX( IX,I1) = MAX(MLOW,IIPP( E1,I1) + IIPP( IE,I1)) 
-         IIPX( DX,I1) = MAX(MLOW,IIPP( E1,I1) + IIPP( DE,I1)) 
-         IIPX( MY,I1) = MAX(MLOW,IIPP( E0,I1) + IIPP( ME,I1)) 
-         IIPX( IY,I1) = MAX(MLOW,IIPP( E0,I1) + IIPP( IE,I1)) 
-         IIPX( DY,I1) = MAX(MLOW,IIPP( E0,I1) + IIPP( DE,I1)) 
+         IIPX( XM,I1) = MAX(MLOW,IIPP( B1,I1) + IIPP( BM,I1))
+         IIPX( XI,I1) = MAX(MLOW,IIPP( B1,I1) + IIPP( BI,I1))
+         IIPX( XD,I1) = MAX(MLOW,IIPP( B1,I1) + IIPP( BD,I1))
+         IIPX( YM,I1) = MAX(MLOW,IIPP( B0,I1) + IIPP( BM,I1))
+         IIPX( YI,I1) = MAX(MLOW,IIPP( B0,I1) + IIPP( BI,I1))
+         IIPX( YD,I1) = MAX(MLOW,IIPP( B0,I1) + IIPP( BD,I1))
+         IIPX( MX,I1) = MAX(MLOW,IIPP( E1,I1) + IIPP( ME,I1))
+         IIPX( IX,I1) = MAX(MLOW,IIPP( E1,I1) + IIPP( IE,I1))
+         IIPX( DX,I1) = MAX(MLOW,IIPP( E1,I1) + IIPP( DE,I1))
+         IIPX( MY,I1) = MAX(MLOW,IIPP( E0,I1) + IIPP( ME,I1))
+         IIPX( IY,I1) = MAX(MLOW,IIPP( E0,I1) + IIPP( IE,I1))
+         IIPX( DY,I1) = MAX(MLOW,IIPP( E0,I1) + IIPP( DE,I1))
  10   Continue
-      
-* average match score for average amino acid composition 
-      
-      If(.NOT.OPTR.AND.IFUN.EQ.3) 
+
+* average match score for average amino acid composition
+
+      If(.NOT.OPTR.AND.IFUN.EQ.3)
      *   Call CPAve(IMPP,IDMP,LPRF,CABC,NABC,PAVE)
 
-* alignment and ouptut format switches 
+* alignment and ouptut format switches
 
-      If(OPTX.OR.OPTY.OR.OPTZ.OR.OPTM) then 
+      If(OPTX.OR.OPTY.OR.OPTZ.OR.OPTM) then
          LTRA=.TRUE.
       Else
          LTRA=.FALSE.
@@ -458,30 +458,30 @@ C      End if
 * compute alignments if any output format switch is specified
 
       LOUT=(LTRA.OR.LPFA)
-      
+
 *----------------------------------------------------------------------*
 * major loop over sequences
 *----------------------------------------------------------------------*
 
-* read sequence  
+* read sequence
 
  20   Continue
       If(LEOF) go to 100
-      If(OPTF) then 
+      If(OPTF) then
          Call RFSEQ
      *      (MSEQ,FSEQ,NABC,CABC,CSID,CSAC,CSDE,CSFH,LSEQ,ISEQ,LEOF,
      *      INBS,OPTV,IRC)
-      Else 
+      Else
          Call RESEQ
      *      (MSEQ,FSEQ,NABC,CABC,CSID,CSAC,CSDE,LSEQ,ISEQ,LEOF,
      *      INBS,OPTV,IRC)
-      End if 
+      End if
       If(IRC.GT.0) go to 100
       If(LEOF.AND.IRC.LT.0) then
          If(INBS.GE.1) IRC=0
          go to 100
       End if
-      
+
       JSEQ=0
 
  25   Continue
@@ -497,7 +497,7 @@ C      End if
       BSEQ=1
 
 * compute cut-off in raw score units
-      
+
       If(.NOT.OPTR) then
          If(IFUN.EQ.3) then
             Call CFAve(ISEQ,IDMS,BSEQ,LSEQ,CABC,NABC,FAVE)
@@ -516,26 +516,26 @@ C      End if
      *   KCUT,IIPP,IMPP,IIPX,
      *   BSEQ,LSEQ,ISEQ,
      *   IOPM,IOPI,IOPD,
-     *   IOPT,LUNI,  
+     *   IOPT,LUNI,
      *   IRC)
-      
+
       If(OPTA) then
-         Continue         
+         Continue
       Else if(IOPT.LT.KCUT) then
          go to  50
-      End if 
-      
+      End if
+
 * do not compute alignments if no format modifier specified
 * and the disjointness is 'UNIQUE'
 
-      If(.NOT.LOUT.AND.LUNI) go to  30 
-      
+      If(.NOT.LOUT.AND.LUNI) go to  30
+
 * initialize sequence lock
-      
+
       Do I1=1,LSEQ
          LCKS(I1)=.FALSE.
-      End do  
-      
+      End do
+
 * find optimal match
 
       If(LUNI) then
@@ -549,9 +549,9 @@ C      End if
      *      LUNI,
      *      IRC)
       Else
-         
-* find all matches 
-         
+
+* find all matches
+
          Call XALIP
      *      (NABC,LPRF,LPCI,NDIP(1),NDIP(2),
      *      KCUT,IIPP,IMPP,CHIP,CHMP,IIPX,
@@ -572,21 +572,21 @@ C      End if
 
 * remove sequence lock if alignments are to be generated
 
-      If(LTRA) then 
+      If(LTRA) then
          Do I1=1,LSEQ
             LCKS(I1)=.FALSE.
-         End do 
-      End if 
-      
-* OUTPUT 
+         End do
+      End if
 
- 30   Continue         
-      
-      If(LUNI) then 
+* OUTPUT
+
+ 30   Continue
+
+      If(LUNI) then
          NALI=1
          IALS(1)=IOPT
-      End if 
-      
+      End if
+
       if(OPTJ .AND. (NALI > 0)) then
             Do I1=1,LSEQ
                CALI(I1)=Char(Ichar(CABC(ISEQ(I1))))
@@ -597,8 +597,8 @@ C      End if
 
       Do  40 I1=1,NALI
          JSEQ=JSEQ+1
-         
-         If(LTRA) then 
+
+         If(LTRA) then
             Call XALIT
      *         (CABC,LPRF,LPCI,NDIP(1),NDIP(2),
      *         IIPP,IMPP,IIPX,
@@ -616,7 +616,7 @@ C      End if
             Do  I2=IAL1(I1),IAL2(I1)
                LCKS(I2)=.TRUE.
             End do
-         End if 
+         End if
 
          If(.NOT.OPTK) then
             Call WPRSM(JSEQ,NMAT(I1),.FALSE.,
@@ -638,16 +638,16 @@ C      End if
             Call PRSP(CABC,ISEQ,CALI,IALB(I1),IALE(I1),NW,OPTS,OPTX)
          Else if(OPTX) then
             Call PRSP(CABC,ISEQ,CALI,1,LALI,NW,OPTS,OPTX)
-         Else if(OPTY) then 
+         Else if(OPTY) then
             Call PRALI
      *         (LPRF,CHIP,CHMP,IDMP,LSEQ,LREV,
      *         CALI,LALI,IALB(I1),IALE(I1),NW)
-         End if 
-         
+         End if
+
 *----------------------------------------------------------------------*
 * Compute single repeats for circular profiles
 *----------------------------------------------------------------------*
-         
+
          If(OPTM) then
             If(NMAT(I1).GT.1) then
                Do I2=NMAT(I1),1,-1
@@ -668,33 +668,33 @@ C      End if
      *                  JCUT,MCLE,CCUT,ICUT,JCNM,RCUT,MCUT,
      *                  RNOP,KNPM,MAXN,INOR,IFUN,MNUM,LSEQ,RAVE)
                   End if
-                  
+
                   If     (OPTS) then
                      Call PRSP(CABC,ISEQ,CALI,PK2B(I2),PK2E(I2),
      *                  NW,OPTS,OPTX)
                   Else if(OPTX) then
                      Call PRXP(CALI,PJ1B(I2),PJ1B(I2)+PLAL(I2)-1,
      *                  PK3B(I2),PK3E(I2),LPRF,NW)
-                  Else if(OPTY) then 
+                  Else if(OPTY) then
                      Call PMALI
      *                  (LPRF,CHIP,CHMP,IDMP,LSEQ,LREV,CALI,
      *                  PK2B(I2),PK3E(I2),PK3B(I2),PJ1E(I2),PJ1B(I2),NW)
-                  End if 
-                  
+                  End if
+
                End do
 * End loop over repeats
             End if
          End if
 * End loop over matches
-         
-         
+
+
  40   Continue
 
 
  50   Continue
-      
-      If(OPTB) then 
-         If(LREV) then 
+
+      If(OPTB) then
+         If(LREV) then
             LREV=.FALSE.
             Go to  20
          Else
@@ -703,29 +703,29 @@ C      End if
       Else
          Go to  20
       End if
-      
+
 *----------------------------------------------------------------------*
-* Complementary strand 
+* Complementary strand
 *----------------------------------------------------------------------*
-      
+
       LREV=.TRUE.
-      
+
 * generate complementary sequence
-      
-      J1=LSEQ          
+
+      J1=LSEQ
       Do  I1=1,LSEQ/2
          IS=ISEQ(I1)
          ISEQ(I1)=ISEQ(J1)
          ISEQ(J1)=IS
          J1=J1-1
-      End do  
-      
+      End do
+
       Do  I1=1,LSEQ
          If(ISEQ(I1).NE.0) ISEQ(I1)=NABC-ISEQ(I1)+1
       End do
-      
+
       Go to  25
-      
+
  100  Call Exit(IRC)
 
 * errors
@@ -754,33 +754,33 @@ C      End if
       Go to 100
 
       End
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
       Subroutine Repar(
      *   OPTA,OPTB,OPTF,OPTL,OPLU,OPTR,OPTS,OPTU,OPTX,OPTY,OPTZ,OPTM,
      *   OPTK,OPTJ,FPRF,FSEQ,NCUC,KCUC,XCUC,NW,NMOD,OPTO,OPTD,OPTV,IRC)
-      
-      Logical           OPTA 
-      Logical           OPTB 
-      Logical           OPTF 
-      Logical           OPTL 
-      Logical           OPLU 
-      Logical           OPTR 
-      Logical           OPTS 
-      Logical           OPTU 
-      Logical           OPTX 
-      Logical           OPTY 
-      Logical           OPTZ 
+
+      Logical           OPTA
+      Logical           OPTB
+      Logical           OPTF
+      Logical           OPTL
+      Logical           OPLU
+      Logical           OPTR
+      Logical           OPTS
+      Logical           OPTU
+      Logical           OPTX
+      Logical           OPTY
+      Logical           OPTZ
       Logical           OPTM
       Logical           OPTK
       Logical           OPTJ
       Logical           OPTO
       Logical           OPTD
       Logical           OPTV
-      
+
       Character*(*)     FPRF
       Character*(*)     FSEQ
-      Character*512     CARG
-      
+      Character*4096    CARG
+
       IRC=0
       NCUC=0
       OPTA=.FALSE.
@@ -800,11 +800,11 @@ C      End if
       OPTJ=.FALSE.
       OPTD=.FALSE.
       OPTV=.FALSE.
-      
+
       NW=60
-      
+
       N1=Iargc()
-      
+
       K1=0
       I2=1
       Do  10 I1=1,N1
@@ -845,12 +845,12 @@ C      End if
                   Call GetArg(I2,CARG)
                End if
                If(Index(CARG,'.').EQ.0) then
-                  NCUC=1 
+                  NCUC=1
                   Read(CARG,*,Err=900) KCUC
-               Else 
+               Else
                   NCUC=2
                   Read(CARG,*,Err=900) XCUC
-               End if 
+               End if
             End if
             If(Index(CARG,'M').NE.0) then
                If(CARG(3:3).NE.' ') then
@@ -864,24 +864,24 @@ C      End if
             End if
          Else if(K1.LE.1) then
             K1=K1+1
-            If     (K1.EQ.1) then 
+            If     (K1.EQ.1) then
                FPRF=CARG
             Else if(K1.EQ.2) then
                FSEQ=CARG
-            End if  
-         Else 
+            End if
+         Else
 
-* - cut-off value on command line    
+* - cut-off value on command line
 
             If     (CARG(1:2).EQ.'C=') then
                CARG(1:2)='  '
                If(Index(CARG,'.').EQ.0) then
-                  NCUC=1 
+                  NCUC=1
                   Read(CARG,*,Err=900) KCUC
-               Else 
+               Else
                   NCUC=2
                   Read(CARG,*,Err=900) XCUC
-               End if 
+               End if
 
 * - output width on command line
 
@@ -891,16 +891,16 @@ C      End if
          End if
          I2=I2+1
          If(I2.GT.N1) Go to 20
- 10   Continue 
-      
- 20   If (K1.NE.2) IRC=1 
-      
+ 10   Continue
+
+ 20   If (K1.NE.2) IRC=1
+
  100  If(NW.LE.0.OR.NW.GT.512) NW=60
       Return
  900  IRC=1
       Go to 100
-      End 
-*----------------------------------------------------------------------*     
+      End
+*----------------------------------------------------------------------*
       Include          'reprf.f'
       Include          'reseq.f'
       Include          'rfseq.f'
@@ -920,4 +920,4 @@ C      End if
       Include          'prsp.f'
       Include          'prxp.f'
       Include          'Xblnk.f'
-      
+

@@ -1,26 +1,26 @@
-*       Program gtop 
-*----------------------------------------------------------------------*     
+*       Program gtop
+*----------------------------------------------------------------------*
 * $Id: gtop.f,v 2.9 2003/11/28 11:53:33 vflegel Exp $
-*----------------------------------------------------------------------*     
-*       Function: Reformats profiles: in-fmt=GRIBSKOV / out-fmt=PROSITE    
+*----------------------------------------------------------------------*
+*       Function: Reformats profiles: in-fmt=GRIBSKOV / out-fmt=PROSITE
 *       Author:   Philipp Bucher
 *       Contact:  pftools@sib.swiss
 *       Version:  File under developpment for release 2.3
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 *
 * DATA
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 
 * array dimensions and I/O units
-      
-      Include          'ardim.f' 
 
-      Parameter        (NOUT=   6)    
-      Parameter        (NGPR=  11)    
+      Include          'ardim.f'
+
+      Parameter        (NOUT=   6)
+      Parameter        (NGPR=  11)
 
 * profile and sequence fields
 
-      Character*512     FGPR
+      Character*4096    FGPR
 
       Include          'psdat.f'
       Include          'gsdat.f'
@@ -39,11 +39,11 @@
 
 * initialization of controlled vocabularies
 
-      Include          'cvini.f' 
+      Include          'cvini.f'
 
-*----------------------------------------------------------------------*     
-* INPUT SECTION 
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
+* INPUT SECTION
+*----------------------------------------------------------------------*
 
       IRC=0
       FGPR='-'
@@ -58,7 +58,7 @@
       If(IRC.NE.0) then
          Write(NERR,'(/,
      *      ''gtop 2.3 revision 5.d'',//
-     *      ''Usage: gtop [ -aslhGEFO ] gcg-profile | - '' 
+     *      ''Usage: gtop [ -aslhGEFO ] gcg-profile | - ''
      *      ''[ parameters ]'',/
      *      )')
          Write(NERR,'(
@@ -96,7 +96,7 @@
      *   CPID,CPAC,CPDE,NABC,CABC,LPRF,LPCI,
      *   CDIS,JDIP,MDIS,NDIP,
      *   CNOR,JNOP,JNOR,MNOR,NNOR,NNPR,CNTX,RNOP,
-     *   JCUT,MCLE,CCUT,ICUT,JCNM,RCUT,MCUT, 
+     *   JCUT,MCLE,CCUT,ICUT,JCNM,RCUT,MCUT,
      *   IDMP,CHIP,IIPP,CHMP,IMPP,
      *   CHID,IIPD,CHMD,IMPD,
      *   IRC)
@@ -112,7 +112,7 @@
      *   CPID,CPAC,CPDT,CPDE,LHDR,CHDR,LFTR,CFTR,NABC,CABC,LPRF,LPCI,
      *   CDIS,JDIP,MDIS,NDIP,
      *   CNOR,JNOP,JNOR,MNOR,NNOR,NNPR,CNTX,RNOP,
-     *   JCUT,MCLE,CCUT,ICUT,JCNM,RCUT,MCUT, 
+     *   JCUT,MCLE,CCUT,ICUT,JCNM,RCUT,MCUT,
      *   IDMP,CHIP,IIPP,CHMP,IMPP,
      *   BLOG,FABC,P0,
      *   CHID,IIPD,CHMD,IMPD,
@@ -120,27 +120,27 @@
 
  100  Call Exit(IRC)
       End
-*----------------------------------------------------------------------*     
-      Subroutine Repar         
+*----------------------------------------------------------------------*
+      Subroutine Repar
      *   (FGPR,LSYM,LLLT,RG,RE,RF,RO,IRC)
 
-      Character*512     CPAR
-      Character*(*)     FGPR 
-      
+      Character*4096    CPAR
+      Character*(*)     FGPR
+
       Logical           LSYM
       Logical           LLLT
-      
+
       LSYM=.TRUE.
       LLLT=.TRUE.
       RG=4.5
       RE=0.05
       RF=100
       RO=0
-      
+
       FGPR=' '
 
       N1=Iargc()
-      
+
       K1=0
       I2=1
       Do  50 I1=1,N1
@@ -198,18 +198,18 @@
                Read(CPAR(3:),*,Err=900) RF
             Else if(CPAR(1:2).EQ.'O=') then
                Read(CPAR(3:),*,Err=900) RO
-            End if 
+            End if
          End if
          I2=I2+1
          If(I2.GT.N1) Go to 60
  50   Continue
 
- 60   If(K1.NE.1) Go to 900 
+ 60   If(K1.NE.1) Go to 900
  100  Return
  900  IRC=1
       Go to 100
-      End 
-*----------------------------------------------------------------------*     
+      End
+*----------------------------------------------------------------------*
       Include          'lblnk.f'
       Include          'regpr.f'
       Include          'wrprf.f'

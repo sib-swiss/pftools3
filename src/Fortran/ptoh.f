@@ -1,27 +1,27 @@
-*       Program ptoh 
-*----------------------------------------------------------------------*     
+*       Program ptoh
+*----------------------------------------------------------------------*
 * $Id: ptoh.f,v 2.11 2003/12/01 13:33:05 vflegel Exp $
-*----------------------------------------------------------------------*     
-*       Function: Reformats profile -> hmm: in-fmt=PROSITE / out-fmt=SAM    
+*----------------------------------------------------------------------*
+*       Function: Reformats profile -> hmm: in-fmt=PROSITE / out-fmt=SAM
 *       Author:   Philipp Bucher
 *       Contact:  pftools@sib.swiss
 *       Version:  File under developpment for release 2.3
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * DATA
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 
-      Include          'ardim.f' 
+      Include          'ardim.f'
 
 * array dimensions and I/O units
 
-      Parameter        (NOUT=   6)    
+      Parameter        (NOUT=   6)
 
       Parameter        (NPRF=  11)
       Parameter        (NNUL=  12)
 
-* profile 
+* profile
 
-      Character*512     FPRF
+      Character*4096    FPRF
 
       Include          'psdat.f'
       Include          'gsdat.f'
@@ -33,17 +33,17 @@
 
       Include          'sterr.f'
 
-* null model 
+* null model
 
-      Character*512     FNUL
+      Character*4096    FNUL
 
       Integer           IABC(26)
       Integer           JABC(26)
       Character*20      DABC
 
-* HMM 
+* HMM
 
-      Include          'hmdat.f' 
+      Include          'hmdat.f'
 
 
 * function return types
@@ -59,25 +59,25 @@
       Logical           OPTS
       Logical           LEOF
 
-      Real              RD 
+      Real              RD
       Real              RI
       Real*8            DL
       Integer           INBP
 
 * initialization of controlled vocabularies
 
-      Include          'cvini.f' 
+      Include          'cvini.f'
 
-*----------------------------------------------------------------------*     
-* INPUT SECTION 
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
+* INPUT SECTION
+*----------------------------------------------------------------------*
 
       IRC=0
       FPRF='stdout'
       INBP=0
 
 * command line arguments
-      
+
       Call Repar(FPRF,FNUL,OPTF,OPFF,OPTH,OPTS,RD,RI,DL,IRC)
       If(IRC.NE.0) then
          Write(NERR,'(/,
@@ -113,7 +113,7 @@
       End if
 
 * read profile
-      
+
       If(FPRF.EQ.'-') then
          MPRF=5
       Else
@@ -133,7 +133,7 @@
 
       If(IRC.NE.0) go to 100
 
-      If(NABC.GE.20) then 
+      If(NABC.GE.20) then
          DABC='ACDEFGHIKLMNPQRSTVWY'
          MABC=20
       Else
@@ -143,11 +143,11 @@
 
 * read null model
 
-      If     (FNUL.NE.' ') then 
+      If     (FNUL.NE.' ') then
          Call RHNUL(NNUL,FNUL,FABC,MABC,IRC)
          If(IRC.NE.0) go to 100
       Else if(P0.GT.0.0) then
-         Call NRNUL(NABC,CABC,FABC,P0,DABC,MABC) 
+         Call NRNUL(NABC,CABC,FABC,P0,DABC,MABC)
       Else
          Call DFNUL(FABC,P0,DABC,MABC)
       End if
@@ -156,12 +156,12 @@
 
       K1=0
       Do I1=1,NABC
-         N1=Index(DABC(1:MABC),CABC(I1)) 
+         N1=Index(DABC(1:MABC),CABC(I1))
          If(N1.NE.0) then
             IABC(N1)=I1
             K1=K1+1
          End if
-      End do 
+      End do
 
       If(K1.NE.MABC) go to 901
 
@@ -172,7 +172,7 @@
          Do I2=1,MABC
             IIPP(I2,I1)=JABC(I2)
          End do
-         If(I1.NE.0) then  
+         If(I1.NE.0) then
             Do I2=1,MABC
                JABC(I2)=IMPP(IABC(I2),I1)
             End do
@@ -180,32 +180,32 @@
                IMPP(I2,I1)=JABC(I2)
             End do
          End if
-      End do 
+      End do
       NABC=MABC
       Do I1=1,NABC
-         CABC(I1)=DABC(I1:I1) 
-      End do 
+         CABC(I1)=DABC(I1:I1)
+      End do
 
-* convert profile into Log(Prob) 
+* convert profile into Log(Prob)
 
-      If     (DL  .NE.0.0) then 
+      If     (DL  .NE.0.0) then
          DL=LOG(DL)
-      Else if(BLOG.NE.0.0) then 
+      Else if(BLOG.NE.0.0) then
          DL=LOG(BLOG)
       Else
          DL=(LOG(2.0)/30.0)
       End if
 
       Do I1=0,LPRF
-         Do I2=0,46 
+         Do I2=0,46
             If(I1.EQ.0.OR.I2.GT.27) then
                RIHM(I2,I1)=Real(IIPP(I2,I1))*DL
             Else
                RMHM(I2,I1)=Real(IMPP(I2,I1))*DL
                RIHM(I2,I1)=Real(IIPP(I2,I1))*DL
             End if
-         End do 
-      End do 
+         End do
+      End do
       FLOW=Real(NLOW)*DL
 
 * subtract null model
@@ -218,7 +218,7 @@
             RMHM(I1,I2)=RMHM(I1,I2)+R1
          End do
       End do
-      
+
 * modify begin state
 
       RIHM(MM,   0)=RIHM(BM,   0)
@@ -228,7 +228,7 @@
       RIHM(DI,   0)=FLOW
       RIHM(DD,   0)=FLOW
 
-* modify end state 
+* modify end state
 
       RIHM(MM,LPRF)=RIHM(ME,LPRF)
       RIHM(IM,LPRF)=RIHM(IE,LPRF)
@@ -236,44 +236,44 @@
       RIHM(MD,   0)=FLOW
       RIHM(ID,   0)=FLOW
       RIHM(DD,   0)=FLOW
-      
+
 * scale HMM
 
-      If(OPTS) then 
+      If(OPTS) then
          Call SCHMM(NOUT,
-     *      IDMP,RIHM,RMHM,LPRF,NABC,FLOW,FSCA,OPTF,OPFF,RD,RI)  
-      Else 
+     *      IDMP,RIHM,RMHM,LPRF,NABC,FLOW,FSCA,OPTF,OPFF,RD,RI)
+      Else
          Call SCHMM(NERR,
-     *      IDMP,RIHM,RMHM,LPRF,NABC,FLOW,FSCA,OPTF,OPFF,RD,RI)  
+     *      IDMP,RIHM,RMHM,LPRF,NABC,FLOW,FSCA,OPTF,OPFF,RD,RI)
       End if
 
-* print HMM  
+* print HMM
 
       If(OPTS) then
          If(NABC.EQ.4) then
-            R         =RIHM(3, 0) 
-            RIHM(3, 0)=RIHM(2, 0) 
+            R         =RIHM(3, 0)
+            RIHM(3, 0)=RIHM(2, 0)
             RIHM(2, 0)=R
             Do I1=1,LPRF
-               R         =RIHM(3,I1) 
-               RIHM(3,I1)=RIHM(2,I1) 
+               R         =RIHM(3,I1)
+               RIHM(3,I1)=RIHM(2,I1)
                RIHM(2,I1)=R
-               R         =RMHM(3,I1) 
-               RMHM(3,I1)=RMHM(2,I1) 
+               R         =RMHM(3,I1)
+               RMHM(3,I1)=RMHM(2,I1)
                RMHM(2,I1)=R
             End do
          End if
          Call WRSAM(NOUT,
-     *      IDMP,RIHM,RMHM,LPRF,NABC,FABC,FLOW,FSCA,DL) 
+     *      IDMP,RIHM,RMHM,LPRF,NABC,FABC,FLOW,FSCA,DL)
       Else
          Call WRHMR(NOUT,NERR,
-     *      IDMP,RIHM,RMHM,LPRF,NABC,CABC,FLOW,FSCA,DL) 
+     *      IDMP,RIHM,RMHM,LPRF,NABC,CABC,FLOW,FSCA,DL)
       End if
 
  100  Call Exit(IRC)
 
 * errors
-      
+
  901  Write(NERR,*) 'Error: Incompatible alphabets between profile and',
      *   ' null model.'
       IRC=1
@@ -285,7 +285,7 @@
 
       Character*(*)     FPRF
       Character*(*)     FNUL
-      Character*512     CARG 
+      Character*4096    CARG
 
       Logical           OPTF
       Logical           OPFF
@@ -309,7 +309,7 @@
       DL=1.0233739
       RI=0.99
       RD=0.9
-      
+
       N1=Iargc()
 
       K1=0
@@ -352,7 +352,7 @@
                End if
             End if
          Else if(CARG(1:2).EQ.'D=') then
-            Read(CARG(3:),*,Err=900) RD 
+            Read(CARG(3:),*,Err=900) RD
          Else if(CARG(1:2).EQ.'I=') then
             Read(CARG(3:),*,Err=900) RI
          Else if(CARG(1:2).EQ.'L=') then
@@ -378,7 +378,7 @@
       Go to 100
       End
 *----------------------------------------------------------------------*
-      Subroutine NRNUL(NABC,CABC,FABC,P0,DABC,MABC) 
+      Subroutine NRNUL(NABC,CABC,FABC,P0,DABC,MABC)
 
       Character         CABC(0:26)
       Real              FABC(0:26)
@@ -394,7 +394,7 @@
          End if
       End do
 
-      X=P0/X 
+      X=P0/X
 
       Do I1=1,MABC
          FABC(I1)=RABC(I1)*X
@@ -405,9 +405,9 @@
 *----------------------------------------------------------------------*
       Include          'reprf.f'
       Include          'rhnul.f'
-      Include          'wrsam.f' 
-      Include          'wrhmr.f' 
-      Include          'schmm.f' 
+      Include          'wrsam.f'
+      Include          'wrhmr.f'
+      Include          'schmm.f'
       Include          'dfnul.f'
-      Include          'lblnk.f' 
+      Include          'lblnk.f'
       Include          'Xblnk.f'

@@ -1,18 +1,18 @@
-*       Program htop 
-*----------------------------------------------------------------------*     
+*       Program htop
+*----------------------------------------------------------------------*
 * $Id: htop.f,v 2.12 2003/12/01 13:33:04 vflegel Exp $
-*----------------------------------------------------------------------*     
-*       Function: Reformats profiles: in-fmt=HMMER / out-fmt=PROSITE    
+*----------------------------------------------------------------------*
+*       Function: Reformats profiles: in-fmt=HMMER / out-fmt=PROSITE
 *       Author:   Philipp Bucher
 *       Contact:  pftools@sib.swiss
 *       Version:  File under developpment for release 2.3
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * DATA
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 
 * array dimensions and I/O units
 
-      Include          'ardim.f' 
+      Include          'ardim.f'
 
       Parameter        (NPRF=   5)
       Parameter        (NOUT=   6)
@@ -20,7 +20,7 @@
 
 * profile and sequence fields:
 
-      Character*512     FPRF
+      Character*4096    FPRF
 
       Include          'psdat.f'
       Include          'gsdat.f'
@@ -32,10 +32,10 @@
 
       Include          'sterr.f'
 
-* HMM 
+* HMM
       Include          'hmdat.f'
 
-      Character*512     FNUL
+      Character*4096    FNUL
 
 * command line options and parameters
 
@@ -43,12 +43,12 @@
       Real*8            DL
 
       Logical           OPTF
-      Logical           OPTI    
-      Logical           OPTO    
-      Logical           OPTR    
-      Logical           OPTS    
-      Logical           LLLT    
-      Logical           LRNM   
+      Logical           OPTI
+      Logical           OPTO
+      Logical           OPTR
+      Logical           OPTS
+      Logical           LLLT
+      Logical           LRNM
       Logical           LEOF
       Logical           LRPS
 
@@ -56,11 +56,11 @@
 
 * initialization of controlled vocabularies
 
-      Include          'cvini.f' 
+      Include          'cvini.f'
 
-*----------------------------------------------------------------------*     
-* INPUT SECTION 
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
+* INPUT SECTION
+*----------------------------------------------------------------------*
 
 * initializations
 
@@ -129,11 +129,11 @@
 
 * read profile
 
- 1    Continue           
+ 1    Continue
 
       If(LEOF) go to 100
-      If(.NOT.OPTO) then 
-         Call RHMMER2 
+      If(.NOT.OPTO) then
+         Call RHMMER2
      *      (NPRF,FPRF,
      *      CPID,CPAC,CPDT,CPDE,LHDR,CHDR,NABC,CABC,LPRF,LPCI,
      *      CDIS,JDIP,MDIS,NDIP,
@@ -150,20 +150,20 @@
          End if
          If(IRC.NE.0) go to 100
 
-* rescale 
+* rescale
 *** To be modified: Add to hmmer1 profile reading ???
          Do I1=0,LPRF
             Do I2=0,46
                If(IIPP(I2,I1).NE.NLOW)
      *            IIPP(I2,I1)=NINT(RF*IIPP(I2,I1))
-            End do 
-         End do 
+            End do
+         End do
          Do I1=1,LPRF
             Do I2=0,27
                If(IMPP(I2,I1).NE.NLOW)
      *            IMPP(I2,I1)=NINT(RF*IMPP(I2,I1))
-            End do 
-         End do 
+            End do
+         End do
 
          RNOP(1,1)=RNOP(1,1)+LOG10(350.0)
          RNOP(2,1)=RNOP(2,1)/RF
@@ -171,7 +171,7 @@
          RCUT(1,1)=RC
          ICUT(1)=NINT((RCUT(1,1)-RNOP(1,1))/RNOP(2,1))+1
 
-         If(RC.EQ.0) then 
+         If(RC.EQ.0) then
             JCUT=2
             MCLE(1)=0
             CCUT(1)='!'
@@ -185,12 +185,12 @@
             RCUT(1,2)=6.5
             MCUT(1,2)=1
             ICUT(2)=NINT((RCUT(1,2)-RNOP(1,1))/RNOP(2,1))+1
-         End if 
+         End if
 ***
 
 * semilocal alignment mode
 
-         If(OPTS) then 
+         If(OPTS) then
             IIPD(B0)=0
             IIPD(E0)=0
             Do I1=1,LPRF
@@ -201,7 +201,7 @@
 
 * option -i
 
-         If(OPTI) then 
+         If(OPTI) then
             Do I1=0,LPRF
                Do I2=0,NABC
                   IIPP(I2,I1)=0
@@ -211,16 +211,16 @@
 
          Go to  90
       End if
-      
+
 
       Call RHMMER(NPRF,FPRF,LPRF,RIHM,RMHM,IDMP,NABC,CABC,INBP,IRC)
       If(IRC.NE.0) go to 100
 
 * read null-model
 
-      If(FNUL.NE.' ') then 
-         Call RHNUL(NNUL,FNUL,FABC,NABC,IRC)      
-         If(IRC.NE.0) go to 100 
+      If(FNUL.NE.' ') then
+         Call RHNUL(NNUL,FNUL,FABC,NABC,IRC)
+         If(IRC.NE.0) go to 100
       Else
          Do I2=1,NABC
             FABC(I2)=0.0
@@ -229,13 +229,13 @@
             Do I2=1,NABC
                FABC(I2)=FABC(I2)+RIHM(I2,I1)
             End do
-         End do 
+         End do
          Do I2=1,NABC
             FABC(I2)=FABC(I2)/LPRF
          End do
       End if
 
-* header line definitions 
+* header line definitions
 
       If(FPRF.EQ.'-') FPRF='stdin'
       CPID='HMMER-HMM'
@@ -245,14 +245,14 @@
      *   // FPRF(1:Lblnk(FPRF))
      *   // '''.'
 
-* accessories 
+* accessories
 
       LPCI=.FALSE.
 
       BLOG=DL
       DL=1/LOG(DL)
       P0=1.0
-      
+
       MDIS=2
 C      If(NM.GT.0.AND.NM.LT.(LPRF/2)) then
 C         NDIP(1)=1   +NM
@@ -280,7 +280,7 @@ C      End if
       Else
          RNOP(1,1)=0.0
       End if
-      
+
       JCUT=1
       MCLE(1)=0
       CCUT(1)=' '
@@ -300,15 +300,15 @@ C      End if
          IIPD(ME)=0
          IIPD(IE)=NLOW
          IIPD(DE)=NLOW
-      Else 
+      Else
          IIPD(B1)=NLOW
          IIPD(E1)=NLOW
-      End if 
+      End if
 
-      If(OPTS) then 
+      If(OPTS) then
          IIPD(B0)=0
          IIPD(E0)=0
-      Else 
+      Else
          IIPD(B0)=IIPD(B1)
          IIPD(E0)=IIPD(E1)
       End if
@@ -333,21 +333,21 @@ C      End if
       IIPD(DM)=0
       IIPD(DI)=0
       IIPD(DD)=0
-      
+
       IIPD(I0)=NINT(DL*LOG(RQ))
       If(OPTI) IIPD(I0)=0
-      
+
       CHID='-'
       Do I1=1,26
          IIPD(I1)=0
-      End do 
-      
+      End do
+
       IMPD(M0)=NINT(DL*LOG(RQ))
       IMPD(D )=0
       CHMD='X'
       Do I1=1,26
          IMPD(I1)=0
-      End do 
+      End do
 
       Do I1=0,LPRF
          Do I2=0,27
@@ -386,19 +386,19 @@ C      End if
             Else
                IMPP(I2,I1)=NLOW
             End if
-         End do 
+         End do
 
          If(OPTI) then
             IIPP(I2,I1)=0
-         Else 
+         Else
             Do I2=1,NABC
                If(RIHM(I2,I1).GT.0) then
                   IIPP(I2,I1)=NINT(DL*LOG(RIHM(I2,I1)/FABC(I2)))
                Else
                   IIPP(I2,I1)=NLOW
                End if
-            End do 
-         End if 
+            End do
+         End if
       End do
 
 * beginning and end
@@ -417,25 +417,25 @@ C      End if
       IIPP(E0,LPRF)=0
       IIPP(E1,LPRF)=0
 
-* generate consensus sequence 
-      
+* generate consensus sequence
+
       CHIP( 0)='-'
-      Do I1=1,LPRF 
+      Do I1=1,LPRF
          CHMP(I1)=CABC( 1)
          CHIP(I1)=CHID
          K1=IMPP( 1,I1)
          Do I2=1,NABC
-            If(IMPP(I2,I1).GT.K1) then 
+            If(IMPP(I2,I1).GT.K1) then
                K1=IMPP(I2,I1)
                CHMP(I1)=CABC(I2)
             End if
-         End do 
+         End do
       End do
 
  90   Continue
 
 * parameters P,M
-      
+
       If((.NOT.LRPS).AND.(NM.GT.0.AND.NM.LT.(LPRF/2))) then
          NDIP(1)=1   +NM
          NDIP(2)=LPRF-NM
@@ -459,7 +459,7 @@ C      NDIP(2)=LPRF-N1
 * final modifications (parameter)
 
       If(RH.GT.0.0) then
-         If(OPTR) then 
+         If(OPTR) then
             NH=-RH/RNOP(2,1)
          Else
             NH=-RH*RF
@@ -490,7 +490,7 @@ C      NDIP(2)=LPRF-N1
      *   CPID,CPAC,CPDT,CPDE,LHDR,CHDR,LFTR,CFTR,NABC,CABC,LPRF,LPCI,
      *   CDIS,JDIP,MDIS,NDIP,
      *   CNOR,JNOP,JNOR,MNOR,NNOR,NNPR,CNTX,RNOP,
-     *   JCUT,MCLE,CCUT,ICUT,JCNM,RCUT,MCUT, 
+     *   JCUT,MCLE,CCUT,ICUT,JCNM,RCUT,MCUT,
      *   IDMP,CHIP,IIPP,CHMP,IMPP,
      *   BLOG,FABC,P0,
      *   CHID,IIPD,CHMD,IMPD,
@@ -500,12 +500,12 @@ C      NDIP(2)=LPRF-N1
 
  100  Call Exit(IRC)
       End
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
       Subroutine Repar
      *     (OPTF,OPTI,OPTO,OPTR,OPTS,LLLT,LRPS,FPRF,FNUL,
      *     DB,RC,DL,NM,RP,RQ,RF,RH,IRC)
 
-      Character*512     CARG
+      Character*4096    CARG
       Character*(*)     FPRF
       Character*(*)     FNUL
 
@@ -640,7 +640,7 @@ C      NDIP(2)=LPRF-N1
          Else if(CARG(1:2).EQ.'L=') then
             Read(CARG(3:),*,Err=900) DL
          Else if(CARG(1:2).EQ.'M=') then
-            Read(CARG(3:),*,Err=900) NM 
+            Read(CARG(3:),*,Err=900) NM
          Else if(CARG(1:2).EQ.'P=') then
             Read(CARG(3:),*,Err=900) RP
          Else if(CARG(1:2).EQ.'Q=') then
@@ -654,12 +654,12 @@ C      NDIP(2)=LPRF-N1
             Else if(K1.EQ.2) then
                FNUL=CARG
             End if
-         Else 
+         Else
             Go to 900
          End if
          I2=I2+1
          If(I2.GT.N1) Go to 20
-      End do 
+      End do
 
  20   If(FPRF.EQ.' ') Go to 900
       If(RP.LT.0.OR.RP.GT.100) Go to 900
@@ -668,7 +668,7 @@ C      NDIP(2)=LPRF-N1
  900  IRC=-1
       Go to 100
       End
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
       Include          'rhmmer.f'
       Include          'rhmmer2.f'
       Include          'rhnul.f'

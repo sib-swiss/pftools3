@@ -1,13 +1,13 @@
 *       Program pfw
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * $Id: pfw.f,v 2.10 2004/01/09 09:27:36 vflegel Exp $
-*----------------------------------------------------------------------*     
-*       Function: Calculate weights for individual sequences of a 
-*                 multiple sequence alignment.      
+*----------------------------------------------------------------------*
+*       Function: Calculate weights for individual sequences of a
+*                 multiple sequence alignment.
 *       Author:   Philipp Bucher
 *       Contact:  pftools@sib.swiss
 *       Version:  File under developpment for release 2.3
-*----------------------------------------------------------------------*     
+*----------------------------------------------------------------------*
 * DATA
 *----------------------------------------------------------------------*
 
@@ -25,15 +25,15 @@ C        Parameter        (IDM3=   2024)
 
       Include          'sterr.f'
 
-* weights and distances 
+* weights and distances
 
       Real*4            RWGT(IDMF)
-      Integer           NDIS(IDMF) 
-      Integer           NIND(IDMF) 
+      Integer           NDIS(IDMF)
+      Integer           NIND(IDMF)
 
 * multiple sequence alignment:
 
-      Character*512     FMSF
+      Character*4096    FMSF
 
       Character*64      SQID(IDMF)
       Character         CSEQ(IDMS)
@@ -41,12 +41,12 @@ C        Parameter        (IDM3=   2024)
 
       Logical           LXSC(IDMP)
 
-* character set 
+* character set
 
       Character         CSET(26,ICSL)
       Integer           NSET(   ICSL)
 
-* work fields 
+* work fields
 
       Character*512     RCIO
       Character*512     ROUT
@@ -59,7 +59,7 @@ C        Parameter        (IDM3=   2024)
       Integer           Getc
 C       Integer           Fputc
 
-* character translation 
+* character translation
 
       Character*27      ABCU
       Character*27      ABCL
@@ -74,10 +74,10 @@ C       Integer           Fputc
       IRC=0
       IDUM=-2
 
-*read command line 
+*read command line
 
       Call Repar
-     *   (FMSF,NRAN,RX,RW,IRAN,OPTM,IRC) 
+     *   (FMSF,NRAN,RX,RW,IRAN,OPTM,IRC)
       If(IRC.NE.0) then
          Write(NERR,'(/,
      *      ''pfw 2.3 revision 5.d'',//
@@ -111,31 +111,31 @@ C       Integer           Fputc
 
 * read msf-file
 
-C       If(FMSF.EQ.'-') then 
-C   1      Open(NMSF,Status='SCRATCH') 
+C       If(FMSF.EQ.'-') then
+C   1      Open(NMSF,Status='SCRATCH')
 C          Do I1=1,2*IDM1
 C             If(Getc(B).NE.0) go to   2
-C             N1=Fputc(NMSF,B) 
-C          End do 
+C             N1=Fputc(NMSF,B)
+C          End do
 C   2      Rewind(NMSF)
-C       End if 
+C       End if
 
-      If(FMSF.EQ.'-') then 
+      If(FMSF.EQ.'-') then
  1       Open(NMSF,Status='SCRATCH',Err=901)
- 2       Continue 
+ 2       Continue
          Do I1=1,512
             If(Getc(B).NE.0) go to 3
             If(Ichar(B).EQ.10) then
                Write(NMSF,'(512A)',Err=903)(CSEQ(ii1),ii1=1,I1-1)
-               Go to   2   
-            Else 
+               Go to   2
+            Else
                CSEQ(I1)=B
             End if
-         End do  
+         End do
          Go to   2
  3       Rewind(NMSF)
 
-      End if 
+      End if
 
       If(OPTM) then
          Call REMSA
@@ -160,16 +160,16 @@ C       End if
 * DATA PROCESSING
 *----------------------------------------------------------------------*
 
-* make sequence uppercase 
+* make sequence uppercase
 
       Do I1=1,LSEQ*NSEQ
-         If     (Index(ABCU,CSEQ(I1)).NE.0) then 
+         If     (Index(ABCU,CSEQ(I1)).NE.0) then
             Continue
          Else
             IX=Index(ABCL,CSEQ(I1))
             If(IX.GT.0) then
                CSEQ(I1)=ABCU(IX:IX)
-            Else 
+            Else
                CSEQ(I1)='-'
             End if
          End if
@@ -186,41 +186,41 @@ C       End if
             If(CSEQ(J1).EQ.'-') K1=K1+1
             J1=J1+LSEQ
          End do
-         If(K1.LE.NXSC) then 
+         If(K1.LE.NXSC) then
             LXSC(I1)=.TRUE.
          Else
             LXSC(I1)=.FALSE.
          End if
       End do
 
-* generate character set profile 
+* generate character set profile
 
       Call GCSET
      *   (IDMS,CSEQ,NSEQ,LSEQ,
-     *   ICSL,NSET,CSET) 
+     *   ICSL,NSET,CSET)
 
-* major loop 
+* major loop
 
 * - initialize new weights
 
 *       Do  10 I1=1,NSEQ
       RWGT(I1)=0
- 10   Continue 
+ 10   Continue
 
       Do  20 I1=1,NRAN*NSEQ
 
-* - generate random sequences 
+* - generate random sequences
 
          Call RanSQ(IRAN,ICSL,NSET,CSET,LSEQ,CSQR)
 
 * - compare random sequence to real sequences
 *
-*      NDIS(i): distance of random sequence to real sequence i  
-*      MIND   : minimal distance 
+*      NDIS(i): distance of random sequence to real sequence i
+*      MIND   : minimal distance
 *      KMIN   : # of real sequences with minimal distance
-*      NIND(i): indices of real sequences with minimal distance   
+*      NIND(i): indices of real sequences with minimal distance
 
-         J3=1 
+         J3=1
          MIND=LSEQ
          KMIN=0
          Do  15 I2=1,NSEQ
@@ -238,7 +238,7 @@ C       End if
             Else if(NDIS(I2).EQ.MIND) then
                KMIN=KMIN+1
                NIND(KMIN)=I2
-            End if 
+            End if
  15      Continue
 
          R1=1.0/KMIN
@@ -252,8 +252,8 @@ C       End if
       Do  30 I1=1,NSEQ
          RWGT(I1)=RWGT(I1)/(NSEQ*NRAN)
 C          Write(6,'(A16,''Weight: '',F6.4)')
-C    *        SQID(I1)(1:16),RWGT(I1)  
- 30   Continue 
+C    *        SQID(I1)(1:16),RWGT(I1)
+ 30   Continue
 
 *----------------------------------------------------------------------*
 * OUTPUT SECTION
@@ -267,7 +267,7 @@ C    *        SQID(I1)(1:16),RWGT(I1)
          K1=0
  40      Read(NMSF,'(A)',End=900,Err=902) RCIO
          If(RCIO(1:1).NE.'>') go to 40
-         
+
 * build 'weight=value' pair
 
  41      K1=K1+1
@@ -278,7 +278,7 @@ C    *        SQID(I1)(1:16),RWGT(I1)
 
          J1=8
          Do I1=9,Lblnk(RCTM)
-            If(RCTM(I1:I1).NE.' ') then 
+            If(RCTM(I1:I1).NE.' ') then
                J1=J1+1
                RCTM(J1:J1)=RCTM(I1:I1)
                RCTM(I1:I1)=' '
@@ -315,37 +315,37 @@ C    *        SQID(I1)(1:16),RWGT(I1)
          L=Lblnk(RCIO)
          If(L.EQ.0.AND.IOS.EQ.-1) go to 100
          Write(6,'(512A)')(RCIO(ii1:ii1),ii1=1,L)
-         Go to  48 
+         Go to  48
 
 * output MSF format
-         
+
       Else
  51      Read(NMSF,'(A)',End=900,Err=902) RCIO
          L=Lblnk(RCIO)
          Write(6,'(512A)')(RCIO(ii1:ii1),ii1=1,L)
          If(Index(RCIO(1:L),'..').EQ.0) go to  51
-         
+
          K1=1
  52      Read(NMSF,'(A)',End=900,Err=902) RCIO
          L=Lblnk(RCIO)
-         IX=Index(RCIO(1:L),'Weight: ') 
-         If(IX.NE.0) then 
+         IX=Index(RCIO(1:L),'Weight: ')
+         If(IX.NE.0) then
             If(RW*RWGT(K1).LT.10) then
                Write(RCIO(IX+8:),'(F6.4)') RW*RWGT(K1)
-               L=IX+13 
+               L=IX+13
             Else
                Write(RCIO(IX+8:),*) RW*RWGT(K1)
-               L=Lblnk(RCIO) 
-            End if  
+               L=Lblnk(RCIO)
+            End if
             K1=K1+1
-         End if   
+         End if
          Write(6,'(512A)')(RCIO(ii1:ii1),ii1=1,L)
          If(RCIO(1:2).NE.'//') go to  52
-         
+
  53      Read(NMSF,'(A)',End=100,Err=902) RCIO
          L=Lblnk(RCIO)
          Write(6,'(512A)')(RCIO(ii1:ii1),ii1=1,L)
-         Go to  53 
+         Go to  53
       End if
 
 
@@ -353,7 +353,7 @@ C    *        SQID(I1)(1:16),RWGT(I1)
 
 * errors
 
- 900  Go to 100 
+ 900  Go to 100
 
  901  Write(NERR,*) 'Error: Unable to create temporary file.'
       IRC=1
@@ -371,10 +371,10 @@ C    *        SQID(I1)(1:16),RWGT(I1)
       End
 *----------------------------------------------------------------------*
       Subroutine Repar
-     *   (FMSF,NRAN,RX,RW,IRAN,OPTM,IRC) 
+     *   (FMSF,NRAN,RX,RW,IRAN,OPTM,IRC)
 
-      Character*512     FMSF 
-      Character*512     CPAR
+      Character*(*)     FMSF
+      Character*4096    CPAR
       Logical           OPTM
 
       NRAN=100
@@ -384,16 +384,16 @@ C    *        SQID(I1)(1:16),RWGT(I1)
       IRC=0
       FMSF=' '
       OPTM=.FALSE.
-      
+
       N1=Iargc()
-      If(N1.LT.1) go to 900  
-      
+      If(N1.LT.1) go to 900
+
       K1=0
       I2=1
       Do  50 I1=1,N1
          Call GetArg(I2,CPAR)
          If     (CPAR(1:1).EQ.'-'.AND.CPAR(2:2).NE.' ') then
-            If(Index(CPAR,'h').NE.0) then 
+            If(Index(CPAR,'h').NE.0) then
                IRC=1
                Go to 100
             End if
@@ -434,21 +434,21 @@ C    *        SQID(I1)(1:16),RWGT(I1)
                   Read(CPAR,*,Err=900) RW
                End if
             End if
- 
+
          Else if(CPAR(1:2).EQ.'N=') then
-            Read(CPAR(3:),*,Err=900) NRAN 
+            Read(CPAR(3:),*,Err=900) NRAN
          Else if(CPAR(1:2).EQ.'X=') then
-            Read(CPAR(3:),*,Err=900) RX 
+            Read(CPAR(3:),*,Err=900) RX
          Else if(CPAR(1:2).EQ.'R=') then
-            Read(CPAR(3:),*,Err=900) IRAN  
+            Read(CPAR(3:),*,Err=900) IRAN
          Else if(CPAR(1:2).EQ.'W=') then
-            Read(CPAR(3:),*,Err=900) RW 
+            Read(CPAR(3:),*,Err=900) RW
 
          Else if(FMSF.EQ.' ') then
             FMSF=CPAR
          End if
          I2=I2+1
-         If(I2.GT.N1) Go to 60         
+         If(I2.GT.N1) Go to 60
 
  50   Continue
 
@@ -457,14 +457,14 @@ C    *        SQID(I1)(1:16),RWGT(I1)
       If(IRAN.GT.0) IRAN=-1-IRAN
       If(IRAN.EQ.0) IRAN=-123456789
 
- 100  Return 
+ 100  Return
  900  IRC=1
       Go to 100
       End
 *----------------------------------------------------------------------*
       Subroutine GCSET
      *   (IDMS,CSEQ,NSEQ,LSEQ,
-     *   ICSL,NSET,CSET) 
+     *   ICSL,NSET,CSET)
 
 * CSEQ(IDMS)
 * NSET(ICSL)
@@ -472,14 +472,14 @@ C    *        SQID(I1)(1:16),RWGT(I1)
       Character         CSEQ(*)
       Integer           NSET(*)
       Character         CSET(26,ICSL)
-      
+
       Do  10 I1=1,LSEQ
          NSET(   I1)=0
          J2=I1-LSEQ
          Do   8 I2=1,NSEQ
             J2=J2+LSEQ
             Do   5 I3=1,NSET(I1)
-               If(CSEQ(J2).EQ.CSET(I3,I1)) go to   8 
+               If(CSEQ(J2).EQ.CSET(I3,I1)) go to   8
  5          Continue
             NSET(I1)=NSET(I1)+1
             CSET(NSET(I1),I1)=CSEQ(J2)
@@ -497,9 +497,9 @@ C  20   Continue
       Subroutine RanSQ(IRAN,ICSL,NSET,CSET,LSEQ,CSQR)
 
       Integer         NSET(*)
-      Character       CSET(26,ICSL) 
+      Character       CSET(26,ICSL)
       Character       CSQR(*)
-      
+
       Do  10 I1=1,LSEQ
          If(NSET(I1).EQ.0) then
             CSQR(I1)='-'

@@ -2,7 +2,7 @@
 
 # ps_scan - a PROSITE scanning program
 #
-# Revision: 1.89
+# Revision: 1.90
 #
 # Copyright (C) 2001-2020 SIB Swiss Institute of Bioinformatics
 # Authors:
@@ -538,7 +538,7 @@ sub group_matches
 # initializations & parameters processing
 
 BEGIN {
-   $VERSION = '1.89';
+   $VERSION = '1.90';
 }
 
 # Can we use the IPC::Open2 module to communicate with
@@ -1722,7 +1722,7 @@ sub do_profile_scan {
             close DETECT;
         }
         @pre_command = ( $use_pfsearchV3 ?
-        	"$opt_pfsearch -o1 -c$cutoff $PROSITE" : "$opt_pfsearch $fasta -lxz $PROSITE" );
+        	"$opt_pfsearch -o1 -L $level_min $PROSITE" : "$opt_pfsearch $fasta -lxz $PROSITE" );
         	# p.s. if input is not fasta, pfsearchV3 will fail!
         @post_command = ( $use_pfsearchV3 ? "" : "C=$cutoff" );
     }

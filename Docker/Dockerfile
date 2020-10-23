@@ -20,8 +20,6 @@ RUN echo '# OS update' \
       libpng-dev \
       libfile-slurp-perl \
 	&& echo '# Install Pftools V3' \
-	&& mkdir -p $PFTOOLS_PATH \
-	&& cd /tmp \
 	&& git clone --depth=1 "https://github.com/sib-swiss/pftools3.git" \
 	&& mkdir pftools3/build \
 	&& cd pftools3/build \

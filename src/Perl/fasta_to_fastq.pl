@@ -1,3 +1,4 @@
+#!/bin/env perl
 #Copyright (c) 2010 LUQMAN HAKIM BIN ABDUL HADI (csilhah@nus.edu.sg)
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
@@ -12,7 +13,6 @@
 #LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 #IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#!/usr/bin/perl
 use strict;
 
 my $file = $ARGV[0];
@@ -20,26 +20,26 @@ open FILE, $file;
 
 my ($header, $sequence, $sequence_length, $sequence_quality);
 while(<FILE>) {
-        chomp $_;
-        if ($_ =~ /^>(.+)/) {
-                if($header ne "") {
-                        print "\@".$header."\n";
-                        print $sequence."\n";
-                        print "+"."\n";
-                        print $sequence_quality."\n";
-                }
-                $header = $1;
-		$sequence = "";
-		$sequence_length = "";
-		$sequence_quality = "";
+    chomp $_;
+    if ($_ =~ /^>(.+)/) {
+        if($header ne '') {
+            print "\@".$header."\n";
+            print $sequence."\n";
+            print "+"."\n";
+            print $sequence_quality."\n";
         }
-	else {
-		$sequence .= $_;
-		$sequence_length = length($_);
-		my $qual = "!''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65";
-		my @qual = split //, $qual;
-		for(my $i=0; $i<$sequence_length; $i++) {$sequence_quality .= $qual[$i % length($qual)]}
-	}
+        $header = $1;
+        $sequence         = '';
+        $sequence_length  = '';
+        $sequence_quality = '';
+    }
+    else {
+        $sequence .= $_;
+        $sequence_length = length($_);
+        my $qual = "!''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65";
+        my @qual = split //, $qual;
+        for(my $i=0; $i<$sequence_length; $i++) {$sequence_quality .= $qual[$i % length($qual)]}
+    }
 }
 close FILE;
 print "\@".$header."\n";

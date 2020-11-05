@@ -24,13 +24,12 @@ it was originally published in
   A generalized profile syntax for biomolecular sequence motifs
   and its function in automatic sequence interpretation.
   Proc Int Conf Intell Syst Mol Biol. 1994;2:53-61.
-  PubMed PMID: [7584418](https://www.ncbi.nlm.nih.gov/pubmed/7584418) .
+  PubMed PMID: [7584418](https://www.ncbi.nlm.nih.gov/pubmed/7584418).
 
 
 # Command-line tutorial
 
-In the doc/example subdirectory, the [test_V3.sh](https://raw.githubusercontent.com/sib-swiss/pftools3/master/doc/example/test_V3.sh) shell script is a good starting
-point for using pfsearchV3/pfscanV3
+After installation, in the share/examples/ subdirectory, the *test_V3.sh* shell script is a good starting point for using pfsearchV3/pfscanV3.
 
 # Algorithms description
 

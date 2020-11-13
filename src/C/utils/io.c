@@ -16,7 +16,7 @@
 #include <string.h>
 #include "pfProfile.h"
 
-const char NormalizationModeName[3][16] = { 
+const char NormalizationModeName[3][16] = {
   "linear\0\0\0\0\0\0\0\0\0\0",
   "gle_zscore\0\0\0\0\0\0",
   "gle_zscave\0\0\0\0\0\0"
@@ -67,7 +67,7 @@ unsigned int out_profile = 0;
  * This structure is fed by the Line Analyzer which parses the input, transforms delimiting symbols
  * into '\0' end character and sets the starting pointer within the ProfileLine structure.
  */
-struct ProfileLine { 
+struct ProfileLine {
   char * command;
   char * subcommand;
   char * keywords[32];
@@ -89,7 +89,7 @@ static inline size_t GetLine(FILE * const stream, char * const restrict Destinat
     if (Destination[length-1] == '\n') Destination[--length] = '\0';
     return length;
   }
-  else 
+  else
     return 0;
 }
 
@@ -98,7 +98,7 @@ static inline size_t GetLine(FILE * const stream, char * const restrict Destinat
  */
 static inline char * FirstChar(const char * restrict Line, const uintptr_t MaxMemPoint)
 {
-  char * pos = (char*) Line; 
+  char * pos = (char*) Line;
   while ( (*pos == ' ') || (*pos == '\t') ) {
     if ( (uintptr_t) ++pos == MaxMemPoint) break;
   }
@@ -115,7 +115,7 @@ static inline char * CopyUptoSymbol(char * const restrict Destination, const cha
     if ( Line[i] == Symbol){
       return (char*) &Line[i+1];
     }
-    else 
+    else
       Destination[i] = Line[i];
   }
   return NULL;
@@ -131,7 +131,7 @@ static inline char * CopyUptoSymbolTerminated(char * const restrict Destination,
       Destination[i] = '\0';
       return (char*) &Line[i+1];
     }
-    else 
+    else
       Destination[i] = Line[i];
   }
   Destination[MaxLength] = '\0';
@@ -219,7 +219,7 @@ static inline size_t CountAndReplaceSymbol(char * const restrict String, const c
 #ifdef _DEBUG_VERBOSE_
     else {
       fputc((int) *pos,stdout);
-    } 
+    }
 #endif
     ++pos;
   }
@@ -262,7 +262,7 @@ static inline size_t CountSymbol(const char * const restrict String, const char 
 #ifdef _DEBUG_VERBOSE_
     else {
       fputc((int) *pos,stdout);
-    } 
+    }
 #endif
     ++pos;
   }
@@ -281,7 +281,7 @@ static int AnalyzeLine(char * restrict currentLine, struct ProfileLine * const r
   const uintptr_t MaxMemPoint = (uintptr_t) &currentLine[LineSize-1];
 #ifdef _VERBOSE_
   if (out_profile) {
-    if (UseColor) 
+    if (UseColor)
       printf("\e[31;40mLine : %s\e[0m\n", currentLine);
     else
       printf("Line : %s\n", currentLine);
@@ -289,7 +289,7 @@ static int AnalyzeLine(char * restrict currentLine, struct ProfileLine * const r
 #endif
   /* Set Multiple line to false */
   *MultipleLine = false;
-  
+
   /* Clear result first */
   memset(prfLine, 0, sizeof(struct ProfileLine)-SUB_COMMAND_MAX_SIZE);
 
@@ -298,7 +298,7 @@ static int AnalyzeLine(char * restrict currentLine, struct ProfileLine * const r
   prfLine->command = Position;
   const _Bool isMatrix = (Position[0] == 'M' && Position[1] == 'A') ? true : false;
   prfLine->isMatrix = isMatrix;
-  
+
   /* Get to end of command and replace space by '\0' */
   while ( *Position != ' ' && (uintptr_t)Position <= MaxMemPoint) ++Position;
   while ( *Position == ' ' && (uintptr_t)Position <= MaxMemPoint) *Position++ = '\0';
@@ -321,12 +321,12 @@ static int AnalyzeLine(char * restrict currentLine, struct ProfileLine * const r
     } else {
 #ifdef _VERBOSE_
   if (out_profile) {
-    if (UseColor) 
+    if (UseColor)
       printf(" \e[31;40mMULTIPLE MA LINES DETECTED\e[0m");
     else
       printf(" MULTIPLE MA LINES DETECTED");
   }
-#endif 
+#endif
       prfLine->subcommand = previousSubCommand;
       *MultipleLine = true;
     }
@@ -432,12 +432,12 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
   StoredIntegerFormat IIPD_BOUNDARIES     [ INSERTION_BOUNDARIES_SIZE] __attribute__((aligned(16)));
   StoredIntegerFormat IMPD_ALPHABET       [      ALPHABET_MEMORY_SIZE] __attribute__((aligned(16)));
   TransitionScores IIPD_TRANSITIONS __attribute__((aligned(16)));
-  
+
   char currentLine[PROFILE_MAX_LINE_SIZE] __attribute__((aligned(16)));
-  
+
   struct ProfileLine AnalyzedLine;
 
-  union Scores DefaultScores = { 
+  union Scores DefaultScores = {
     Insertion : { IIPD_ALPHABET,
 		  IIPD_BOUNDARIES,
 		  &IIPD_TRANSITIONS,
@@ -449,7 +449,7 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
   union Scores WorkingScores;
   char * ProfileSequence = 0;
   size_t Line = *LineOffset, Alphabet_Length=0, Length=0;
-  
+
   int InsertionCounter=-1, MatchCounter=0;
   int res;
   _Bool LZCO = false;
@@ -457,24 +457,24 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
   char DefaultMatchSymbol;
   char DefaultInsertionSymbol;
 
-   
+
   /*
    * Initialize position-independent profile parameters
    *
    *   - general specification
    */
-  
+
   prf->isCircular         = false;
   prf->Length             = 0UL;
-	prf->isReversed         = false;
-	
+  prf->isReversed         = false;
+
   /*   - disjoint mode */
   prf->DisjointData.MDIS = 1;
   strcpy(prf->DisjointData.CDIS[0], "UNIQUE\0");
   strcpy(prf->DisjointData.CDIS[1], "PROTECT\0");
   prf->DisjointData.JDIP[0] = 0;
   prf->DisjointData.JDIP[1] = 2;
-  
+
 
   /*   - normalization modes */
   prf->NormalizationData.JNOR = 0;
@@ -492,22 +492,22 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
 
   /*   - cut-off */
   prf->CutOffData.JCUT = 0;
-  
+
   /* Pattern */
   prf->Pattern = NULL;
-  
+
   InitializeDefault(&DefaultScores, &DefaultMatchSymbol, &DefaultInsertionSymbol);
-  
+
   memset(previousSubCommand, 0, sizeof(char)*SUB_COMMAND_MAX_SIZE);
-  
+
   /*
    * Read profile
    */
 #ifdef _VERBOSE_
   _Bool FirstCall = true;
 #endif
-  
-  while (!feof(prfStream)) {   
+
+  while (!feof(prfStream)) {
     const size_t length = GetLine(prfStream, currentLine, PROFILE_MAX_LINE_SIZE);
     if (length == 0) continue;
     ++Line;
@@ -530,7 +530,7 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
       fprintf(stderr,"Error %i in analysis at line %lu\n", res, Line);
       return 1;
     }
-    
+
     /* Header or matrix */
     if (!AnalyzedLine.isMatrix)
     {
@@ -543,9 +543,9 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
 						prf->Type = PF_PATTERN;
 					}
 					else {
-						goto MissingType;  
+						goto MissingType;
 					}
-       } 
+       }
        else if ( (AnalyzedLine.command[0] == 'A' && AnalyzedLine.command[1] == 'C' ) ) {
           CopyUptoSymbol(prf->AC_Number, AnalyzedLine.subcommand, ';', 64);
        }
@@ -623,17 +623,17 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
 
             Alphabet_Length = ALPHABET_SIZE;
             prf->Alphabet_Length = Alphabet_Length;
-            
+
           } else if (strcmp(AnalyzedLine.keywords[keys], "LENGTH")==0) {
             Length = (size_t) atoi(AnalyzedLine.values[keys]);
             prf->Length = Length;
-	               
+
             // Allocates memory
             prf->Sequence = (char*) malloc((Length+1)*sizeof(char));
 						if (prf->Sequence == NULL) goto AllocationError;
 						ProfileSequence = prf->Sequence;
 						memset(ProfileSequence, 0, (1+Length)*sizeof(char));
-	    
+
             if ( AllocateScores(&WorkingScores, Alphabet_Length, Length) != 0 ) goto AllocationError;
 
             /* Copy score pointers to profile */
@@ -677,7 +677,7 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
         if (JNOR >= MAXN) goto TooManyNormalization;
 	register SNormalizationItem * const nrmItem = &(nrm->Values[JNOR]);
         nrmItem->CNTX[0] = ' ';
-        
+
         for (size_t keys=0; keys<AnalyzedLine.counter;++keys) {
           if        (strcmp(AnalyzedLine.keywords[keys], "FUNCTION")==0) {
             char ctmp[] = "GRIBSKOV";
@@ -718,14 +718,14 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
 								if ( endptr == NULL ) {
 										fprintf(stderr, "Line %lu : unable to convert %s to float\n", Line, AnalyzedLine.values[keys]);
 										return 1;
-								} 
+								}
 								if ( endptr == AnalyzedLine.values[keys] ) {
 										fprintf(stderr, "Line %lu : conversion error of %s to float\n"
 												"         : error code %i = %s",
 											Line, AnalyzedLine.values[keys], errno, strerror(errno));
-										
+
 										return 1;
-								} 
+								}
 							}
 						}
           }
@@ -760,7 +760,7 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
             const uintptr_t MaxMemory = (uintptr_t) pos + strlen(pos);
             const size_t count = 1 + CountAndReplaceSymbol(AnalyzedLine.values[keys], ',', MaxMemory);
             if (count > MAXN) goto TooManyScores;
-            
+
             for (size_t i=0; i<count; ++i) {
               char * newpos;
               ctItem->RCUT[i] = strtof(pos, &newpos);
@@ -769,7 +769,7 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
 								return 1;
 							}
               while(*newpos != '\0') ++newpos;
-              pos = newpos + 1; 
+              pos = newpos + 1;
             }
             ctItem->JCNM = (int) count;
           } else if (strcmp(AnalyzedLine.keywords[keys], "MODE")==0) {
@@ -798,14 +798,14 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
 						if ( key[0] == 'S' && key[1] == 'Y') {
 							if (key[3] == 'M') {
 								DefaultMatchSymbol = AnalyzedLine.values[keys][1];
-							} 
+							}
 							else if (key[3] == 'I') {
 								DefaultInsertionSymbol = AnalyzedLine.values[keys][1];
 							}
 						}
             else if ( key[0] == 'M' && key[1] == '0' ) {
               if ( ReadScore(AnalyzedLine.values[keys], &(DefaultScores.Match.Alphabet[0])) != 0 ) goto ReadError;
-            } 
+            }
             else if ( key[0] == 'M' && key[1] == '\0' ) {
               const char * pos = AnalyzedLine.values[keys];
               const uintptr_t MaxMemory = (uintptr_t) pos + strlen(pos);
@@ -814,7 +814,7 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
                 StoredIntegerFormat data;
                 if ( ReadScore(AnalyzedLine.values[keys], &data) != 0 ) goto ReadError;
                 for (size_t i=0; i<Alphabet_Length; ++i) DefaultScores.Match.Alphabet[i+1] = data;
-              } 
+              }
               else {
                 if ( ReadScores(AnalyzedLine.values[keys], &(DefaultScores.Match.Alphabet[1]), count) != 0 ) goto ReadError;
               }
@@ -883,7 +883,7 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
         /* Read the scores */
         for (size_t keys=0; keys<AnalyzedLine.counter;++keys) {
           const char * key = AnalyzedLine.keywords[keys];
-					if ( key[0] == 'S' && key[1] == 'Y' ) continue; 
+					if ( key[0] == 'S' && key[1] == 'Y' ) continue;
           StoredIntegerFormat *ptr;
           const size_t type = GetInsertionMemory(key, &WorkingScores.Insertion, &ptr);
           switch (type){
@@ -927,7 +927,7 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
 //           fprintf(stderr, "Line %lu : implicit Insertion : %lu <= %lu\n", Line, InsertionCounter, MatchCounter);
 #ifdef _VERBOSE_
 	if (out_profile) {
-	  if (UseColor) 
+	  if (UseColor)
 	    puts(" \e[0;32m IMPLICIT INSERTION OF I\e[0m\n");
 	  else
 	    puts("  IMPLICIT INSERTION OF I\n");
@@ -938,7 +938,7 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
 	  memcpy(WorkingScores.Insertion.Transitions, DefaultScores.Insertion.Transitions, sizeof(TransitionScores));
 
 //        CopyPreviousInsertionProfile(&WorkingScores.Insertion);
-	  
+
 	  NextInsertionProfile(&WorkingScores.Insertion);
           ++InsertionCounter;
         }
@@ -992,14 +992,14 @@ static int internalReadProfile(FILE* prfStream, struct Profile * const prf, cons
       }
     }
   }
-  
-  /* 
+
+  /*
    * End of file reached without end of profile keyword. This typically happens when profile
    * has empty lines after the last end of profile keyword.
    * Let us check this and return here with special value -1.
-   */ 
+   */
   if (Length < 1) return -1;
-  
+
 END_OF_PROFILE:
   if (prf->Type == PF_MATRIX) {
     /* Insert possible missing I when profile starts with M */
@@ -1011,7 +1011,7 @@ END_OF_PROFILE:
       ++InsertionCounter;
     }
 
-    if (SetExtraTable) 
+    if (SetExtraTable)
     {
       register int ret;
       if ((ret = PrepareExtraTable(prf)) != 0) return ret;
@@ -1022,7 +1022,7 @@ END_OF_PROFILE:
       /* Copy default values */
       memcpy(WorkingScores.Match.Alphabet, DefaultScores.Match.Alphabet, (ALPHABET_MEMORY_SIZE)*sizeof(StoredIntegerFormat));
     }
-    
+
     /* CHECK CONSISTENCY */
     if (MatchCounter != Length) {
       if ( MatchCounter < Length )
@@ -1059,7 +1059,7 @@ END_OF_PROFILE:
       fprintf(stderr,
 	      "Warning: Disjointness parameter 2 (%i) out of bound. Parameter set to acceptable value.\n",
 	      prf->DisjointData.NDIP[1]);
-      prf->DisjointData.NDIP[1] = Length;    
+      prf->DisjointData.NDIP[1] = Length;
     }
 
     if (prf->DisjointData.NDIP[1] < prf->DisjointData.NDIP[0]) {
@@ -1068,18 +1068,18 @@ END_OF_PROFILE:
       prf->DisjointData.NDIP[0] = tmp;
     }
   }
-  
+
   *LineOffset = Line;
   return 0;
-  
+
   /*
    * ERRORS
    */
-  
+
 // MissingSymbol:
 //    fprintf(stderr, "Missing symbol %c at line %lu of %s\n\tLine: %s\n",Symbol,Line, FileName, prfLine);
 //    return 1;
-   
+
 MissingType:
    if (prf->Identification[0] != '\0') {
     fprintf(stderr, "Missing MATRIX or PATTERN keyword at line %lu of profile %s\n\tLine: %s\n", Line, prf->Identification, currentLine);
@@ -1087,7 +1087,7 @@ MissingType:
     fprintf(stderr, "Missing MATRIX or PATTERN keyword at line %lu of %s\n\tLine: %s\n", Line, FileName, currentLine);
    }
   goto FIN;
-   
+
 AlphabetSizeTooLarge:
    fprintf(stderr, "Alphabet size exceeds hard defined size: %u > %lu\n", ALPHABET_SIZE, prf->Alphabet_Length);
   goto FIN;
@@ -1097,9 +1097,9 @@ NormalizationError:
           Line, FileName);
   for (int i=0; i<KNOR; ++i) fprintf(stderr, "%s ", prf->NormalizationData.CNOR[i]);
   fputs("\n", stderr);
-  
+
  goto FIN;
-    
+
 TooManyNormalization:
   fprintf(stderr, "Too many normalization parameters at line %lu of %s\n\tMaximum is %i.\n", Line, FileName, 0);
   goto FIN;
@@ -1128,14 +1128,14 @@ AllocationError:
   fputs("Unable to allocate sufficient memory\n", stderr);
   if (prf->Sequence) free(prf->Sequence);
 	goto FIN;
-   
+
 WrongType:
   fprintf(stderr, "MA keyword should not appear in PATTERN profile at line %lu of %s\n", Line, FileName);
 	goto FIN;
-	
+
 NoLength:
 	fprintf(stderr, "Profile does not bear a LENGTH in GENERAL_SPEC option at line %lu of %s\n", Line, FileName);
-	
+
 FIN:
     return 1;
 }
@@ -1150,17 +1150,17 @@ static int ComplementAlphabet(struct Profile * const prf)
   Alphabet_Mapping[x - (unsigned char) 'A'] = Alphabet_Mapping[y - (unsigned char) 'A'];\
   Alphabet_Mapping[y - (unsigned char) 'A'] = ctmp;\
 }
-	memcpy(prf->Complement_Alphabet_Mapping, prf->Alphabet_Mapping, ALPHABET_SIZE+2); 
-  if (prf->Type == PF_MATRIX) { 
+	memcpy(prf->Complement_Alphabet_Mapping, prf->Alphabet_Mapping, ALPHABET_SIZE+2);
+  if (prf->Type == PF_MATRIX) {
     unsigned char * const restrict Alphabet_Mapping = prf->Complement_Alphabet_Mapping;
-		
+
 		SWAP_ALPHABET('A', 'T');
 		SWAP_ALPHABET('C', 'G');
 		SWAP_ALPHABET('M', 'K');
 		SWAP_ALPHABET('R', 'Y');
 		SWAP_ALPHABET('V', 'B');
 		SWAP_ALPHABET('H', 'D');
-		
+
 		return 0;
   }
   else {
@@ -1206,7 +1206,7 @@ int PrepareExtraTable(struct Profile * const prf)
     ScoreTuple * restrict const LastScores                         = lprf->Scores.Insertion.LastSequenceProtein;
     const int MLOW = NLOW/4*3;
     const size_t Length = lprf->Length;
-  
+
     if ( lprf->isCircular) {
       for (size_t i=0; i<=Length; ++i) {
 	register const size_t offset  = INSERTION_TRANSITIONS_SIZE*i;
@@ -1217,13 +1217,13 @@ int PrepareExtraTable(struct Profile * const prf)
 	CHECK_AND_SET(InsertionScores[offset + _XM], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BM]);
 	CHECK_AND_SET(InsertionScores[offset + _XI], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BI]);
 	CHECK_AND_SET(InsertionScores[offset + _XD], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BD]);
-	
-	// Minimize dummy element 
+
+	// Minimize dummy element
 	InsertionScores[offset + _DUMMY] = NLOW;
 	CHECK_AND_SET(InsertionScores[offset + _MX], InsertionBoundaries[Boffset + _E0], InsertionBoundaries[Boffset + _ME]);
 	CHECK_AND_SET(InsertionScores[offset + _IX], InsertionBoundaries[Boffset + _E0], InsertionBoundaries[Boffset + _IE]);
 	CHECK_AND_SET(InsertionScores[offset + _DX], InsertionBoundaries[Boffset + _E0], InsertionBoundaries[Boffset + _DE]);
-	
+
 	CHECK_AND_SET(FirstScores[i].To[MATCH]    , InsertionBoundaries[Boffset + _B0], InsertionBoundaries[Boffset + _BM]);
 	CHECK_AND_SET(FirstScores[i].To[INSERTION], InsertionBoundaries[Boffset + _B0], InsertionBoundaries[Boffset + _BI]);
 	CHECK_AND_SET(FirstScores[i].To[DELETION] , InsertionBoundaries[Boffset + _B0], InsertionBoundaries[Boffset + _BD]);
@@ -1232,11 +1232,11 @@ int PrepareExtraTable(struct Profile * const prf)
 	CHECK_AND_SET(LastScores[i].From[INSERTION], InsertionBoundaries[Boffset + _E1], InsertionBoundaries[Boffset + _IE]);
 	CHECK_AND_SET(LastScores[i].From[DELETION] , InsertionBoundaries[Boffset + _E1], InsertionBoundaries[Boffset + _DE]);
       }
-    } 
+    }
     else {
       const size_t NDIP1 = lprf->DisjointData.NDIP[0];
       const size_t NDIP2 = lprf->DisjointData.NDIP[1];
-      
+
       for (size_t i=0; i<NDIP1; ++i) {
 	register const size_t offset  = INSERTION_TRANSITIONS_SIZE*i;
 	register const size_t Boffset = INSERTION_BOUNDARIES_SIZE*i;
@@ -1244,8 +1244,8 @@ int PrepareExtraTable(struct Profile * const prf)
 	CHECK_AND_SET(InsertionScores[offset + _XM], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BM]);
 	CHECK_AND_SET(InsertionScores[offset + _XI], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BI]);
 	CHECK_AND_SET(InsertionScores[offset + _XD], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BD]);
-	
-	// Minimize dummy element 
+
+	// Minimize dummy element
 	InsertionScores[offset + _DUMMY] = NLOW;
 	CHECK_AND_SET(InsertionScores[offset + _MX], NLOW, InsertionBoundaries[Boffset + _ME]);
 	CHECK_AND_SET(InsertionScores[offset + _IX], NLOW, InsertionBoundaries[Boffset + _IE]);
@@ -1266,8 +1266,8 @@ int PrepareExtraTable(struct Profile * const prf)
 	CHECK_AND_SET(InsertionScores[offset + _XM], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BM]);
 	CHECK_AND_SET(InsertionScores[offset + _XI], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BI]);
 	CHECK_AND_SET(InsertionScores[offset + _XD], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BD]);
-	
-	// Minimize dummy element 
+
+	// Minimize dummy element
 	InsertionScores[offset + _DUMMY] = NLOW;
 	CHECK_AND_SET(InsertionScores[offset + _MX], InsertionBoundaries[Boffset + _E1], InsertionBoundaries[Boffset + _ME]);
 	CHECK_AND_SET(InsertionScores[offset + _IX], InsertionBoundaries[Boffset + _E1], InsertionBoundaries[Boffset + _IE]);
@@ -1288,8 +1288,8 @@ int PrepareExtraTable(struct Profile * const prf)
 	CHECK_AND_SET(InsertionScores[offset + _XM], NLOW, InsertionBoundaries[Boffset + _BM]);
 	CHECK_AND_SET(InsertionScores[offset + _XI], NLOW, InsertionBoundaries[Boffset + _BI]);
 	CHECK_AND_SET(InsertionScores[offset + _XD], NLOW, InsertionBoundaries[Boffset + _BD]);
-	
-	// Minimize dummy element 
+
+	// Minimize dummy element
 	InsertionScores[offset + _DUMMY] = NLOW;
 	CHECK_AND_SET(InsertionScores[offset + _MX], InsertionBoundaries[Boffset + _E1], InsertionBoundaries[Boffset + _ME]);
 	CHECK_AND_SET(InsertionScores[offset + _IX], InsertionBoundaries[Boffset + _E1], InsertionBoundaries[Boffset + _IE]);
@@ -1324,15 +1324,15 @@ int PrepareExtraTable(struct Profile * const prf)
     ScoreTuple * restrict const LastScores                         = lprf->Scores.Insertion.LastSequenceProtein;
     const int MLOW = NLOW/4*3;
     const size_t Length = lprf->Length;
-  
+
     if ( lprf->isCircular) {
       fputs("No coverage on circular profile", stderr);
       return 1;
-    } 
+    }
     else {
       const size_t NDIP1 = lprf->DisjointData.NDIP[0];
       const size_t NDIP2 = lprf->DisjointData.NDIP[1];
-      
+
       for (size_t i=0; i<NDIP1; ++i) {
 	register const size_t offset  = INSERTION_TRANSITIONS_SIZE*i;
 	register const size_t Boffset = INSERTION_BOUNDARIES_SIZE*i;
@@ -1340,8 +1340,8 @@ int PrepareExtraTable(struct Profile * const prf)
 	CHECK_AND_SET(InsertionScores[offset + _XM], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BM]);
 	CHECK_AND_SET(InsertionScores[offset + _XI], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BI]);
 	CHECK_AND_SET(InsertionScores[offset + _XD], InsertionBoundaries[Boffset + _B1], InsertionBoundaries[Boffset + _BD]);
-	
-	// Minimize dummy element 
+
+	// Minimize dummy element
 	InsertionScores[offset + _DUMMY] = NLOW;
 	CHECK_AND_SET(InsertionScores[offset + _MX], NLOW, InsertionBoundaries[Boffset + _ME]);
 	CHECK_AND_SET(InsertionScores[offset + _IX], NLOW, InsertionBoundaries[Boffset + _IE]);
@@ -1362,8 +1362,8 @@ int PrepareExtraTable(struct Profile * const prf)
 	CHECK_AND_SET(InsertionScores[offset + _XM], NLOW, InsertionBoundaries[Boffset + _BM]);
 	CHECK_AND_SET(InsertionScores[offset + _XI], NLOW, InsertionBoundaries[Boffset + _BI]);
 	CHECK_AND_SET(InsertionScores[offset + _XD], NLOW, InsertionBoundaries[Boffset + _BD]);
-	
-	// Minimize dummy element 
+
+	// Minimize dummy element
 	InsertionScores[offset + _DUMMY] = NLOW;
 	CHECK_AND_SET(InsertionScores[offset + _MX], NLOW, InsertionBoundaries[Boffset + _ME]);
 	CHECK_AND_SET(InsertionScores[offset + _IX], NLOW, InsertionBoundaries[Boffset + _IE]);
@@ -1384,8 +1384,8 @@ int PrepareExtraTable(struct Profile * const prf)
 	CHECK_AND_SET(InsertionScores[offset + _XM], NLOW, InsertionBoundaries[Boffset + _BM]);
 	CHECK_AND_SET(InsertionScores[offset + _XI], NLOW, InsertionBoundaries[Boffset + _BI]);
 	CHECK_AND_SET(InsertionScores[offset + _XD], NLOW, InsertionBoundaries[Boffset + _BD]);
-	
-	// Minimize dummy element 
+
+	// Minimize dummy element
 	InsertionScores[offset + _DUMMY] = NLOW;
 	CHECK_AND_SET(InsertionScores[offset + _MX], InsertionBoundaries[Boffset + _E1], InsertionBoundaries[Boffset + _ME]);
 	CHECK_AND_SET(InsertionScores[offset + _IX], InsertionBoundaries[Boffset + _E1], InsertionBoundaries[Boffset + _IE]);
@@ -1412,7 +1412,7 @@ struct Profile * ReverseProfile(const struct Profile * const restrict inprf)
   struct Profile * const restrict outprf = _mm_malloc(sizeof(struct Profile), 16);
   if (outprf == NULL) return NULL;
   register const size_t prfLength = inprf->Length;
-  
+
   /* Copy parameters */
 #if 1
   memcpy(outprf, inprf, sizeof(struct Profile));
@@ -1431,7 +1431,7 @@ struct Profile * ReverseProfile(const struct Profile * const restrict inprf)
 #endif
   outprf->DisjointData.NDIP[0] = (int) prfLength - inprf->DisjointData.NDIP[1] + 1;
   outprf->DisjointData.NDIP[1] = (int) prfLength - inprf->DisjointData.NDIP[0] + 1;
-  
+
   /* Allocates memory for profile sequence */
   char * Sequence = malloc(prfLength*sizeof(char));
   if (Sequence == NULL) {
@@ -1442,14 +1442,14 @@ struct Profile * ReverseProfile(const struct Profile * const restrict inprf)
   for (size_t iprf=0; iprf<prfLength; ++iprf) {
     Sequence[iprf] = inprf->Sequence[prfLength-1-iprf];
   }
-  
+
   /* Allocates memory for score tables*/
   if (AllocateScores(&(outprf->Scores), inprf->Alphabet_Length, prfLength) != 0) {
     free(Sequence);
     _mm_free(outprf);
     return NULL;
   }
-  
+
   /* Transfer match and insertion alphabets */
   {
     register const size_t AlignedStep = inprf->Scores.Insertion.AlignStep;
@@ -1460,7 +1460,7 @@ struct Profile * ReverseProfile(const struct Profile * const restrict inprf)
       outMatch     += AlignedStep;
       inMatch      -= AlignedStep;
     }
-    
+
     register const StoredIntegerFormat * restrict inInsertion = &inprf->Scores.Insertion.Alphabet[AlignedStep*(inprf->Length)];
     register StoredIntegerFormat * restrict outInsertion      = outprf->Scores.Insertion.Alphabet;
     for (size_t iprf=0; iprf<=prfLength; ++iprf) {
@@ -1469,7 +1469,7 @@ struct Profile * ReverseProfile(const struct Profile * const restrict inprf)
       inInsertion  -= AlignedStep;
     }
   }
-  
+
   /* Transfer boundaries */
   register const StoredIntegerFormat (*inBoundaries)[INSERTION_BOUNDARIES_SIZE] = (const StoredIntegerFormat (*)[INSERTION_BOUNDARIES_SIZE]) inprf->Scores.Insertion.Boundaries;
   register StoredIntegerFormat (*outBoundaries)[INSERTION_BOUNDARIES_SIZE]      = (StoredIntegerFormat (*)[INSERTION_BOUNDARIES_SIZE]) outprf->Scores.Insertion.Boundaries;
@@ -1484,9 +1484,9 @@ struct Profile * ReverseProfile(const struct Profile * const restrict inprf)
     outBoundaries[iprf][_ME] = inBoundaries[prfLength-iprf][_BM];
     outBoundaries[iprf][_BD] = inBoundaries[prfLength-iprf][_DE];
     outBoundaries[iprf][_DE] = inBoundaries[prfLength-iprf][_BD];
-    outBoundaries[iprf][_BE] = inBoundaries[prfLength-iprf][_BE];   
+    outBoundaries[iprf][_BE] = inBoundaries[prfLength-iprf][_BE];
   }
-  
+
   /* Transfer transitions */
   register const TransitionScores *inTransitions = (TransitionScores*) inprf->Scores.Insertion.Transitions;
   register TransitionScores *outTransitions      = (TransitionScores*) outprf->Scores.Insertion.Transitions;
@@ -1494,11 +1494,11 @@ struct Profile * ReverseProfile(const struct Profile * const restrict inprf)
      outTransitions[iprf].Element[_DD] = inTransitions[prfLength-iprf].Element[_DD];
      outTransitions[iprf].Element[_DI] = inTransitions[prfLength-iprf].Element[_ID];
      outTransitions[iprf].Element[_DM] = inTransitions[prfLength-iprf].Element[_MD];
-     
+
      outTransitions[iprf].Element[_MD] = inTransitions[prfLength-iprf].Element[_DM];
      outTransitions[iprf].Element[_MM] = inTransitions[prfLength-iprf].Element[_MM];
      outTransitions[iprf].Element[_MI] = inTransitions[prfLength-iprf].Element[_IM];
-     
+
      outTransitions[iprf].Element[_ID] = inTransitions[prfLength-iprf].Element[_DI];
      outTransitions[iprf].Element[_IM] = inTransitions[prfLength-iprf].Element[_MI];
      outTransitions[iprf].Element[_II] = inTransitions[prfLength-iprf].Element[_II];
@@ -1522,13 +1522,13 @@ int ReadProfile(const char * const restrict FileName, struct Profile * const prf
   if (prfStream == NULL) {
     return -1;
   }
-  
+
   /*
-   * Read all internal data 
+   * Read all internal data
    */
   /* Clean Profile structure */
   memset(newPrf, 0, sizeof(struct Profile));
-  while (!feof(prfStream)) {   
+  while (!feof(prfStream)) {
     /* Read one profile structure at a time*/
     const int res = internalReadProfile(prfStream, newPrf, SetExtraTable, FileName, &Line);
     ++nprf;
@@ -1541,7 +1541,7 @@ int ReadProfile(const char * const restrict FileName, struct Profile * const prf
       if (tmpPrf) {
 				/* Clean Profile structure */
 				memset(tmpPrf, 0, sizeof(struct Profile));
-				
+
 				tmpPrf->previous = newPrf;
 				newPrf->next = tmpPrf;
 				newPrf = tmpPrf;
@@ -1562,15 +1562,15 @@ int ReadProfile(const char * const restrict FileName, struct Profile * const prf
       else {
 				nprf = -1;
       }
-      break; 
+      break;
     }
   }
-  
+
   /*
-   * Close the file 
+   * Close the file
    */
   fclose(prfStream);
-  
+
   return nprf;
 }
 
@@ -1598,9 +1598,9 @@ int WriteProfile(const char * const restrict FileNameIn, struct Profile * const 
   if (prfStreamIn == NULL) {
     return 1;
   }
-  
+
   /*
-   * Write down the header data 
+   * Write down the header data
    */
   fprintf(prfStreamOut,
 	  "ID   %s; MATRIX.\n"
@@ -1609,7 +1609,7 @@ int WriteProfile(const char * const restrict FileNameIn, struct Profile * const 
 	  "DE   %s\n",
 	  prf->Identification, prf->AC_Number, prf->Date, prf->Description
 	 );
-  
+
   /*
    * Follow the initial profile and parse/reuse
    */
@@ -1617,8 +1617,8 @@ int WriteProfile(const char * const restrict FileNameIn, struct Profile * const 
   int res;
   _Bool MultipleLine;
   memset(previousSubCommand, 0, sizeof(char)*SUB_COMMAND_MAX_SIZE);
-  
-  while (!feof(prfStreamIn)) {   
+
+  while (!feof(prfStreamIn)) {
     const size_t length = GetLine(prfStreamIn, currentLine, PROFILE_MAX_LINE_SIZE);
     ++Line;
     if (length == 0) continue;
@@ -1626,12 +1626,12 @@ int WriteProfile(const char * const restrict FileNameIn, struct Profile * const 
     /* Make a copy */
     memcpy(currentLineCopy, currentLine, length+1);
     currentLineCopy[length] = '\0';
-    
+
     if ((res=AnalyzeLine(currentLine, &AnalyzedLine, &MultipleLine)) != 0) {
       fprintf(stderr,"Error %i in analysis at line %lu\n", res, Line);
       return 1;
     }
-    
+
     /* Header or matrix */
     if (!AnalyzedLine.isMatrix)
     {
@@ -1650,7 +1650,7 @@ int WriteProfile(const char * const restrict FileNameIn, struct Profile * const 
 	 CommentStorage[CommentStorageUsed++] = '\n';
 	 CommentStorage[CommentStorageUsed] = '\0';
        }
-       else if ( (AnalyzedLine.command[0] == 'D' && AnalyzedLine.command[1] == 'R' ) || 
+       else if ( (AnalyzedLine.command[0] == 'D' && AnalyzedLine.command[1] == 'R' ) ||
 	         (AnalyzedLine.command[0] == 'N' && AnalyzedLine.command[1] == 'R' ) ||
 	         (AnalyzedLine.command[0] == '3' && AnalyzedLine.command[1] == 'D' ) ||
 	         (AnalyzedLine.command[0] == 'P' && AnalyzedLine.command[1] == 'R' ) ||
@@ -1685,7 +1685,7 @@ int WriteProfile(const char * const restrict FileNameIn, struct Profile * const 
 	  const int Mode        = nrmItem->NNOR;
 	  const int Priority    = nrmItem->NNPR;
 	  const char * Text     = nrmItem->CNTX;
-	  
+
 	  fprintf(prfStreamOut, "MA   /NORMALIZATION: MODE=%i; FUNCTION=%s;", Mode, Function);
 	  for (int iCoef=1; iCoef<=nCoef; ++iCoef) {
 	      fprintf(prfStreamOut, " R%1.1i=%f;", iCoef, nrmItem->RNOP[iCoef-1]);
@@ -1707,7 +1707,7 @@ int WriteProfile(const char * const restrict FileNameIn, struct Profile * const 
 	  const unsigned int HScore  = cutItem->HCUT;
 	  const char * Text = cutItem->CCUT;
 	  const int nModes  = cutItem->JCNM;
-	  
+
 	  fprintf(prfStreamOut, "MA   /CUT_OFF: LEVEL=%i; SCORE=%i;", Level, RScore);
 	  if (HScore>0) {
 	      fprintf(prfStreamOut, " H_SCORE=%u;", HScore);
@@ -1747,27 +1747,27 @@ int WriteProfile(const char * const restrict FileNameIn, struct Profile * const 
       else {
 	fprintf(stderr,"The following unknown line has been avoided\n->%s\n",currentLineCopy);
       }
-      
+
     }
   }
-  
+
   END_OF_PROFILE:
-  
+
   /*
-   * Write down the comments now 
+   * Write down the comments now
    */
   if (CommentStorageUsed>0) fputs(CommentStorage, prfStreamOut);
-  
+
   /*
-   * Write down the additional comments now 
+   * Write down the additional comments now
    */
   if (AdditionalComments) fputs(AdditionalComments, prfStreamOut);
-  
+
   /*
    * Terminate profile
    */
   fputs("//\n", prfStreamOut);
-  
+
   fclose(prfStreamIn);
   free(CommentStorage);
   return 0;
@@ -1784,12 +1784,12 @@ void FreeProfile(struct Profile * const prf, const _Bool IsPointer)
     _mm_free(nextPrf);
     nextPrf = tmpPrf;
   }
-  
+
   FreeScores(&(prf->Scores));
   free(prf->Sequence);
   FreeAverage(&prf->Average);
   if (prf->Pattern) free(prf->Pattern);
-  
+
   if (IsPointer) {
     _mm_free(prf);
   } else {
@@ -1804,9 +1804,9 @@ int ReadProfileMatch(const char * const restrict FileName, struct UniProtMatch *
   char currentLine[PROFILE_MAX_LINE_SIZE] __attribute__((aligned(16)));
   struct ProfileLine AnalyzedLine;
   _Bool MultipleLine;
-  
+
   memset(Data, 0, sizeof(struct UniProtMatch));
-  
+
   /*
    * Try to open the file, upon failure emmit error
    */
@@ -1814,8 +1814,8 @@ int ReadProfileMatch(const char * const restrict FileName, struct UniProtMatch *
   if (prfStream == NULL) {
     return -1;
   }
-  
-  
+
+
   /*
    * Count the number of UniProt statement
    */
@@ -1824,7 +1824,7 @@ int ReadProfileMatch(const char * const restrict FileName, struct UniProtMatch *
   long FirstAppearanceInFile = 0;
   size_t StartingLine = 0;
   while (!feof(prfStream)) {
-    const long FilePosition = ftell(prfStream); 
+    const long FilePosition = ftell(prfStream);
     const size_t length = GetLine(prfStream, currentLine, PROFILE_MAX_LINE_SIZE);
     if (length == 0) continue;
     if ((res=AnalyzeLine(currentLine, &AnalyzedLine, &MultipleLine)) != 0) {
@@ -1846,19 +1846,19 @@ int ReadProfileMatch(const char * const restrict FileName, struct UniProtMatch *
     }
     ++Line;
   }
-  
+
   /*
    * Allocate the memory to hold the data
    */
   char (* const UniqueIdentifier)[16] = (char (*)[16]) malloc(Count*16*sizeof(char));
   char (* const EntryName)[16] = (char(*)[16]) malloc(Count*16*sizeof(char));
   char * const State = (char*) malloc(Count*sizeof(char));
-  
+
   if (UniqueIdentifier == NULL || EntryName == NULL || State == NULL) {
       res = -2;
       goto FIN;
   }
-  
+
   /*
    * Fill in the data
    */
@@ -1874,9 +1874,9 @@ int ReadProfileMatch(const char * const restrict FileName, struct UniProtMatch *
   unsigned int Profile_partial = 0;
   unsigned int Profile_false_neg = 0;
   unsigned int Profile_false_pos = 0;
-  
+
   while (!feof(prfStream)) {
-    const long FilePosition = ftell(prfStream); 
+    const long FilePosition = ftell(prfStream);
     const size_t length = GetLine(prfStream, currentLine, PROFILE_MAX_LINE_SIZE);
     if (length == 0) continue;
     if ((res=AnalyzeLine(currentLine, &AnalyzedLine, &MultipleLine)) != 0) {
@@ -1915,7 +1915,7 @@ int ReadProfileMatch(const char * const restrict FileName, struct UniProtMatch *
 	      default:
 		Profile_unknown++;
 	    }
-	    
+
 	    ++lCount;
 	  }
 	 }
@@ -1927,7 +1927,7 @@ int ReadProfileMatch(const char * const restrict FileName, struct UniProtMatch *
     }
     ++Line;
   }
-    
+
   /*
    * Assign data to structure
    */
@@ -1940,18 +1940,18 @@ int ReadProfileMatch(const char * const restrict FileName, struct UniProtMatch *
   Data->Partial = Profile_partial;
   Data->False_negative = Profile_false_neg;
   Data->False_posistive = Profile_false_pos;
-  
+
   /*
-   * Close the file 
+   * Close the file
    */
   fclose(prfStream);
   return 0;
-  
+
  FIN1:
   FreeProfileMatch(Data);
  FIN:
   fclose(prfStream);
-  
+
   return res;
 }
 
@@ -1973,7 +1973,7 @@ void FreeProfileMatch(struct UniProtMatch * Data)
 	       "|                              PFDUMP v" PF_VERSION "                                   |\n"\
 	       "%----------------------------------------------------------------------------%\n"\
 	       "Built on " __DATE__ " at " __TIME__ ".\n"
-	       
+
 /* default value for header is 4 digits*/
 // #define INT_FORMAT "%4i"
 // #define NLOW_FORMAT "NLOW"
@@ -1999,13 +1999,13 @@ static unsigned int out_clean       = 0;
 static const struct option long_options[] =
 {
         /*
-	 * These options set a flag. 
+	 * These options set a flag.
 	 */
-	
-        /* 
-	 * These options don't set a flag. We distinguish them by their indices. 
+
+        /*
+	 * These options don't set a flag. We distinguish them by their indices.
 	 */
-	{"help",               		no_argument,       	0,	'h'},	
+	{"help",               		no_argument,       	0,	'h'},
 	{"all",     			no_argument,		0,	'A'},
 	{"alphabet",			no_argument,		0,	'a'},
 	{"color",			no_argument,		0,	'c'},
@@ -2029,10 +2029,10 @@ static void __attribute__((noreturn)) Usage(FILE * stream)
 	"   --color             [-c] : output profile reading with colors\n"
 	"   --reverse           [-r] : reverse profile\n"
 	"   --all               [-A] : output everything\n"
-	"   --tables            [-T] : output score tables\n" 
+	"   --tables            [-T] : output score tables\n"
 	"   --alphabet          [-a] : output alphabet\n"
 	"   --profile           [-p] : output profile reading\n"
-	"   --match-table       [-m] : output match table\n" 
+	"   --match-table       [-m] : output match table\n"
 	"   --insertion-table   [-i] : output insertion table\n"
 	"   --boundary-table    [-b] : output boundary table\n"
 	"   --transition-table  [-t] : output transition table\n"
@@ -2049,7 +2049,7 @@ int main(int argc, char *argv[])
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // OPTIONS
   ////////////////////////////////////////////////////////////////////////////////////////////////
- 
+
   while (1) {
     /* getopt_long stores the option index here. */
     int option_index = 0;
@@ -2096,24 +2096,24 @@ int main(int argc, char *argv[])
   } else {
     ProfileFile = argv[optind];
   }
-  
+
   if (ReadProfile(ProfileFile, &prf, false) < 0) {
     FreeProfile(&prf, false);
     return 1;
   }
-  
+
   if (prf.Type == PF_PATTERN) {
     FreeProfile(&prf, false);
     return 0;
   }
-  
+
   if (out_clean) {
     const char Footer[] = "CC   Tests output with pfdump\n";
     WriteProfile(ProfileFile, &prf, Footer, stdout);
     FreeProfile(&prf, false);
     return 0;
   }
-  
+
   if (isReversed) {
     rprf = ReverseProfile(&prf);
     if (rprf == NULL) {fputs("Error while reversing profile\n",stderr); exit(1);}
@@ -2122,7 +2122,7 @@ int main(int argc, char *argv[])
     pprf = &prf;
   }
   PrepareExtraTable(pprf);
-  
+
   if (out_alphabet) {
     puts("Alphabet Mapping");
     for (size_t i=0; i<ALPHABET_SIZE; ++i) {
@@ -2132,10 +2132,10 @@ int main(int argc, char *argv[])
     puts("\n");
   }
   const size_t prfLength = pprf->Length + 1;
-  
+
   struct SMatch * const Match         = &pprf->Scores.Match;
   struct SInsertion * const Insertion = &pprf->Scores.Insertion;
-  
+
   if (out_match) {
     printf("Match matrix with alignment %lu\n\n",Match->AlignStep );
     printf("    | ");
@@ -2148,7 +2148,7 @@ int main(int argc, char *argv[])
       fputs(LINE, stdout);
     }
     fputs("\n", stdout);
-    
+
     for (size_t iprf=0; iprf<prfLength; ++iprf) {
       const StoredIntegerFormat * MatchLine = &Match->Alphabet[iprf*Match->AlignStep];
       printf("%3lu | ", iprf+1);
@@ -2205,11 +2205,11 @@ int main(int argc, char *argv[])
       fputs("\n", stdout);
     }
   }
-  
+
   if (out_boundaries) {
     printf("\nInsertion boundaries matrix with alignment %i\n\n", INSERTION_BOUNDARIES_SIZE );
     char Header[] = "     " SPACE "_B0" SPACE "_B1" SPACE "_E0" SPACE "_E1" SPACE "_BM" SPACE "_BI" SPACE "_BD" SPACE "_BE" SPACE "_ME" SPACE "_IE" SPACE "_DE\n";
-    
+
     fputs(Header, stdout);
     fputs("    |", stdout);
     for (size_t i=0; i<strlen(Header)-5; ++i) fputc('-', stdout);
@@ -2232,7 +2232,7 @@ int main(int argc, char *argv[])
     const TransitionScores * restrict InsertionLine = pprf->Scores.Insertion.Transitions;
     const ScoreTuple * const restrict FirstSeq      = pprf->Scores.Insertion.FirstSequenceProtein;
     const ScoreTuple * const restrict LastSeq       = pprf->Scores.Insertion.LastSequenceProtein;
-    
+
     #define PRINT_VALUE(x) { \
       if (x == NLOW) {\
 	printf(NLOW_FORMAT " ");\
@@ -2242,7 +2242,7 @@ int main(int argc, char *argv[])
 	printf(INT_FORMAT " ", x);\
       }\
     }
-    
+
     printf("\nInsertion transition matrix with alignment %i\n\n", INSERTION_TRANSITIONS_SIZE );
     char Header2[] = "     " SPACE "MATCH " SPACE SPACE "   " SPACE "  |" SPACE "INSERTION" SPACE SPACE SPACE "  |" SPACE "DELETION  " SPACE  SPACE SPACE\
 		    " |" SPACE "EXTRA   " SPACE SPACE "  |"\
@@ -2267,39 +2267,39 @@ int main(int argc, char *argv[])
       PRINT_VALUE(InsertionLine[iprf].From[MATCH].To[INSERTION]);
       PRINT_VALUE(InsertionLine[iprf].From[MATCH].To[DELETION]);
       PRINT_VALUE(InsertionLine[iprf].From[MATCH].To[EXTRA]);
-      
+
       PRINT_VALUE(InsertionLine[iprf].From[INSERTION].To[MATCH]);
       PRINT_VALUE(InsertionLine[iprf].From[INSERTION].To[INSERTION]);
       PRINT_VALUE(InsertionLine[iprf].From[INSERTION].To[DELETION]);
       PRINT_VALUE(InsertionLine[iprf].From[INSERTION].To[EXTRA]);
-      
+
       PRINT_VALUE(InsertionLine[iprf].From[DELETION].To[MATCH]);
       PRINT_VALUE(InsertionLine[iprf].From[DELETION].To[INSERTION]);
       PRINT_VALUE(InsertionLine[iprf].From[DELETION].To[DELETION]);
       PRINT_VALUE(InsertionLine[iprf].From[DELETION].To[EXTRA]);
-      
+
       fputs("  ",stdout);
-      
+
       PRINT_VALUE(InsertionLine[iprf].From[EXTRA].To[MATCH]);
       PRINT_VALUE(InsertionLine[iprf].From[EXTRA].To[INSERTION]);
       PRINT_VALUE(InsertionLine[iprf].From[EXTRA].To[DELETION]);
-      
+
       fputs("  ",stdout);
-      
+
       PRINT_VALUE(LastSeq[iprf].From[MATCH]);
       PRINT_VALUE(LastSeq[iprf].From[INSERTION]);
       PRINT_VALUE(LastSeq[iprf].From[DELETION]);
-      
+
       fputs("  ",stdout);
-      
+
       PRINT_VALUE(FirstSeq[iprf].To[MATCH]);
       PRINT_VALUE(FirstSeq[iprf].To[INSERTION]);
       PRINT_VALUE(FirstSeq[iprf].To[DELETION]);
-      
+
       fputs("\n", stdout);
     }
   }
-  
+
   FreeProfile(pprf, isReversed);
   return 0;
 }

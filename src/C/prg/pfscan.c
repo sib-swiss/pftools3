@@ -397,7 +397,7 @@ int main (int argc, char *argv[])
     exit(1);
   }
   else if (ProfileCount == 1) {
-    fputs("pfscanV3 is not meant to be used with a single profile, use pfsearchV3 to get better performance in such case.\n",stderr);
+    fputs("pfscanV3 is not meant to be used with a single profile, use pfsearchV3 to get better performance in such case.\n", stderr);
   }
 
   /* Create an array of pointer to Profiles separating pattern from matrix */
@@ -1017,7 +1017,7 @@ int main (int argc, char *argv[])
                 } else {
                     printf("PREFIX profile:<http://example.org/yourprofiledb>\n");
                 }
-                
+
             }
 
       /* Initialize the print mutex */

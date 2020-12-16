@@ -19,9 +19,9 @@ PFW=$<TARGET_FILE:pfw>
 PTOH=$<TARGET_FILE:ptoh>
 PTOF=$<TARGET_FILE:ptof>
 P2FT=$<TARGET_FILE:2ft> # NB: sh does not allow variable name starting with a digit
- 
-SORT_PSA=@PERL_SCRIPT_DIR@/sort_fasta.pl # FIXME: use cmake syntax 
-MAKE_IUPAC_CMP=@PERL_SCRIPT_DIR@/make_iupac_cmp.pl # FIXME: use cmake syntax 
+
+SORT_PSA=@PERL_SCRIPT_DIR@/sort_fasta.pl # FIXME: use cmake syntax
+MAKE_IUPAC_CMP=@PERL_SCRIPT_DIR@/make_iupac_cmp.pl # FIXME: use cmake syntax
 SCRAMBLE=@PERL_SCRIPT_DIR@/scramble_fasta.pl # FIXME: use cmake syntax
 
 CMPDIR=@DATA_DIR@/Matrices
@@ -29,15 +29,15 @@ TMPDIR=/tmp/test_V3
 mkdir -p $TMPDIR
 
 #----------------------------------------------------------------------#
-# The PFTOOLS is a powerful software to align biological sequences. 
-# Owing to the 'generalized profile syntax', it allows the fine-tuning 
-# of an alignent scoring system, beyond what is feasible by most other 
-# software. Despite the PFTOOLS are crippled by a lot of legacy code, 
-# they are still extremely useful for precision work . 
+# The PFTOOLS is a powerful software to align biological sequences.
+# Owing to the 'generalized profile syntax', it allows the fine-tuning
+# of an alignent scoring system, beyond what is feasible by most other
+# software. Despite the PFTOOLS are crippled by a lot of legacy code,
+# they are still extremely useful for precision work.
 #
 # Nota bene to use this script as a testsuite:
-# (1) The output order of pfsearch is reproducible, as well as the one of 
-#     pfsearchV3 with -t 1. 
+# (1) The output order of pfsearch is reproducible, as well as the one of
+#     pfsearchV3 with -t 1.
 # (2) Refrain using any pipe.
 #----------------------------------------------------------------------#
 
@@ -45,7 +45,7 @@ mkdir -p $TMPDIR
 # Searching for the occurence of the SH3 domain within the VAV oncogene,
 # using pfsearch V2 ...
 #----------------------------------------------------------------------#
-$PFSEARCH -f ./sh3.prf ./VAV_HUMAN.seq 
+$PFSEARCH -f ./sh3.prf ./VAV_HUMAN.seq
 
 #----------------------------------------------------------------------#
 # ...and using pfsearch V3:
@@ -53,8 +53,8 @@ $PFSEARCH -f ./sh3.prf ./VAV_HUMAN.seq
 $PFSEARCHV3 -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq
 
 #----------------------------------------------------------------------#
-# Create a database of sequences and a database of profiles, each one 
-# with two entries. 
+# Create a database of sequences and a database of profiles, each one
+# with two entries.
 #----------------------------------------------------------------------#
 cat ./VAV_HUMAN.seq ./VAV_RAT.seq > $TMPDIR/VAV.seq
 cat ./sh2.prf       ./sh3.prf     > $TMPDIR/SHX.prf
@@ -79,10 +79,10 @@ $PFSEARCHV3 -f -n -t 2 -o 6 ./sh3.prf -f $TMPDIR/VAV.seq >> $TMPDIR/SHX.pfsearch
 $PFSCANV3 -f -n -o 6 $TMPDIR/SHX.prf $TMPDIR/VAV.seq > $TMPDIR/SHX.pfscan3.hit
 
 #----------------------------------------------------------------------#
-# All these commands produces exactly the same list of matched 
-# sequences, with the same raw scores and coordinates. 
+# All these commands produces exactly the same list of matched
+# sequences, with the same raw scores and coordinates.
 #
-# However the output order is not necessarily preserved here. 
+# However the output order is not necessarily preserved here.
 #
 # Let's verify that the output are comparable after fixing FASTA headers
 #----------------------------------------------------------------------#
@@ -95,7 +95,7 @@ diff $TMPDIR/SHX.pfscan2.out $TMPDIR/SHX.pfsearch2.out  # expecting no differenc
 diff $TMPDIR/SHX.pfscan2.out $TMPDIR/SHX.pfsearch3.out  # expecting no difference
 
 #----------------------------------------------------------------------#
-# Pfsearch/pfscan V2 supports the following input formats for sequence: 
+# Pfsearch/pfscan V2 supports the following input formats for sequence:
 # FASTA, Swiss-Prot and EMBL.
 #----------------------------------------------------------------------#
 $PFSEARCH -f ./sh3.prf ./VAV_HUMAN.seq     # FASTA
@@ -105,10 +105,10 @@ $PFSEARCH ./sh3.prf ./GTPA_HUMAN.dat       # SwissProt
 $PFSCAN   ./GTPA_HUMAN.dat ./sh3.prf       # SwissProt
 
 $PFSEARCH  ./ecp.prf ./CVPBR322.embl       # EMBL
-$PFSCAN    ./CVPBR322.embl ./ecp.prf       # EMBL 
+$PFSCAN    ./CVPBR322.embl ./ecp.prf       # EMBL
 
 #----------------------------------------------------------------------#
-# Pfsearch/pfscan V3 supports the following input formats for sequence: 
+# Pfsearch/pfscan V3 supports the following input formats for sequence:
 # FASTA and FASTQ.
 #----------------------------------------------------------------------#
 $PFSEARCHV3 -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq # FASTA
@@ -117,7 +117,7 @@ cat ./CVPBR322.embl \
 | perl -ne 'if(/^ID +(\w+)/){print ">$1\n"}elsif(/^ /){s/[\s\d]+//g;print "$_\n";}' \
 > $TMPDIR/CVPBR322.fa  # Extract FASTA from EMBL
 $PFSEARCHV3 -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa
-$PFSCANV3   -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa 
+$PFSCANV3   -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa
 
 $PFSEARCHV3 -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
 $PFSCANV3   -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
@@ -136,8 +136,8 @@ $PFSEARCHV3 -n -fb ./ecp.prf $TMPDIR/CVPBR322.fa | sort -nr > $TMPDIR/ecp.CVPBR3
 diff -b $TMPDIR/ecp.CVPBR322.2.hit $TMPDIR/ecp.CVPBR322.3.hit  # expecting no difference
 
 #----------------------------------------------------------------------#
-# The different PSA (i.e FASTA) output formats differ by the content 
-# their headers. The usage of XPSA (-o 6) is strongly recommended, the 
+# The different PSA (i.e FASTA) output formats differ by the content
+# their headers. The usage of XPSA (-o 6) is strongly recommended, the
 # other formats being preserved for legacy.
 #----------------------------------------------------------------------#
 $PFSEARCHV3 -n -f -o 1 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA -
@@ -147,10 +147,10 @@ $PFSEARCHV3 -n -f -o 4 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA -
 $PFSEARCHV3 -n -f -o 6 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA - # recommended
 
 #----------------------------------------------------------------------#
-# Multiple sequence alignment (MSA) can easily be produced from PSA 
+# Multiple sequence alignment (MSA) can easily be produced from PSA
 # using psa2msa (V2)
 #----------------------------------------------------------------------#
-$PFSEARCHV3 -n -f -o 6 ./ecp.prf $TMPDIR/CVPBR322.fa | $SORT_PSA - | $PSA2MSA 
+$PFSEARCHV3 -n -f -o 6 ./ecp.prf $TMPDIR/CVPBR322.fa | $SORT_PSA - | $PSA2MSA
 
 #----------------------------------------------------------------------#
 # V3 has two new output formats: TSV and SAM
@@ -169,15 +169,15 @@ $PFSEARCHV3 -n -t 1 -q    -o 8 ./hiv.prf ./hiv.fastq         # FASTQ to SAM
 $PFSEARCHV3 -n -t 1 -q -b -o 8 ./hiv.prf ./hiv.fastq         # FASTQ to SAM
 
 #----------------------------------------------------------------------#
-# Index can optionaly be used to speed-up database upload for pfsearch. 
-# This should be especially usefull for repetitive database searches 
-# using the heuristic. 
+# Index can optionaly be used to speed-up database upload for pfsearch.
+# This should be especially usefull for repetitive database searches
+# using the heuristic.
 #----------------------------------------------------------------------#
 
 $PFINDEX -f -o $TMPDIR/CVPBR322.fa.idx $TMPDIR/CVPBR322.fa
 $PFSEARCHV3 -n -f                            -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa | sort > $TMPDIR/A.out    # FASTA to TSV
 $PFSEARCHV3 -n -f -i $TMPDIR/CVPBR322.fa.idx -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa | sort > $TMPDIR/B.out    # FASTA to TSV
-diff $TMPDIR/A.out $TMPDIR/B.out 
+diff $TMPDIR/A.out $TMPDIR/B.out
 
 $PFINDEX -q -o $TMPDIR/hiv.fastq.idx ./hiv.fastq
 $PFSEARCHV3 -n -q -b -o 8                          ./hiv.prf ./hiv.fastq | sort > $TMPDIR/A.out
@@ -185,23 +185,23 @@ $PFSEARCHV3 -n -q -b -o 8 -i $TMPDIR/hiv.fastq.idx ./hiv.prf ./hiv.fastq | sort 
 diff $TMPDIR/A.out $TMPDIR/B.out
 
 #----------------------------------------------------------------------#
-# Profile and/or sequence can be reversed on the fly. If both are 
+# Profile and/or sequence can be reversed on the fly. If both are
 # reversed the match score is the same
 #----------------------------------------------------------------------#
 $PFSEARCHV3 -f -a       rand_dna.prf rand_dna.seq
 $PFSEARCHV3 -f -a -r -R rand_dna.prf rand_dna.seq
 
 #----------------------------------------------------------------------#
-# There is a much better support of rev/comp search in DNA sequences, 
+# There is a much better support of rev/comp search in DNA sequences,
 # featuring the full IUPAC code.
 # To illustrate these capabilities, let build a profile for bacterial
-# 16S sequence, starting from the Rfam seed RF00177.msa. First create 
+# 16S sequence, starting from the Rfam seed RF00177.msa. First create
 # an adhoc substitution matrix
 #----------------------------------------------------------------------#
 $MAKE_IUPAC_CMP -M 20 -m -30 > $TMPDIR/iupac20-30.cmp
 
 #----------------------------------------------------------------------#
-# ... let build a profile for bacterial 16S sequence, starting from 
+# ... let build a profile for bacterial 16S sequence, starting from
 # the Rfam seed RF00177.msa.
 #----------------------------------------------------------------------#
 cat ./RF00177.msa \
@@ -224,7 +224,7 @@ cat ./SRR9619541.sample.fastq \
 > $TMPDIR/permut.fa
 
 # $PFCALIBRATEV3 -F $TMPDIR/permut.fa $TMPDIR/16S.prf.tmp > $TMPDIR/16S.prf
-# $PFSEARCHV3 -t 1 -n -q $TMPDIR/16S.prf $TMPDIR/small.sample.fastq 
+# $PFSEARCHV3 -t 1 -n -q $TMPDIR/16S.prf $TMPDIR/small.sample.fastq
 
 #----------------------------------------------------------------------#
 # Verify handling of characters not in the profile alphabet
@@ -240,7 +240,7 @@ ACGTWACGT
 EOI
 $PFMAKE -m -3 -S 0.01 -F 100 $TMPDIR/ACGTAACGT.seq $CMPDIR/dna_50_40.cmp > $TMPDIR/ACGTAACGT.prf
 
-$PFSEARCHV3 -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTAACGT.seq # raw_score=450 PSA=ACGTAACGT 
+$PFSEARCHV3 -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTAACGT.seq # raw_score=450 PSA=ACGTAACGT
 $PFSEARCHV3 -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTWACGT.seq # raw_score=383 PSA=ACGTWACGT (not ACGTXACGT)
 
 

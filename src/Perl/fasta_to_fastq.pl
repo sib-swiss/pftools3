@@ -1,4 +1,4 @@
-#!/bin/env perl
+#!/usr/bin/env perl
 #Copyright (c) 2010 LUQMAN HAKIM BIN ABDUL HADI (csilhah@nus.edu.sg)
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files

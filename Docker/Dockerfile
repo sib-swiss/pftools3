@@ -15,7 +15,6 @@ RUN echo '# OS update' \
       ca-certificates \
       git \
       cmake \
-      wget \
       zlib1g-dev \
       libpng-dev \
       libfile-slurp-perl \

@@ -13,7 +13,7 @@ usage:
 
    scramble_fasta.pl [options] fasta-file...
 
-This script produces"random" or "shuffled" sequences according to a
+This script produces "random" or "shuffled" sequences according to a
 model and to a set of parameters. All sequences are read and written
 in FASTA format. No distinction is made between DNA and protein
 sequences. All letter are converted to uppercase. Gaps are

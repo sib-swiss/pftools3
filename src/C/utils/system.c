@@ -908,7 +908,7 @@ void getSystemInfo(SystemInfo * const info)
   for (size_t i=0; i<13; ++i) info->CPU_Vendor[i] = '\0';
   
   /* Available number of logical processor seen by OS */
-  info->nOverallCores = (unsigned int) sysconf(_SC_NPROCESSORS_CONF);
+  info->nOverallCores = (unsigned int) sysconf(_SC_NPROCESSORS_ONLN);
   const char NOBrand[] = "Not supported by this cpu"; 
   strcpy(info->CPU_Name, NOBrand);
   

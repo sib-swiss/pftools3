@@ -76,7 +76,7 @@ $PFSCAN -fkxz ./VAV_RAT.seq $TMPDIR/SHX.prf >> $TMPDIR/SHX.pfscan2.hit
 $PFSEARCHV3 -f -n -t 2 -o 6 ./sh2.prf -f $TMPDIR/VAV.seq > $TMPDIR/SHX.pfsearch3.hit
 $PFSEARCHV3 -f -n -t 2 -o 6 ./sh3.prf -f $TMPDIR/VAV.seq >> $TMPDIR/SHX.pfsearch3.hit
 
-$PFSCANV3 -f -n -o 6 $TMPDIR/SHX.prf $TMPDIR/VAV.seq > $TMPDIR/SHX.pfscan3.hit
+$PFSCANV3 --no-affinity -f -n -o 6 $TMPDIR/SHX.prf $TMPDIR/VAV.seq > $TMPDIR/SHX.pfscan3.hit
 
 #----------------------------------------------------------------------#
 # All these commands produces exactly the same list of matched
@@ -112,15 +112,15 @@ $PFSCAN    ./CVPBR322.embl ./ecp.prf       # EMBL
 # FASTA and FASTQ.
 #----------------------------------------------------------------------#
 $PFSEARCHV3 -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq # FASTA
-$PFSCANV3   -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq # FASTA
+$PFSCANV3   --no-affinity -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq # FASTA
 cat ./CVPBR322.embl \
 | perl -ne 'if(/^ID +(\w+)/){print ">$1\n"}elsif(/^ /){s/[\s\d]+//g;print "$_\n";}' \
 > $TMPDIR/CVPBR322.fa  # Extract FASTA from EMBL
 $PFSEARCHV3 -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa
-$PFSCANV3   -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa
+$PFSCANV3   --no-affinity -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa
 
 $PFSEARCHV3 -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
-$PFSCANV3   -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
+$PFSCANV3   --no-affinity -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
 
 #----------------------------------------------------------------------#
 # The following output formats are preserved between V2 and V3
@@ -248,7 +248,7 @@ $PFSEARCHV3 -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTWACGT.seq # raw_score=383
 # extra & bug fix related tests
 
 # pfscanV3 should accept motif files containing patterns, and be able to ignore patterns with --matrix-only option
-$PFSCANV3 -o4 --matrix-only ./PS00741_PS50010.dat ./VAV_HUMAN.seq
+$PFSCANV3 --no-affinity -o4 --matrix-only ./PS00741_PS50010.dat ./VAV_HUMAN.seq
 
 
 

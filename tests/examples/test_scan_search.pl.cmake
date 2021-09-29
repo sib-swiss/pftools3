@@ -129,6 +129,7 @@ foreach my $thresh_option ( @thresh_option ){
     foreach my $option_V3 ( @option_V3 ){
         my $cmd = join ' ',
             $PFSCAN_V3,
+                '--no-affinity',
                 '-f',
                 $thresh_option_V3,
                 $option_V3,

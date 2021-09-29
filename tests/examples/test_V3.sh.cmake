@@ -223,7 +223,7 @@ cat ./SRR9619541.sample.fastq \
 | $SCRAMBLE -m permutation -M 10 - \
 > $TMPDIR/permut.fa
 
-# $PFCALIBRATEV3 -F $TMPDIR/permut.fa $TMPDIR/16S.prf.tmp > $TMPDIR/16S.prf
+# $PFCALIBRATEV3 --no-affinity -F $TMPDIR/permut.fa $TMPDIR/16S.prf.tmp > $TMPDIR/16S.prf
 # $PFSEARCHV3 -t 1 -n -q $TMPDIR/16S.prf $TMPDIR/small.sample.fastq
 
 #----------------------------------------------------------------------#

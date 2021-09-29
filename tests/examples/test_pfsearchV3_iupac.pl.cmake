@@ -141,6 +141,7 @@ my $cmd = join ' ',
 $tb->system( $cmd );
 # $cmd = join ' ',
 #    $PFCALIBRATE_V3,
+#    '--no-affinity',
 #    '--seed 123',
 #    "-F $test_dir/seq/calib.fa",
 #    "-H $test_dir/prf/sample.fa",
@@ -220,6 +221,7 @@ $tb->system( $cmd );
 
 # $cmd = join ' ',
 #    $PFCALIBRATE_V3,
+#    '--no-affinity',
 #    "-F $test_dir/seq/calib.fa",
 #    "-H $test_dir/prf/forward.fa",
 #    '--pam-distance [0,200,10,10]',
@@ -230,6 +232,7 @@ $tb->system( $cmd );
 
 #$cmd = join ' ',
 #    $PFCALIBRATE_V3,
+#    '--no-affinity',
 #    "-F $test_dir/seq/calib.fa",
 #    "-H $test_dir/prf/revcomp.fa",
 #    '--pam-distance [0,200,10,10]',

@@ -50,7 +50,7 @@ $PFSEARCH -f ./sh3.prf ./VAV_HUMAN.seq
 #----------------------------------------------------------------------#
 # ...and using pfsearch V3:
 #----------------------------------------------------------------------#
-$PFSEARCHV3 -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq
+$PFSEARCHV3 --no-affinity -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq
 
 #----------------------------------------------------------------------#
 # Create a database of sequences and a database of profiles, each one
@@ -73,8 +73,8 @@ $PFSEARCH -fkxz ./sh3.prf $TMPDIR/VAV.seq >> $TMPDIR/SHX.pfsearch2.hit
 $PFSCAN -fkxz ./VAV_HUMAN.seq $TMPDIR/SHX.prf > $TMPDIR/SHX.pfscan2.hit
 $PFSCAN -fkxz ./VAV_RAT.seq $TMPDIR/SHX.prf >> $TMPDIR/SHX.pfscan2.hit
 
-$PFSEARCHV3 -f -n -t 2 -o 6 ./sh2.prf -f $TMPDIR/VAV.seq > $TMPDIR/SHX.pfsearch3.hit
-$PFSEARCHV3 -f -n -t 2 -o 6 ./sh3.prf -f $TMPDIR/VAV.seq >> $TMPDIR/SHX.pfsearch3.hit
+$PFSEARCHV3 --no-affinity -f -n -t 2 -o 6 ./sh2.prf -f $TMPDIR/VAV.seq > $TMPDIR/SHX.pfsearch3.hit
+$PFSEARCHV3 --no-affinity -f -n -t 2 -o 6 ./sh3.prf -f $TMPDIR/VAV.seq >> $TMPDIR/SHX.pfsearch3.hit
 
 $PFSCANV3 --no-affinity -f -n -o 6 $TMPDIR/SHX.prf $TMPDIR/VAV.seq > $TMPDIR/SHX.pfscan3.hit
 
@@ -111,15 +111,15 @@ $PFSCAN    ./CVPBR322.embl ./ecp.prf       # EMBL
 # Pfsearch/pfscan V3 supports the following input formats for sequence:
 # FASTA and FASTQ.
 #----------------------------------------------------------------------#
-$PFSEARCHV3 -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq # FASTA
+$PFSEARCHV3 --no-affinity -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq # FASTA
 $PFSCANV3   --no-affinity -n -t 1 -f ./sh3.prf ./VAV_HUMAN.seq # FASTA
 cat ./CVPBR322.embl \
 | perl -ne 'if(/^ID +(\w+)/){print ">$1\n"}elsif(/^ /){s/[\s\d]+//g;print "$_\n";}' \
 > $TMPDIR/CVPBR322.fa  # Extract FASTA from EMBL
-$PFSEARCHV3 -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa
+$PFSEARCHV3 --no-affinity -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa
 $PFSCANV3   --no-affinity -n -t 1 -f ./ecp.prf $TMPDIR/CVPBR322.fa
 
-$PFSEARCHV3 -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
+$PFSEARCHV3 --no-affinity -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
 $PFSCANV3   --no-affinity -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
 
 #----------------------------------------------------------------------#
@@ -127,12 +127,12 @@ $PFSCANV3   --no-affinity -n -t 1 -q ./hiv.prf ./hiv.fastq     # FASTQ
 #
 # Default output mode:
 #----------------------------------------------------------------------#
-$PFSEARCH      -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr > $TMPDIR/sh3.VAV_HUMAN.2.hit
-$PFSEARCHV3 -n -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr > $TMPDIR/sh3.VAV_HUMAN.3.hit
+$PFSEARCH                    -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr > $TMPDIR/sh3.VAV_HUMAN.2.hit
+$PFSEARCHV3 --no-affinity -n -f ./sh3.prf ./VAV_HUMAN.seq | sort -nr > $TMPDIR/sh3.VAV_HUMAN.3.hit
 diff -b $TMPDIR/sh3.VAV_HUMAN.2.hit $TMPDIR/sh3.VAV_HUMAN.3.hit # expecting no difference
 
-$PFSEARCH      -fb ./ecp.prf $TMPDIR/CVPBR322.fa | sort -nr > $TMPDIR/ecp.CVPBR322.2.hit
-$PFSEARCHV3 -n -fb ./ecp.prf $TMPDIR/CVPBR322.fa | sort -nr > $TMPDIR/ecp.CVPBR322.3.hit
+$PFSEARCH                    -fb ./ecp.prf $TMPDIR/CVPBR322.fa | sort -nr > $TMPDIR/ecp.CVPBR322.2.hit
+$PFSEARCHV3 --no-affinity -n -fb ./ecp.prf $TMPDIR/CVPBR322.fa | sort -nr > $TMPDIR/ecp.CVPBR322.3.hit
 diff -b $TMPDIR/ecp.CVPBR322.2.hit $TMPDIR/ecp.CVPBR322.3.hit  # expecting no difference
 
 #----------------------------------------------------------------------#
@@ -140,33 +140,33 @@ diff -b $TMPDIR/ecp.CVPBR322.2.hit $TMPDIR/ecp.CVPBR322.3.hit  # expecting no di
 # their headers. The usage of XPSA (-o 6) is strongly recommended, the
 # other formats being preserved for legacy.
 #----------------------------------------------------------------------#
-$PFSEARCHV3 -n -f -o 1 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA -
-$PFSEARCHV3 -n -f -o 2 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA -
-$PFSEARCHV3 -n -f -o 3 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA -
-$PFSEARCHV3 -n -f -o 4 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA -
-$PFSEARCHV3 -n -f -o 6 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA - # recommended
+$PFSEARCHV3 --no-affinity -n -f -o 1 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA -
+$PFSEARCHV3 --no-affinity -n -f -o 2 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA -
+$PFSEARCHV3 --no-affinity -n -f -o 3 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA -
+$PFSEARCHV3 --no-affinity -n -f -o 4 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA -
+$PFSEARCHV3 --no-affinity -n -f -o 6 -N 15 ./sh3.prf ./VAV_HUMAN.seq | $SORT_PSA - # recommended
 
 #----------------------------------------------------------------------#
 # Multiple sequence alignment (MSA) can easily be produced from PSA
 # using psa2msa (V2)
 #----------------------------------------------------------------------#
-$PFSEARCHV3 -n -f -o 6 ./ecp.prf $TMPDIR/CVPBR322.fa | $SORT_PSA - | $PSA2MSA
+$PFSEARCHV3 --no-affinity -n -f -o 6 ./ecp.prf $TMPDIR/CVPBR322.fa | $SORT_PSA - | $PSA2MSA
 
 #----------------------------------------------------------------------#
 # V3 has two new output formats: TSV and SAM
 #----------------------------------------------------------------------#
 
-$PFSEARCHV3 -n -t 1 -f    -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to TSV
-$PFSEARCHV3 -n -t 1 -f -b -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to TSV
+$PFSEARCHV3 --no-affinity -n -t 1 -f    -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to TSV
+$PFSEARCHV3 --no-affinity -n -t 1 -f -b -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to TSV
 
-$PFSEARCHV3 -n -t 1 -f    -o 8 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to SAM
-$PFSEARCHV3 -n -t 1 -f -b -o 8 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to SAM
+$PFSEARCHV3 --no-affinity -n -t 1 -f    -o 8 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to SAM
+$PFSEARCHV3 --no-affinity -n -t 1 -f -b -o 8 ./ecp.prf $TMPDIR/CVPBR322.fa # FASTA to SAM
 
-$PFSEARCHV3 -n -t 1 -q    -o 7 ./hiv.prf ./hiv.fastq         # FASTQ to TSV
-$PFSEARCHV3 -n -t 1 -q -b -o 7 ./hiv.prf ./hiv.fastq         # FASTQ to TSV
+$PFSEARCHV3 --no-affinity -n -t 1 -q    -o 7 ./hiv.prf ./hiv.fastq         # FASTQ to TSV
+$PFSEARCHV3 --no-affinity -n -t 1 -q -b -o 7 ./hiv.prf ./hiv.fastq         # FASTQ to TSV
 
-$PFSEARCHV3 -n -t 1 -q    -o 8 ./hiv.prf ./hiv.fastq         # FASTQ to SAM
-$PFSEARCHV3 -n -t 1 -q -b -o 8 ./hiv.prf ./hiv.fastq         # FASTQ to SAM
+$PFSEARCHV3 --no-affinity -n -t 1 -q    -o 8 ./hiv.prf ./hiv.fastq         # FASTQ to SAM
+$PFSEARCHV3 --no-affinity -n -t 1 -q -b -o 8 ./hiv.prf ./hiv.fastq         # FASTQ to SAM
 
 #----------------------------------------------------------------------#
 # Index can optionaly be used to speed-up database upload for pfsearch.
@@ -175,21 +175,21 @@ $PFSEARCHV3 -n -t 1 -q -b -o 8 ./hiv.prf ./hiv.fastq         # FASTQ to SAM
 #----------------------------------------------------------------------#
 
 $PFINDEX -f -o $TMPDIR/CVPBR322.fa.idx $TMPDIR/CVPBR322.fa
-$PFSEARCHV3 -n -f                            -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa | sort > $TMPDIR/A.out    # FASTA to TSV
-$PFSEARCHV3 -n -f -i $TMPDIR/CVPBR322.fa.idx -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa | sort > $TMPDIR/B.out    # FASTA to TSV
+$PFSEARCHV3 --no-affinity -n -f                            -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa | sort > $TMPDIR/A.out    # FASTA to TSV
+$PFSEARCHV3 --no-affinity -n -f -i $TMPDIR/CVPBR322.fa.idx -o 7 ./ecp.prf $TMPDIR/CVPBR322.fa | sort > $TMPDIR/B.out    # FASTA to TSV
 diff $TMPDIR/A.out $TMPDIR/B.out
 
 $PFINDEX -q -o $TMPDIR/hiv.fastq.idx ./hiv.fastq
-$PFSEARCHV3 -n -q -b -o 8                          ./hiv.prf ./hiv.fastq | sort > $TMPDIR/A.out
-$PFSEARCHV3 -n -q -b -o 8 -i $TMPDIR/hiv.fastq.idx ./hiv.prf ./hiv.fastq | sort > $TMPDIR/B.out
+$PFSEARCHV3 --no-affinity -n -q -b -o 8                          ./hiv.prf ./hiv.fastq | sort > $TMPDIR/A.out
+$PFSEARCHV3 --no-affinity -n -q -b -o 8 -i $TMPDIR/hiv.fastq.idx ./hiv.prf ./hiv.fastq | sort > $TMPDIR/B.out
 diff $TMPDIR/A.out $TMPDIR/B.out
 
 #----------------------------------------------------------------------#
 # Profile and/or sequence can be reversed on the fly. If both are
 # reversed the match score is the same
 #----------------------------------------------------------------------#
-$PFSEARCHV3 -f -a       rand_dna.prf rand_dna.seq
-$PFSEARCHV3 -f -a -r -R rand_dna.prf rand_dna.seq
+$PFSEARCHV3 --no-affinity -f -a       rand_dna.prf rand_dna.seq
+$PFSEARCHV3 --no-affinity -f -a -r -R rand_dna.prf rand_dna.seq
 
 #----------------------------------------------------------------------#
 # There is a much better support of rev/comp search in DNA sequences,
@@ -213,7 +213,7 @@ cat ./RF00177.msa \
 
 head -100 SRR9619541.sample.fastq > $TMPDIR/small.sample.fastq
 
-$PFSEARCHV3 -t 1 -n -q  $TMPDIR/16S.prf.tmp $TMPDIR/small.sample.fastq
+$PFSEARCHV3 --no-affinity -t 1 -n -q  $TMPDIR/16S.prf.tmp $TMPDIR/small.sample.fastq
 
 #----------------------------------------------------------------------#
 # Prepare a randomized databse to calibrate the profiles
@@ -224,7 +224,7 @@ cat ./SRR9619541.sample.fastq \
 > $TMPDIR/permut.fa
 
 # $PFCALIBRATEV3 --no-affinity -F $TMPDIR/permut.fa $TMPDIR/16S.prf.tmp > $TMPDIR/16S.prf
-# $PFSEARCHV3 -t 1 -n -q $TMPDIR/16S.prf $TMPDIR/small.sample.fastq
+# $PFSEARCHV3 --no-affinity -t 1 -n -q $TMPDIR/16S.prf $TMPDIR/small.sample.fastq
 
 #----------------------------------------------------------------------#
 # Verify handling of characters not in the profile alphabet
@@ -240,8 +240,8 @@ ACGTWACGT
 EOI
 $PFMAKE -m -3 -S 0.01 -F 100 $TMPDIR/ACGTAACGT.seq $CMPDIR/dna_50_40.cmp > $TMPDIR/ACGTAACGT.prf
 
-$PFSEARCHV3 -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTAACGT.seq # raw_score=450 PSA=ACGTAACGT
-$PFSEARCHV3 -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTWACGT.seq # raw_score=383 PSA=ACGTWACGT (not ACGTXACGT)
+$PFSEARCHV3 --no-affinity -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTAACGT.seq # raw_score=450 PSA=ACGTAACGT
+$PFSEARCHV3 --no-affinity -fa -o 6 $TMPDIR/ACGTAACGT.prf $TMPDIR/ACGTWACGT.seq # raw_score=383 PSA=ACGTWACGT (not ACGTXACGT)
 
 
 #----------------------------------------------------------------------#

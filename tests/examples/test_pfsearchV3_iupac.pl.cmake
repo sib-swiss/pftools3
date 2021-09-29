@@ -159,6 +159,7 @@ $tb->system( $cmd );
 # ------------------------------------------------------------
 $cmd = join ' ',
     $PFSEARCH_V3,
+        '--no-affinity',
         '-f -a -o 6',
         "$test_dir/prf/sample.prf",
         "$test_dir/seq/db.fa",
@@ -167,6 +168,7 @@ $cmd = join ' ',
 $tb->system( $cmd );
 $cmd = join ' ',
     $PFSEARCH_V3,
+        '--no-affinity',
         '-f -a -o 6',
         '-R -r ',
         "$test_dir/prf/sample.prf",
@@ -247,6 +249,7 @@ $tb->system( $cmd );
 
 $cmd = join ' ',
     $PFSEARCH_V3,
+        '--no-affinity',
         '-f -a -o 6',
         "$test_dir/prf/forward.prf",
         "$test_dir/seq/db.fa",
@@ -266,6 +269,7 @@ compare_psa_output( "$test_dir/hit/forward.psa", "$test_dir/hit/forward.2.psa", 
 
 $cmd = join ' ',
     $PFSEARCH_V3,
+        '--no-affinity',
         '-f -a -o 6',
         "$test_dir/prf/revcomp.prf",
         "$test_dir/seq/db.revcomp.fa",
@@ -295,6 +299,7 @@ exit 0;
 $tb->system( "cat $test_dir/hit/forward.psa $test_dir/hit/revcomp.psa  | $SORT_FASTA - > $test_dir/hit/one_one.psa" );
 $cmd = join ' ',
     $PFSEARCH_V3,
+        '--no-affinity',
         '-f -a -o 6',
         '-b',
         "$test_dir/prf/forward.prf",

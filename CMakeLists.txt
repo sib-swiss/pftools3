@@ -1,10 +1,10 @@
 #########################################################################################
 # PfTools versioning
 #
-SET(VERSION "3.2.9")
+SET(VERSION "3.2.10")
 SET(MAJOR_VERSION "3")
 SET(MINOR_VERSION "2")
-SET(PATCH_VERSION "9")
+SET(PATCH_VERSION "10")
 SET(DATA_PATH "share/data"     CACHE STRING "Installation data folder" )
 SET(DOC_PATH  "share/doc"      CACHE STRING "Installation doc folder" )
 SET(MAN1_PATH "share/man/man1" CACHE STRING "Installation man1 folder" )

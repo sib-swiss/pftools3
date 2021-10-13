@@ -1,4 +1,19 @@
-# PfTools   v3.2
+PfTools
+=========================================
+
+## Table of Contents
+
+   * [Foreword](#foreword)
+   * [Generalized profile syntax](#generalized-profile-syntax)
+   * [Installation](#installation)
+     * [Bioconda](#bioconda)
+     * [Manually](#manually) 
+   * [Command-line tutorial](#commandline-tutorial)
+   * [Algorithms description](#algorithms-description)
+   * [Applications of the Pftools](#applications-of-the-pftools)
+   * [Authors](#authors)
+
+# Foreword
 
 (C) Copyright SIB Swiss Institute of Bioinformatics
 available from  https://github.com/sib-swiss/pftools3 under GPL v2. See LICENSE.
@@ -26,6 +41,49 @@ it was originally published in
   Proc Int Conf Intell Syst Mol Biol. 1994;2:53-61.
   PubMed PMID: [7584418](https://www.ncbi.nlm.nih.gov/pubmed/7584418).
 
+# Installation
+
+## Bioconda
+
+```
+conda install -c bioconda pftools
+```
+
+## Manually
+
+See [here](./INSTALL) for more information
+
+**Prerequisite**  
+
+  * cmake >= 3.7
+  * gcc   >= 4.6
+  * gfortran (or g77 or f77)  for release 2.3 source code
+  * perl  >= 5.5.3   
+    * File::Slurp
+
+**BUILD**  
+```
+git clone https://github.com/sib-swiss/pftools3.git
+cd pftools3
+mkdir build
+cd build/
+cmake ..
+```
+
+**COMPILE**  
+```
+make
+```
+
+**INSTALL**  
+```
+make install
+```
+
+**CHECK/TEST**  
+```
+make test
+```
 
 # Command-line tutorial
 

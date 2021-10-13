@@ -10,9 +10,11 @@ PfTools
    * [Foreword](#foreword)
    * [Generalized profile syntax](#generalized-profile-syntax)
    * [Installation](#installation)
+     * [Using Docker](#using-docker)
+     * [Using Singularity](#using-singularity)
      * [Bioconda](#bioconda)
      * [Manually](#manually) 
-   * [Command-line tutorial](#commandline-tutorial)
+   * [Command line tutorial](#command-line-tutorial)
    * [Algorithms description](#algorithms-description)
    * [Applications of the Pftools](#applications-of-the-pftools)
    * [Authors](#authors)
@@ -46,6 +48,36 @@ it was originally published in
   PubMed PMID: [7584418](https://www.ncbi.nlm.nih.gov/pubmed/7584418).
 
 # Installation
+
+
+### Using Docker
+
+First you must have [Docker](https://docs.docker.com/get-docker/) installed and running.  
+Secondly have look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags).  
+Then:
+  ```
+# get the chosen pftools container version
+docker pull quay.io/biocontainers/pftools:2.3.5--h4333106_0
+# use an pftools's tool e.g. pfscan 
+docker run quay.io/biocontainers/pftools:2.3.5--h4333106_0 pfscan -h
+  ```
+
+### Using Singularity
+
+First you must have [Singularity](https://sylabs.io/guides/3.5/user-guide/quick_start.html) installed and running.
+Secondly have look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags).  
+Then:
+```
+# get the chosen pftools container version
+singularity pull docker://quay.io/biocontainers/quay.io/biocontainers/pftools:2.3.5--h4333106_0
+# run the container
+singularity run pftools_2.3.5--h4333106_0.sif
+```
+
+You are now in the container. You can use an pftools's tool e.g. pfscan doing 
+```
+pfscan -h
+```
 
 ## Bioconda
 
@@ -89,7 +121,7 @@ make install
 make test
 ```
 
-# Command-line tutorial
+# Command line tutorial
 
 After installation, in the share/examples/ subdirectory, the *test_V3.sh* shell script is a good starting point for using pfsearchV3/pfscanV3.
 

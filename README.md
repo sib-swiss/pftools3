@@ -1,3 +1,7 @@
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/pftools/README.html)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/pftools/badges/license.svg)](https://anaconda.org/bioconda/pftools)
+[![Anaconda-Server Badge](https://img.shields.io/conda/dn/bioconda/pftools.svg?style=flat)](https://anaconda.org/bioconda/pftools)
+
 PfTools
 =========================================
 

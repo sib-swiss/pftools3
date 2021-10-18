@@ -8,13 +8,12 @@ PfTools
 ## Table of Contents
 
    * [Foreword](#foreword)
-   * [Generalized profile syntax](#generalized-profile-syntax)
    * [Installation](#installation)
      * [Using Docker](#using-docker)
      * [Using Singularity](#using-singularity)
      * [Bioconda](#bioconda)
      * [Manually](#manually) 
-   * [Command line tutorial](#command-line-tutorial)
+   * [Generalized profile syntax](#generalized-profile-syntax)
    * [Algorithms description](#algorithms-description)
    * [Applications of the Pftools](#applications-of-the-pftools)
    * [Authors](#authors)
@@ -28,27 +27,7 @@ available from  https://github.com/sib-swiss/pftools3 under GPL v2. See LICENSE.
 Version 3 contains the original FORTRAN 77 pftools (release 2.3)
 and the new pftoolsV3 programs.
 
-The 'pftools' package documententation is unfortunately scattered over many
-different places. Here is an annotated list of the relevant documents we are
-aware of:
-
-# Generalized profile syntax
-
-A description of the generalized profile syntax is given in file:
-
-- [doc/profile.txt](https://raw.githubusercontent.com/sib-swiss/pftools3/master/doc/profile.txt)  (original document)
-- [doc/profile.pdf](https://raw.githubusercontent.com/sib-swiss/pftools3/master/doc/profile.pdf)  (revised and completed version)
-
-it was originally published in
-
-* Bucher P, Bairoch A.
-  A generalized profile syntax for biomolecular sequence motifs
-  and its function in automatic sequence interpretation.
-  Proc Int Conf Intell Syst Mol Biol. 1994;2:53-61.
-  PubMed PMID: [7584418](https://www.ncbi.nlm.nih.gov/pubmed/7584418).
-
 # Installation
-
 
 ### Using Docker
 
@@ -121,9 +100,23 @@ make install
 make test
 ```
 
-# Command line tutorial
-
 After installation, in the share/examples/ subdirectory, the *test_V3.sh* shell script is a good starting point for using pfsearchV3/pfscanV3.
+
+# Generalized profile syntax
+
+A description of the generalized profile syntax is given in file:
+
+- [doc/profile.txt](https://raw.githubusercontent.com/sib-swiss/pftools3/master/doc/profile.txt)  (original document)
+- [doc/profile.pdf](https://raw.githubusercontent.com/sib-swiss/pftools3/master/doc/profile.pdf)  (revised and completed version)
+
+it was originally published in
+
+* Bucher P, Bairoch A.
+  A generalized profile syntax for biomolecular sequence motifs
+  and its function in automatic sequence interpretation.
+  Proc Int Conf Intell Syst Mol Biol. 1994;2:53-61.
+  PubMed PMID: [7584418](https://www.ncbi.nlm.nih.gov/pubmed/7584418).
+
 
 # Algorithms description
 

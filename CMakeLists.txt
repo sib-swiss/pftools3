@@ -396,7 +396,7 @@ ADD_SUBDIRECTORY(data)
 #########################################################################################
 # Enabling TESTING
 include(CTest)
-SET(TESTS_DIRECTORY "${PROJECT_SOURCE_DIR}/Tests" CACHE PATH "Directory for tests")
+SET(TESTS_DIRECTORY "${PROJECT_SOURCE_DIR}/testing" CACHE PATH "Directory for tests")
 SET(TESTS_DATA_DIR "${PROJECT_SOURCE_DIR}/tests")
 IF (NOT EXISTS "${TESTS_DIRECTORY}" )
 	FILE(MAKE_DIRECTORY "${TESTS_DIRECTORY}" )

@@ -1,4 +1,24 @@
-# PfTools   v3.2
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/pftools/README.html)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/pftools/badges/license.svg)](https://anaconda.org/bioconda/pftools)
+[![Anaconda-Server Badge](https://img.shields.io/conda/dn/bioconda/pftools.svg?style=flat)](https://anaconda.org/bioconda/pftools)
+
+PfTools
+=========================================
+
+## Table of Contents
+
+   * [Foreword](#foreword)
+   * [Installation](#installation)
+     * [Using Docker](#using-docker)
+     * [Using Singularity](#using-singularity)
+     * [Bioconda](#bioconda)
+     * [Manually](#manually) 
+   * [Generalized profile syntax](#generalized-profile-syntax)
+   * [Algorithms description](#algorithms-description)
+   * [Applications of the Pftools](#applications-of-the-pftools)
+   * [Authors](#authors)
+
+# Foreword
 
 (C) Copyright SIB Swiss Institute of Bioinformatics
 available from  https://github.com/sib-swiss/pftools3 under GPL v2. See LICENSE.
@@ -7,9 +27,80 @@ available from  https://github.com/sib-swiss/pftools3 under GPL v2. See LICENSE.
 Version 3 contains the original FORTRAN 77 pftools (release 2.3)
 and the new pftoolsV3 programs.
 
-The 'pftools' package documententation is unfortunately scattered over many
-different places. Here is an annotated list of the relevant documents we are
-aware of:
+# Installation
+
+### Using Docker
+
+First you must have [Docker](https://docs.docker.com/get-docker/) installed and running.  
+Secondly have look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags).  
+Then:
+  ```
+# get the chosen pftools container version
+docker pull quay.io/biocontainers/pftools:2.3.5--h4333106_0
+# use an pftools's tool e.g. pfscan 
+docker run quay.io/biocontainers/pftools:2.3.5--h4333106_0 pfscan -h
+  ```
+
+### Using Singularity
+
+First you must have [Singularity](https://sylabs.io/guides/3.5/user-guide/quick_start.html) installed and running.
+Secondly have look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags).  
+Then:
+```
+# get the chosen pftools container version
+singularity pull docker://quay.io/biocontainers/quay.io/biocontainers/pftools:2.3.5--h4333106_0
+# run the container
+singularity run pftools_2.3.5--h4333106_0.sif
+```
+
+You are now in the container. You can use an pftools's tool e.g. pfscan doing 
+```
+pfscan -h
+```
+
+## Bioconda
+
+```
+conda install -c bioconda pftools
+```
+
+## Manually
+
+See [here](./INSTALL) for more information
+
+**Prerequisite**  
+
+  * cmake >= 3.7
+  * gcc   >= 4.6
+  * gfortran (or g77 or f77)  for release 2.3 source code
+  * perl  >= 5.5.3   
+    * File::Slurp
+
+**BUILD**  
+```
+git clone https://github.com/sib-swiss/pftools3.git
+cd pftools3
+mkdir build
+cd build/
+cmake ..
+```
+
+**COMPILE**  
+```
+make
+```
+
+**INSTALL**  
+```
+make install
+```
+
+**CHECK/TEST**  
+```
+make test
+```
+
+After installation, in the share/examples/ subdirectory, the *test_V3.sh* shell script is a good starting point for using pfsearchV3/pfscanV3.
 
 # Generalized profile syntax
 
@@ -26,10 +117,6 @@ it was originally published in
   Proc Int Conf Intell Syst Mol Biol. 1994;2:53-61.
   PubMed PMID: [7584418](https://www.ncbi.nlm.nih.gov/pubmed/7584418).
 
-
-# Command-line tutorial
-
-After installation, in the share/examples/ subdirectory, the *test_V3.sh* shell script is a good starting point for using pfsearchV3/pfscanV3.
 
 # Algorithms description
 

@@ -32,23 +32,29 @@ and the new pftoolsV3 programs.
 ### Using Docker
 
 First you must have [Docker](https://docs.docker.com/get-docker/) installed and running.  
-Secondly have a look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags).  
+Secondly have a look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags) or at [Docker Hub](https://hub.docker.com/r/sibswiss/pftools).  
 Then:
   ```
 # get the chosen pftools container version
 docker pull quay.io/biocontainers/pftools:2.3.5--h4333106_0
+   or
+docker pull sibswiss/pftools:3.2.8
 # use an pftools's tool e.g. pfscan 
 docker run quay.io/biocontainers/pftools:2.3.5--h4333106_0 pfscan -h
+   or
+docker run sibswiss/pftools:3.2.8 pfscan -h
   ```
 
 ### Using Singularity
 
 First you must have [Singularity](https://sylabs.io/guides/master/user-guide/quick_start.html) installed and running.
-Secondly have a look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags).  
+Secondly have a look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags) or at [Docker Hub](https://hub.docker.com/r/sibswiss/pftools).  
 Then:
 ```
 # get the chosen pftools container version
 singularity pull docker://quay.io/biocontainers/quay.io/biocontainers/pftools:2.3.5--h4333106_0
+   or
+singularity pull docker://sibswiss/pftools:3.2.8
 # run the container
 singularity run pftools_2.3.5--h4333106_0.sif
 ```

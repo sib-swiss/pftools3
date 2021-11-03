@@ -32,7 +32,7 @@ and the new pftoolsV3 programs.
 ### Using Docker
 
 First you must have [Docker](https://docs.docker.com/get-docker/) installed and running.  
-Secondly have look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags).  
+Secondly have a look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags).  
 Then:
   ```
 # get the chosen pftools container version
@@ -43,8 +43,8 @@ docker run quay.io/biocontainers/pftools:2.3.5--h4333106_0 pfscan -h
 
 ### Using Singularity
 
-First you must have [Singularity](https://sylabs.io/guides/3.5/user-guide/quick_start.html) installed and running.
-Secondly have look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags).  
+First you must have [Singularity](https://sylabs.io/guides/master/user-guide/quick_start.html) installed and running.
+Secondly have a look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags).  
 Then:
 ```
 # get the chosen pftools container version

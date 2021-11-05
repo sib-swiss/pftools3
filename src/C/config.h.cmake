@@ -10,11 +10,9 @@
 #define __USE_WINAPI__
 #endif
 
-#cmakedefine USE_AFFINITY
-#if defined(USE_AFFINITY)
-# if defined(__GNUC__) && !defined(USE_WINAPI)
-#  define _GNU_SOURCE
-# endif
+/* NOTE Compilation fails if _GNU_SOURCE is not defined with affinity off */
+#if defined(__GNUC__) && !defined(USE_WINAPI)
+# define _GNU_SOURCE
 #endif
 
 /*

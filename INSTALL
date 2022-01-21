@@ -32,7 +32,7 @@ BUILD:
    cmake ..
 
    OPTIONS:
-   - Build wihout affinity (old machines)
+   - Build without affinity (old machines)
         cmake -DUSE_AFFINITY=OFF ..
 
    - Build static binaries:

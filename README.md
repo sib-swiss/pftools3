@@ -74,37 +74,6 @@ conda install -c bioconda pftools
 
 See [here](./INSTALL) for more information
 
-**Prerequisite**  
-
-  * cmake >= 3.7
-  * gcc   >= 4.6
-  * gfortran (or g77 or f77)  for release 2.3 source code
-  * perl  >= 5.5.3   
-    * File::Slurp
-
-**BUILD**  
-```
-git clone https://github.com/sib-swiss/pftools3.git
-cd pftools3
-mkdir build
-cd build/
-cmake ..
-```
-
-**COMPILE**  
-```
-make
-```
-
-**INSTALL**  
-```
-make install
-```
-
-**CHECK/TEST**  
-```
-make test
-```
 
 After installation, in the share/examples/ subdirectory, the *test_V3.sh* shell script is a good starting point for using pfsearchV3/pfscanV3.
 

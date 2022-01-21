@@ -6,6 +6,8 @@ REQUIREMENTS
 - gcc   >= 4.6
 - gfortran (or g77 or f77)  for release 2.3 source code
 - perl  >= 5.5.3            for ps_scan.pl
+    File::Slurp
+
 
 Optional:
 - pcre*
@@ -30,6 +32,9 @@ BUILD:
    cmake ..
 
    OPTIONS:
+   - Build wihout affinity (old machines)
+        cmake -DUSE_AFFINITY=OFF ..
+
    - Build static binaries:
         cmake -DSTANDALONE=ON ..
 

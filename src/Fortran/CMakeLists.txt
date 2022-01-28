@@ -1,6 +1,6 @@
 SET_PROPERTY(SOURCE gtop.f htop.f ptoh.f ptof.f 2ft.f 6ft.f psa2msa.f pfscan.f pfsearch.f
                     pfw.f pfscale.f pfmake.f
-             APPEND PROPERTY COMPILE_FLAGS "-fno-automatic" )
+             APPEND PROPERTY COMPILE_FLAGS "-fno-automatic -std=legacy" )
 
 ######################################## DATA #######################################
 SET(DAT_OBJECTS psdat.f gsdat.f djdat.f nodat.f codat.f pfdat.f dfdat.f)

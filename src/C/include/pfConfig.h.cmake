@@ -62,6 +62,7 @@
  * Regular Expression library
  ********************************************************************************
  */
+#cmakedefine USE_PCRE2
 #cmakedefine USE_PCRE
 
 /*

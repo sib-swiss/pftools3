@@ -11,7 +11,10 @@
 #include "pfConfig.h"
 #include "pfProfile.h"
 
-#if defined(USE_PCRE)
+#if defined(USE_PCRE2)
+# define PCRE2_CODE_UNIT_WIDTH 8 /* NOTE For PCRE2 with PCRE2_CODE_UNIT_WIDTH = 8 */
+# include "pcre2.h"
+#elif defined(USE_PCRE)
 # include "pcre.h"
 #else
 # if defined(__GNUC__)
@@ -23,7 +26,9 @@
 
 struct RegEx {
    char * * regexString;
-#if defined(USE_PCRE)
+#if defined(USE_PCRE2)
+   pcre2_code * * regexCompiled;
+#elif defined(USE_PCRE)
    pcre * * regexCompiled;
 #else
    regex_t * regexCompiled;
@@ -40,7 +45,10 @@ void FreeRegEx(struct RegEx * const regex);
 
 char * PatternToRegex(const char * const Pattern);
 
-#if defined(USE_PCRE)
+#if defined(USE_PCRE2)
+void PrintRegex(const char * const restrict regexString, const char * const restrict Sequence,
+        const int Matches[], char * const restrict Header, const size_t SeqLength);
+#elif defined(USE_PCRE)
 void PrintRegex(const char * const restrict regexString, const char * const restrict Sequence,
 		const int Matches[], char * const restrict Header, const size_t SeqLength);
 #else

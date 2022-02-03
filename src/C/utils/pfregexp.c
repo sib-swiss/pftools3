@@ -74,8 +74,8 @@ int InitRegExFromString(struct RegEx * const regex, const char * const regexSour
   char errorBuffer[1024];
   for (size_t i=0; i<localCount; ++i) {
 #if defined(USE_PCRE2)
-    const char *error;
-    int erroffset;
+    int error;
+    PCRE2_SIZE erroffset;
 //     fprintf(stderr, "Regex: \'%s\'\n", localregexString[i]);
     localregexCompiled[i] = pcre2_compile ((PCRE2_SPTR)localregexString[i],  /* the pattern */
                       PCRE2_ZERO_TERMINATED,
@@ -159,8 +159,8 @@ int InitRegExFromProfile(struct RegEx * const regex, const struct Profile * * Pa
   char errorBuffer[1024];
   for (int i=0; i<PatternProfileCount; ++i) {
 #if defined(USE_PCRE2)
-    const char *error;
-    int erroffset;
+    int error;
+    PCRE2_SIZE erroffset;
 //     fprintf(stderr, "Regex: \'%s\'\n", localregexString[i]);
     localregexCompiled[i] = pcre2_compile ((PCRE2_SPTR)localregexString[i],  /* the pattern */
                       PCRE2_ZERO_TERMINATED,

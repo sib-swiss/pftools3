@@ -391,26 +391,28 @@ static void *thread_regex( void * _Data)
       /* Run the regex engine */
 #if defined(USE_PCRE2)
       const pcre2_code * const restrict rg = regex->regexCompiled[iPatternPrf];
-      int ovector[2*8];
+      pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(rg, NULL);
+      PCRE2_SIZE *ovector;
       unsigned int offset = 0;
       const unsigned int len = PFSeq->Length;
       int rc;
       size_t count = 0;
-      while (offset < len && (rc = pcre2_match(rg, (PCRE2_SPTR)CleanSeq, len, offset, 0, 8, ovector)) >= 0)
+      while (offset < len && (rc = pcre2_match(rg, (PCRE2_SPTR)CleanSeq, PCRE2_ZERO_TERMINATED, offset, 0, match_data, NULL)) >= 0)
       {
-      for(int k = 0; k < rc; ++k)
-      {
+        ovector = pcre2_get_ovector_pointer(match_data);
+        for(int k = 0; k < rc; ++k)
+        {
           if (count < nmatch) {
-          Matches[2*count] = ovector[2*k];
-          Matches[2*count+1] = ovector[2*k+1];
-          ++count;
+            Matches[2*count] = ovector[2*k];
+            Matches[2*count+1] = ovector[2*k+1];
+            ++count;
           }
           else {
-          fprintf(stderr, "Warning: maximum number of matches reached for %s with %s\n",
-            prfs[iPatternPrf]->Identification, prfs[iPatternPrf]->Pattern);
+            fprintf(stderr, "Warning: maximum number of matches reached for %s with %s\n",
+              prfs[iPatternPrf]->Identification, prfs[iPatternPrf]->Pattern);
           }
-      }
-      offset = ovector[1];
+        }
+        offset = ovector[1];
       }
 
       Matches[2*count] = -1;
@@ -424,19 +426,19 @@ static void *thread_regex( void * _Data)
       size_t count = 0;
       while (offset < len && (rc = pcre_exec(rg, 0, CleanSeq, len, offset, 0, ovector, 8)) >= 0)
       {
-	  for(int k = 0; k < rc; ++k)
-	  {
+	    for(int k = 0; k < rc; ++k)
+	    {
 	      if (count < nmatch) {
-		  Matches[2*count] = ovector[2*k];
-		  Matches[2*count+1] = ovector[2*k+1];
-		  ++count;
+		    Matches[2*count] = ovector[2*k];
+		    Matches[2*count+1] = ovector[2*k+1];
+		    ++count;
 	      }
 	      else {
-		  fprintf(stderr, "Warning: maximum number of matches reached for %s with %s\n", 
-			prfs[iPatternPrf]->Identification, prfs[iPatternPrf]->Pattern);
+		    fprintf(stderr, "Warning: maximum number of matches reached for %s with %s\n", 
+			  prfs[iPatternPrf]->Identification, prfs[iPatternPrf]->Pattern);
 	      }
-	  }
-	  offset = ovector[1];
+	    }
+	    offset = ovector[1];
       }
 
       Matches[2*count] = -1;

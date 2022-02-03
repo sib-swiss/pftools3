@@ -1,0 +1,15 @@
+####### Sign container in Docker hub
+# See https://docs.docker.com/engine/security/trust/content_trust/
+#     https://success.docker.com/article/introduction-to-docker-content-trust
+#
+# Enable Docker Content Trust
+export DOCKER_CONTENT_TRUST=1
+# Sign and Push Images with Docker Content Trust
+# Log into Docker Hub with Docker 1.8+
+docker login
+#With Docker Content Trust enabled, push an image to Hub. When you push, Docker will note you have no keys, create them, and prompt you for a passphrase to encrypt them:
+docker tag pftools:$PFTOOLS_VERSION sibswiss/pftools:$PFTOOLS_VERSION
+docker -D push sibswiss/pftools:$PFTOOLS_VERSION
+
+docker tag pftools:$PFTOOLS_VERSION sibswiss/pftools:latest
+docker -D push sibswiss/pftools:latest

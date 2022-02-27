@@ -1,4 +1,5 @@
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/pftools/README.html)
+[![install with EasyBuild](https://img.shields.io/badge/install%20with-EasyBuild-brightgreen.svg?style=flat)](#easybuild)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/pftools/badges/license.svg)](https://anaconda.org/bioconda/pftools)
 [![Anaconda-Server Badge](https://img.shields.io/conda/dn/bioconda/pftools.svg?style=flat)](https://anaconda.org/bioconda/pftools)
 
@@ -12,6 +13,7 @@ PfTools
      * [Using Docker](#using-docker)
      * [Using Singularity](#using-singularity)
      * [Bioconda](#bioconda)
+     * [EasyBuild](#easybuild)
      * [Manually](#manually) 
    * [Generalized profile syntax](#generalized-profile-syntax)
    * [Algorithms description](#algorithms-description)
@@ -34,40 +36,46 @@ and the new pftoolsV3 programs.
 First you must have [Docker](https://docs.docker.com/get-docker/) installed and running.  
 Secondly have a look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags) or at [Docker Hub](https://hub.docker.com/r/sibswiss/pftools).  
 Then:
-  ```
+```sh
 # get the chosen pftools container version
 docker pull quay.io/biocontainers/pftools:2.3.5--h4333106_0
-   or
+#   or
 docker pull sibswiss/pftools:3.2.8
 # use an pftools's tool e.g. pfscan 
 docker run quay.io/biocontainers/pftools:2.3.5--h4333106_0 pfscan -h
-   or
+#   or
 docker run sibswiss/pftools:3.2.8 pfscan -h
-  ```
+```
 
 ### Using Singularity
 
 First you must have [Singularity](https://sylabs.io/guides/master/user-guide/quick_start.html) installed and running.
 Secondly have a look at the availabe pftools biocontainers at [quay.io](https://quay.io/repository/biocontainers/pftools?tab=tags) or at [Docker Hub](https://hub.docker.com/r/sibswiss/pftools).  
 Then:
-```
+```sh
 # get the chosen pftools container version
 singularity pull docker://quay.io/biocontainers/quay.io/biocontainers/pftools:2.3.5--h4333106_0
-   or
+#   or
 singularity pull docker://sibswiss/pftools:3.2.8
 # run the container
 singularity run pftools_2.3.5--h4333106_0.sif
 ```
 
 You are now in the container. You can use an pftools's tool e.g. pfscan doing 
-```
+```sh
 pfscan -h
 ```
 
 ## Bioconda
 
-```
+```sh
 conda install -c bioconda pftools
+```
+
+## EasyBuild
+
+```sh
+eb --robot --rpath pftoolsV3-3.2.11-foss-2021a.eb
 ```
 
 ## Manually

@@ -406,7 +406,6 @@ sub compare_psa_output{
     warn "\n";
 }
 
-exit 1 if $TEST_FAILED;
+exit 1  if $TEST_FAILED;
 exit 0;
-
 

@@ -16,7 +16,6 @@ FILE(GENERATE OUTPUT ${TESTS_DIRECTORY}/examples/test_V2.sh
               INPUT ${TESTS_DIRECTORY}/examples/test_V2.sh.tmp)
 FILE(REMOVE ${TESTS_DIRECTORY}/examples/test_V2.sh.cmake)
 
-
 CONFIGURE_FILE(${TESTS_DIRECTORY}/examples/test_V3.sh.cmake
                ${TESTS_DIRECTORY}/examples/test_V3.sh.tmp @ONLY)
 FILE(GENERATE OUTPUT ${TESTS_DIRECTORY}/examples/test_V3.sh
@@ -40,6 +39,12 @@ CONFIGURE_FILE(${TESTS_DIRECTORY}/examples/test_scan_search.pl.cmake
 FILE(GENERATE OUTPUT ${TESTS_DIRECTORY}/examples/test_scan_search.pl
               INPUT ${TESTS_DIRECTORY}/examples/test_scan_search.pl.tmp)
 FILE(REMOVE ${TESTS_DIRECTORY}/examples/test_scan_search.pl.cmake)
+
+CONFIGURE_FILE(${TESTS_DIRECTORY}/examples/test_pfsearchV3_pattern-regexp.sh.cmake
+               ${TESTS_DIRECTORY}/examples/test_pfsearchV3_pattern-regexp.sh.tmp @ONLY)
+FILE(GENERATE OUTPUT ${TESTS_DIRECTORY}/examples/test_pfsearchV3_pattern-regexp.sh
+              INPUT ${TESTS_DIRECTORY}/examples/test_pfsearchV3_pattern-regexp.sh.tmp)
+FILE(REMOVE ${TESTS_DIRECTORY}/examples/test_pfsearchV3_pattern-regexp.sh.cmake)
 
 
 INSTALL(DIRECTORY examples/

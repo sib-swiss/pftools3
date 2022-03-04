@@ -1,5 +1,7 @@
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/pftools/README.html)
 [![install with EasyBuild](https://img.shields.io/badge/install%20with-EasyBuild-brightgreen.svg?style=flat)](#easybuild)
+[![install with Docker](https://img.shields.io/badge/install%20with-Docker-brightgreen.svg?style=flat)](#using-docker)
+[![install with Singularity](https://img.shields.io/badge/install%20with-Singularity-brightgreen.svg?style=flat)](#using-singularity)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/pftools/badges/license.svg)](https://anaconda.org/bioconda/pftools)
 [![Anaconda-Server Badge](https://img.shields.io/conda/dn/bioconda/pftools.svg?style=flat)](https://anaconda.org/bioconda/pftools)
 

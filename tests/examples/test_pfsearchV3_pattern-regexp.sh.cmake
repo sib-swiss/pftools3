@@ -90,7 +90,7 @@ diff -b $TMPDIR/repetition_range-regexp.hit  patterns/repetition_range.hit  # ex
 #----------------------------------------------------------------------#
 # Search with anchor to either the N- or C-terminal of a sequence
 #----------------------------------------------------------------------#
-#FIXME pattern anchors do not work!
+#FIXME pattern anchors do not work! So don't know if it has to be < or <-
 #FIXME regexp anchor does not look to accept $!
 $PFSEARCHV3 'pattern{<M-E-L-x(2)-Q-C}'      ./VAV_HUMAN.seq >$TMPDIR/anchorN-pattern.hit
 $PFSEARCHV3 'regex{^MEL.{2}QC}'             ./VAV_HUMAN.seq >$TMPDIR/anchorN-regexp.hit

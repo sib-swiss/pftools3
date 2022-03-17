@@ -1,0 +1,24 @@
+*v3.2.12*
+- Use PCRE2 by default
+- Add pattern/regexp tests
+- Update PCRE builtin tarball to its last version
+- Various warning fixes
+- Add EasyBuild doc and badge
+
+*v3.2.11*
+- Fix compilation with affinity off
+
+*v3.2.8*
+- Fix for delocalized installation in CMakeLists.txt + Run V3 tests without
+affinity
+
+*v3.2.7*
+- Use _SC_NPROCESSORS_ONLN instead of _SC_NPROCESSORS_CONF to detect the real
+number of available cores at runtime, not the maximal number of cores
+
+*v3.2.6*
+- Update ps_scan.pl for the pfsearchV3 cutoff option
+
+*v3.2.5*
+- Update contact e-mail + Fix exit code in ps_scan.pl
+

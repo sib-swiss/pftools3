@@ -1,6 +1,6 @@
 # Build Docker image
 export PFTOOLS_VERSION=3.2.12
-docker build -t pftools:$PFTOOLS_VERSION --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg PFTOOLS_VERSION=$PFTOOLS_VERSION -f Dockerfile .  2>&1 >pftools.Dockerfile.log
+docker build -t pftools:$PFTOOLS_VERSION --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg PFTOOLS_VERSION=$PFTOOLS_VERSION -f Dockerfile . # 2>&1 >pftools.Dockerfile.log
 
 
 # List Docker local images (imported or built)

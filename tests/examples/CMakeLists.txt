@@ -24,8 +24,10 @@ ADD_TEST(
 	WORKING_DIRECTORY "${TESTS_DIRECTORY}/examples/"
 	COMMAND "perl" "test_pfsearchV3_iupac.pl" "/tmp/test_pfsearchV3_iupac"
 )
-ADD_TEST(
-	NAME "execute_test_pfsearchV3_pattern-regexp.sh"
-	WORKING_DIRECTORY "${TESTS_DIRECTORY}/examples/"
-	COMMAND "sh" "-ve" "test_pfsearchV3_pattern-regexp.sh"
-)
+IF(USE_PCRE2 OR USE_PCRE)
+	ADD_TEST(
+		NAME "execute_test_pfsearchV3_pattern-regexp.sh"
+		WORKING_DIRECTORY "${TESTS_DIRECTORY}/examples/"
+		COMMAND "sh" "-ve" "test_pfsearchV3_pattern-regexp.sh"
+	)
+ENDIF(USE_PCRE2 OR USE_PCRE)

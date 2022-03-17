@@ -40,13 +40,13 @@ Secondly have a look at the availabe pftools biocontainers at [quay.io](https://
 Then:
 ```sh
 # get the chosen pftools container version
-docker pull quay.io/biocontainers/pftools:2.3.5--h4333106_0
+docker pull quay.io/biocontainers/pftools:3.2.11--pl5321r41h4b1256a_2
 #   or
-docker pull sibswiss/pftools:3.2.8
+docker pull sibswiss/pftools:3.2.12
 # use an pftools's tool e.g. pfscan 
-docker run quay.io/biocontainers/pftools:2.3.5--h4333106_0 pfscan -h
+docker run quay.io/biocontainers/pftools:3.2.11--pl5321r41h4b1256a_2 pfscan -h
 #   or
-docker run sibswiss/pftools:3.2.8 pfscan -h
+docker run sibswiss/pftools:3.2.12 pfscan -h
 ```
 
 ### Using Singularity
@@ -56,11 +56,11 @@ Secondly have a look at the availabe pftools biocontainers at [quay.io](https://
 Then:
 ```sh
 # get the chosen pftools container version
-singularity pull docker://quay.io/biocontainers/quay.io/biocontainers/pftools:2.3.5--h4333106_0
+singularity pull docker://quay.io/biocontainers/quay.io/biocontainers/pftools:3.2.11--pl5321r41h4b1256a_2
 #   or
-singularity pull docker://sibswiss/pftools:3.2.8
+singularity pull docker://sibswiss/pftools:3.2.12
 # run the container
-singularity run pftools_2.3.5--h4333106_0.sif
+singularity run pftools_3.2.11--pl5321r41h4b1256a_2.sif
 ```
 
 You are now in the container. You can use an pftools's tool e.g. pfscan doing 

@@ -9,7 +9,7 @@ RUN echo '# OS update' \
 	&& apt-get update -y \
 	&& apt-get install -y --no-install-recommends \
       build-essential \
-      libpcre++-dev \
+      libpcre2-dev \
       gfortran \
       libgfortran5 \
       ca-certificates \
@@ -61,7 +61,7 @@ RUN echo '# OS update' \
 	   libc6 \
 	   libgcc1 \
 	   libgfortran5 \
-	   libpcre3 \
+	   libpcre2-8-0 \
 	   libquadmath0 \
 	&& ln -s $PFTOOLS_PATH/bin/* /usr/local/bin/ \
 	&& ln -s $PFTOOLS_PATH/share/man/man5/* /usr/share/man/man5/ \

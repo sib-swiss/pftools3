@@ -13,3 +13,6 @@ mkdir -p $TMPDIR
 sh -ve ./test_V3.sh  > $TMPDIR/test_V3.out 2>/dev/null
 diff ./test_V3.out $TMPDIR/test_V3.out
 
+# Cleaning
+rm -Rf $TMPDIR
+

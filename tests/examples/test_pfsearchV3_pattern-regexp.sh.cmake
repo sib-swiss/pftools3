@@ -110,3 +110,6 @@ $PFSEARCHV3 'regex{.{6}A.[YRFQ]D}'        ./VAV_HUMAN.seq >$TMPDIR/multiple_matc
 diff -b $TMPDIR/multiple_matches-pattern.hit patterns/multiple_matches.hit  # expecting no difference
 diff -b $TMPDIR/multiple_matches-regexp.hit  patterns/multiple_matches.hit  # expecting no difference
 
+# Cleaning
+rm -Rf $TMPDIR
+

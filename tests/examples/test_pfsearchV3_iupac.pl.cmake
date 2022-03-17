@@ -44,6 +44,7 @@ if( $opt{h} or @ARGV != 1 ){
     exit 0;
 }
 my( $test_dir ) = @ARGV;
+my $ori_test_dir = $test_dir;
 $tb->system( "mkdir -p $test_dir" ) unless -d $test_dir;
 $tb->die( "Dir does not exist: $test_dir" ) unless -d $test_dir;
 $test_dir .= '/test.iupac';
@@ -407,5 +408,6 @@ sub compare_psa_output{
 }
 
 exit 1  if $TEST_FAILED;
+$tb->system( "rm -Rf $ori_test_dir" );
 exit 0;
 

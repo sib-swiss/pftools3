@@ -10,7 +10,7 @@ REQUIREMENTS
 
 
 Optional:
-- pcre*
+- pcre2 (or pcre)
 - GD*
 - libpng
 - libjpeg
@@ -52,13 +52,16 @@ BUILD:
    - Compile with graphical support for pfcalibrateV3 (highly optional):
         cmake -DUSE_GRAPHICS=ON -DUSE_PDF=ON ..
 
+   - Compile with old PCRE:
+        cmake -DUSE_PCRE2=OFF -DUSE_PCRE=ON ..
+
    - Compile without regular expression support:
-        cmake -DUSE_PCRE=OFF ..
+        cmake -DUSE_PCRE2=OFF ..
 
    ...
 
    example:
-        cmake -DC_ONLY=ON -DUSE_32BIT_INTEGER=ON -DUSE_PCRE=OFF ..
+        cmake -DC_ONLY=ON -DUSE_32BIT_INTEGER=ON -DUSE_PCRE2=OFF ..
 
 
 COMPILE:

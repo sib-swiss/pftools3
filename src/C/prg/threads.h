@@ -1198,7 +1198,9 @@ THREAD_FUNCTION(thread_regex)
 
   /* Allocate the memory to hold the matches */
   const size_t nmatch = regex->maxMatchCount;
-#if defined(USE_PCRE)
+#if defined(USE_PCRE2)
+  int * Matches = (int*) malloc(2*(1+nmatch)*sizeof(int));
+#elif defined(USE_PCRE)
   int * Matches = (int*) malloc(2*(1+nmatch)*sizeof(int));
 #else
   regmatch_t * const restrict Matches = (regmatch_t*) malloc(nmatch*sizeof(regmatch_t));
@@ -1218,7 +1220,9 @@ THREAD_FUNCTION(thread_regex)
    *  SEARCH IN SEQUENCE
    */
   size_t TotalCount=0;
-#if defined(USE_PCRE)
+#if defined(USE_PCRE2)
+  const pcre2_code * const restrict rg = regex->regexCompiled[0];
+#elif defined(USE_PCRE)
   const pcre * const restrict rg = regex->regexCompiled[0];
 #else
   const regex_t * const restrict rg = &regex->regexCompiled[0];
@@ -1233,7 +1237,38 @@ THREAD_FUNCTION(thread_regex)
       const char * const CleanSeq = CleanSequence(PFSeq);
 
       /* Run the regex engine */
-#if defined(USE_PCRE)
+#if defined(USE_PCRE2)
+      pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(rg, NULL);
+      PCRE2_SIZE *ovector;
+      unsigned int offset = 0;
+      const unsigned int len = PFSeq->Length;
+      int rc;
+      size_t count = 0;
+      while (offset < len && (rc = pcre2_match(rg, (PCRE2_SPTR)CleanSeq, PCRE2_ZERO_TERMINATED, offset, 0, match_data, NULL)) >= 0)
+      {
+        ovector = pcre2_get_ovector_pointer(match_data);
+        for(int k = 0; k < rc; ++k)
+        {
+            if (count < nmatch) {
+                Matches[2*count] = ovector[2*k];
+                Matches[2*count+1] = ovector[2*k+1];
+                ++count;
+            }
+            else {
+                fputs("Warning: maximum number of matches reached,"
+                  "you may miss some unless you extend using --max-regex-match.\n",
+                  stderr);
+                //goto OUT;
+            }
+        }
+        offset = ovector[1];
+      }
+
+//OUT: ;
+      TotalCount += count;
+      Matches[2*count] = -1;
+      if (count)
+#elif defined(USE_PCRE)
       int ovector[2*8];
       unsigned int offset = 0;
       const unsigned int len = PFSeq->Length;
@@ -1296,7 +1331,39 @@ THREAD_FUNCTION(thread_regex)
       const char * const EndedHeader = SeqData.Data.Header;
 
       /* Run the regex engine */
-#if defined(USE_PCRE)
+#if defined(USE_PCRE2)
+      pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(rg, NULL);
+      PCRE2_SIZE *ovector;
+      unsigned int offset = 0;
+      const unsigned int len = (unsigned int) ((uintptr_t) &PFSeq->ProfileIndex[0] - (uintptr_t) &EndedHeader[0]);
+      int rc;
+      size_t count = 0;
+      while (offset < len && (rc = pcre2_match(rg, (PCRE2_SPTR)EndedHeader, PCRE2_ZERO_TERMINATED, offset, 0, match_data, NULL)) >= 0)
+      {
+        ovector = pcre2_get_ovector_pointer(match_data);
+        for(int k = 0; k < rc; ++k)
+        {
+            if (count < nmatch) {
+                Matches[2*count] = ovector[2*k];
+                Matches[2*count+1] = ovector[2*k+1];
+                ++count;
+            }
+            else {
+                fputs("Warning: maximum number of matches reached,"
+                  "you may miss some unless you extend using --max-regex-match.\n",
+                  stderr);
+                //goto OUT;
+            }
+        }
+        offset = ovector[1];
+      }
+
+//OUT: ;
+
+      TotalCount += count;
+      Matches[2*count] = -1;
+      if (count)
+#elif defined(USE_PCRE)
       int ovector[2*8];
       unsigned int offset = 0;
       const unsigned int len = (unsigned int) ((uintptr_t) &PFSeq->ProfileIndex[0] - (uintptr_t) &EndedHeader[0]);

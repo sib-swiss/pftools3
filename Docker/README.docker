@@ -1,6 +1,6 @@
 # Build Docker image
-export PFTOOLS_VERSION=3.2.11
-docker build -t pftools:$PFTOOLS_VERSION --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg PFTOOLS_VERSION=$PFTOOLS_VERSION -f Dockerfile .  2>&1 >pftools.Dockerfile.log
+export PFTOOLS_VERSION=3.2.12
+docker build -t pftools:$PFTOOLS_VERSION --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg PFTOOLS_VERSION=$PFTOOLS_VERSION -f Dockerfile . # 2>&1 >pftools.Dockerfile.log
 
 
 # List Docker local images (imported or built)
@@ -11,6 +11,10 @@ docker images
 docker inspect  pftools:$PFTOOLS_VERSION
 
 
+# Scan container vulnerabilities
+docker scan --file Dockerfile --exclude-base  pftools:$PFTOOLS_VERSION
+
+
 # Run pfscanV3 in the Docker image
-docker run --name pftools --rm -i -t pftools:$PFTOOLS_VERSION  pfscanV3
+docker run --rm -i -t pftools:$PFTOOLS_VERSION  pfscanV3
 

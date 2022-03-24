@@ -159,3 +159,7 @@ foreach my $thresh_option ( @thresh_option ){
         warn "\n";
     }
 }
+
+$tb->system( "rm -Rf $test_dir" );
+exit 0;
+

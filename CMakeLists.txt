@@ -1,10 +1,10 @@
 #########################################################################################
 # PfTools versioning
 #
-SET(VERSION "3.2.11")
+SET(VERSION "3.2.12")
 SET(MAJOR_VERSION "3")
 SET(MINOR_VERSION "2")
-SET(PATCH_VERSION "11")
+SET(PATCH_VERSION "12")
 SET(DATA_PATH "share/data"     CACHE STRING "Installation data folder" )
 SET(DOC_PATH  "share/doc"      CACHE STRING "Installation doc folder" )
 SET(MAN1_PATH "share/man/man1" CACHE STRING "Installation man1 folder" )
@@ -31,7 +31,7 @@ MESSAGE(STATUS "+---------------------------------------------------------------
 CMAKE_MINIMUM_REQUIRED(VERSION 3.7)
 PROJECT(PFTOOLS Fortran C)
 IF(COMMAND cmake_policy)
-  CMAKE_POLICY(SET CMP0003 NEW)
+	CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF(COMMAND cmake_policy)
 SET(CMAKE_MODULE_PATH ${PFTOOLS_SOURCE_DIR}/cmake)
 
@@ -41,74 +41,74 @@ SET(CMAKE_MODULE_PATH ${PFTOOLS_SOURCE_DIR}/cmake)
 INCLUDE(CMakeDetermineSystem)
 #INCLUDE(CMakePrintSystemInformation)
 IF(CMAKE_SYSTEM_PROCESSOR)
-    MESSAGE(STATUS "Compilation on architecture ${CMAKE_SYSTEM_PROCESSOR}.")
+	MESSAGE(STATUS "Compilation on architecture ${CMAKE_SYSTEM_PROCESSOR}.")
 ENDIF(CMAKE_SYSTEM_PROCESSOR)
 
 #########################################################################################
 # What type of build
 #
 IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE Release CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
+	SET(CMAKE_BUILD_TYPE Release CACHE STRING
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+        FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
 #########################################################################################
 # Determine C Compiler
 #
 IF(NOT CMAKE_COMPILER_IS_GNUCC)
-    EXEC_PROGRAM(${CMAKE_C_COMPILER} ARGS ${CMAKE_BOOT_C_FLAGS} -E "\"${PFTOOLS_SOURCE_DIR}/cmake/CMakeTestIntel.c\"" OUTPUT_VARIABLE CMAKE_COMPILER_OUTPUT RETURN_VALUE CMAKE_COMPILER_RETURN)
-    SET(CMAKE_COMPILER_IS_GNUCC_RUN 1)
-    IF(NOT CMAKE_COMPILER_RETURN)
-        IF("${CMAKE_COMPILER_OUTPUT}" MATCHES ".*THIS_IS_INTEL.*" )
-             INCLUDE(${PFTOOLS_SOURCE_DIR}/cmake/Linux-icc.cmake)
-        ENDIF("${CMAKE_COMPILER_OUTPUT}" MATCHES ".*THIS_IS_INTEL.*" )
-    ENDIF(NOT CMAKE_COMPILER_RETURN)
+	EXEC_PROGRAM(${CMAKE_C_COMPILER} ARGS ${CMAKE_BOOT_C_FLAGS} -E "\"${PFTOOLS_SOURCE_DIR}/cmake/CMakeTestIntel.c\"" OUTPUT_VARIABLE CMAKE_COMPILER_OUTPUT RETURN_VALUE CMAKE_COMPILER_RETURN)
+	SET(CMAKE_COMPILER_IS_GNUCC_RUN 1)
+	IF(NOT CMAKE_COMPILER_RETURN)
+		IF("${CMAKE_COMPILER_OUTPUT}" MATCHES ".*THIS_IS_INTEL.*" )
+			INCLUDE(${PFTOOLS_SOURCE_DIR}/cmake/Linux-icc.cmake)
+		ENDIF("${CMAKE_COMPILER_OUTPUT}" MATCHES ".*THIS_IS_INTEL.*" )
+	ENDIF(NOT CMAKE_COMPILER_RETURN)
 ENDIF(NOT CMAKE_COMPILER_IS_GNUCC)
 
 INCLUDE(CheckCCompilerFlag)
 CHECK_C_COMPILER_FLAG(-msse HANDLE_SSE)
 IF(HANDLE_SSE)
-  SET(CMAKE_C_SSE_FLAGS "-msse")
+	SET(CMAKE_C_SSE_FLAGS "-msse")
 ELSE(HANDLE_SSE)
-  MESSAGE(FATAL_ERROR "C compiler does not support SSE")
+	MESSAGE(FATAL_ERROR "C compiler does not support SSE")
 ENDIF(HANDLE_SSE)
 CHECK_C_COMPILER_FLAG(-msse2 HANDLE_SSE2)
 IF(HANDLE_SSE2)
-  SET(CMAKE_C_SSE2_FLAGS "-msse2")
+	SET(CMAKE_C_SSE2_FLAGS "-msse2")
 ELSE(HANDLE_SSE2)
-  MESSAGE(FATAL_ERROR "C compiler does not support SSE 2")
+	MESSAGE(FATAL_ERROR "C compiler does not support SSE 2")
 ENDIF(HANDLE_SSE2)
 SET(SSE41_FLAGS "-msse4.1" "-msse41")
 UNSET(CMAKE_C_SSE41_FLAGS)
 FOREACH(flag IN LISTS SSE41_FLAGS)
-  MESSAGE(STATUS "testing flag ${flag}...")
-  CHECK_C_COMPILER_FLAG("${flag}" HANDLE_SSE41)
-  IF(HANDLE_SSE41)
-    SET(CMAKE_C_SSE41_FLAGS "${flag}")
-    BREAK()
-  ENDIF(HANDLE_SSE41)
+	MESSAGE(STATUS "testing flag ${flag}...")
+	CHECK_C_COMPILER_FLAG("${flag}" HANDLE_SSE41)
+	IF(HANDLE_SSE41)
+		SET(CMAKE_C_SSE41_FLAGS "${flag}")
+		BREAK()
+	ENDIF(HANDLE_SSE41)
 ENDFOREACH(flag)
 IF(NOT DEFINED CMAKE_C_SSE41_FLAGS)
-  MESSAGE(FATAL_ERROR "C compiler does not support SSE 4.1")
+	MESSAGE(FATAL_ERROR "C compiler does not support SSE 4.1")
 ENDIF(NOT DEFINED CMAKE_C_SSE41_FLAGS)
 
 CHECK_C_COMPILER_FLAG("-std=c99" HANDLE_C99)
 IF(NOT HANDLE_C99)
-  MESSAGE(FATAL_ERROR "PFTOOLS require a C compiler with C99 support")
+	MESSAGE(FATAL_ERROR "PFTOOLS require a C compiler with C99 support")
 ELSE(NOT HANDLE_C99)
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-  MESSAGE(STATUS "Add -std=c99 to C compiler options")
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+	MESSAGE(STATUS "Add -std=c99 to C compiler options")
 ENDIF(NOT HANDLE_C99)
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_SSE2_FLAGS}")
 MESSAGE(STATUS "Add SSE2 to C compiler options")
 
 IF(CMAKE_COMPILER_IS_GNUCC)
-  CHECK_C_COMPILER_FLAG("-fms-extensions" MS_EXTENSION)
-  IF(MS_EXTENSION)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fms-extensions")
-  ENDIF(MS_EXTENSION)
+	CHECK_C_COMPILER_FLAG("-fms-extensions" MS_EXTENSION)
+	IF(MS_EXTENSION)
+		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fms-extensions")
+	ENDIF(MS_EXTENSION)
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
 
 #########################################################################################
@@ -123,8 +123,8 @@ SET(FIND_LIBRARY_USE_LIB64_PATHS 1)
 # Check for pthread
 FIND_PACKAGE(Threads REQUIRED)
 IF( ${CMAKE_USE_WIN32_THREADS_INIT})
-  MESSAGE(STATUS "Using Windows API for threads")
-  SET(USE_WINAPI 1)
+	MESSAGE(STATUS "Using Windows API for threads")
+	SET(USE_WINAPI 1)
 ENDIF(${CMAKE_USE_WIN32_THREADS_INIT})
 
 #Check for presence of Perl for profile generation
@@ -143,7 +143,17 @@ ENDIF(PERL_FOUND)
 OPTION(STANDALONE "This will compile executable in static mode." OFF)
 OPTION(USE_PDF "Enable output in pdf file format." OFF)
 OPTION(USE_GRAPHICS "Enable graphics generation." OFF)
-OPTION(USE_PCRE "Enable Perl Regex." ON)
+OPTION(USE_PCRE "Enable Perl Regex." OFF)
+OPTION(USE_PCRE2 "Enable Perl Regex." ON)
+
+# Check for PCRE2 library
+IF(USE_PCRE2)
+	SET(USE_PCRE OFF)
+	FIND_PACKAGE(PCRE2)
+	IF (NOT PCRE2_FOUND)
+		MESSAGE(STATUS "libpcre2 not found")
+	ENDIF(NOT PCRE2_FOUND)
+ENDIF(USE_PCRE2)
 
 # Check for PCRE library
 IF(USE_PCRE)
@@ -251,7 +261,7 @@ INCLUDE (CheckIncludeFiles)
 CHECK_INCLUDE_FILES (emmintrin.h HAVE_SSE2_H)
 CHECK_INCLUDE_FILES (smmintrin.h HAVE_SSE_41_H)
 IF (NOT HAVE_SSE2_H OR NOT HAVE_SSE_41_H)
-#   MESSAGE(FATAL_ERROR "PFTOOLS require a compiler with both SSE 2 and 4.1 support")
+#	MESSAGE(FATAL_ERROR "PFTOOLS require a compiler with both SSE 2 and 4.1 support")
 ENDIF(NOT HAVE_SSE2_H OR NOT HAVE_SSE_41_H)
 
 CHECK_INCLUDE_FILES (mm_malloc.h HAVE_MM_MALLOC_H)
@@ -259,11 +269,11 @@ CHECK_INCLUDE_FILES (alloca.h HAVE_ALLOCA_H)
 
 SET(MMAP ON)
 IF(MINGW)
-  CHECK_INCLUDE_FILES (sys/mman.h HAVE_MMAN_H)
-  IF(NOT HAVE_MMAN_H)
-      MESSAGE(WARNING "MinGW package mman is missing, memory mapping cannot be used")
-      SET(MMAP OFF)
-  ENDIF(NOT HAVE_MMAN_H)
+	CHECK_INCLUDE_FILES (sys/mman.h HAVE_MMAN_H)
+	IF(NOT HAVE_MMAN_H)
+		MESSAGE(WARNING "MinGW package mman is missing, memory mapping cannot be used")
+		SET(MMAP OFF)
+	ENDIF(NOT HAVE_MMAN_H)
 ENDIF(MINGW)
 
 #########################################################################################
@@ -271,37 +281,37 @@ ENDIF(MINGW)
 #
 # Use RPATH?
 IF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  # No rpath on Darwin. Setting it will only cause trouble.
+	# No rpath on Darwin. Setting it will only cause trouble.
 ELSE(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  OPTION(USE_RPATH "Use -rpath when linking libraries, executables" ON)
-  IF(USE_RPATH)
-    SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--enable-new-dtags")
-    # use, i.e. don't skip the full RPATH for the build tree
-    SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+	OPTION(USE_RPATH "Use -rpath when linking libraries, executables" ON)
+	IF(USE_RPATH)
+		SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--enable-new-dtags")
+		# use, i.e. don't skip the full RPATH for the build tree
+		SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
-    # when building, don't use the install RPATH already
-    # (but later on when installing)
-    SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+		# when building, don't use the install RPATH already
+		# (but later on when installing)
+		SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-    # add the automatically determined parts of the RPATH
-    # which point to directories outside the build tree to the install RPATH
-    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+		# add the automatically determined parts of the RPATH
+		# which point to directories outside the build tree to the install RPATH
+		SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-    # the RPATH to be used when installing, but only if it's not a system directory
-    LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-    IF("${isSystemDir}" STREQUAL "-1")
-      SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-    ENDIF("${isSystemDir}" STREQUAL "-1")
-  ENDIF(USE_RPATH)
+		# the RPATH to be used when installing, but only if it's not a system directory
+		LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+		IF("${isSystemDir}" STREQUAL "-1")
+			SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+		ENDIF("${isSystemDir}" STREQUAL "-1")
+	ENDIF(USE_RPATH)
 ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
 OPTION(USE_AFFINITY "CPU core affinity will be used for threads." ON)
 IF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  SET(USE_AFFINITY OFF)
+	SET(USE_AFFINITY OFF)
 ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
 IF(MMAP)
-  OPTION(USE_MMAP "DB files wil be mapped to memory for speed." ON)
+	OPTION(USE_MMAP "DB files wil be mapped to memory for speed." ON)
 ENDIF(MMAP)
 
 OPTION(BUILD_SHARED_LIBS "Builds shared development library." OFF)
@@ -320,31 +330,43 @@ ADD_DEFINITIONS("-I ${CMAKE_CURRENT_BINARY_DIR}/")
 # STATIC BUILD
 #
 IF(STANDALONE)
-  #######################################################################################
-  ## CHECK TO SEE IF PCRE HAS STATIC LIBRARY
-  FIND_LIBRARY(ZLIB_STATIC libz.a)
-  IF(NOT ZLIB_STATIC)
-    MESSAGE(FATAL_ERROR "Standalone static building is not possible without static library zlib\n")
-  ENDIF(NOT ZLIB_STATIC)
+	FIND_LIBRARY(ZLIB_STATIC libz.a)
+	IF(NOT ZLIB_STATIC)
+		MESSAGE(FATAL_ERROR "Standalone static building is not possible without static library zlib\n")
+	ENDIF(NOT ZLIB_STATIC)
+
+	IF(USE_PCRE2)
+		#NOTE For PCRE2 with PCRE2_CODE_UNIT_WIDTH = 8
+		FIND_LIBRARY(PCRE2_STATIC libpcre2-8.a)
+		IF(NOT PCRE2_STATIC)
+			MESSAGE(FATAL_ERROR "Standalone static building is not possible without static library PCRE2\n")
+		ENDIF(NOT PCRE2_STATIC)
+	ENDIF(USE_PCRE2)
+	IF(USE_PCRE)
+		FIND_LIBRARY(PCRE_STATIC libpcre.a)
+		IF(NOT PCRE_STATIC)
+			MESSAGE(FATAL_ERROR "Standalone static building is not possible without static library PCRE\n")
+		ENDIF(NOT PCRE_STATIC)
+	ENDIF(USE_PCRE)
 
 	IF(USE_GRAPHICS)
-	FIND_LIBRARY(PNG_STATIC libpng.a)
-  IF(NOT PNG_STATIC)
-    MESSAGE(FATAL_ERROR "Standalone static building is not possible without static library PNG\n")
-  ENDIF(NOT PNG_STATIC)
+		FIND_LIBRARY(PNG_STATIC libpng.a)
+		IF(NOT PNG_STATIC)
+			MESSAGE(FATAL_ERROR "Standalone static building is not possible without static library PNG\n")
+		ENDIF(NOT PNG_STATIC)
 
-	FIND_LIBRARY(JPEG_STATIC libjpeg.a)
-  IF(NOT JPEG_STATIC)
-    MESSAGE(FATAL_ERROR "Standalone static building is not possible without static library JPEG\n")
-  ENDIF(NOT JPEG_STATIC)
+		FIND_LIBRARY(JPEG_STATIC libjpeg.a)
+		IF(NOT JPEG_STATIC)
+			MESSAGE(FATAL_ERROR "Standalone static building is not possible without static library JPEG\n")
+		ENDIF(NOT JPEG_STATIC)
 	ENDIF(USE_GRAPHICS)
 
-  ADD_DEFINITIONS("-DNO_USERNAME")
-  SET(USE_RPATH OFF)
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-#   SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-  SET (CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-static")
-  SET (CMAKE_SHARED_LIBRARY_LINK_Fortran_FLAGS "-static")
+	ADD_DEFINITIONS("-DNO_USERNAME")
+	SET(USE_RPATH OFF)
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+#	SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+	SET (CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-static")
+	SET (CMAKE_SHARED_LIBRARY_LINK_Fortran_FLAGS "-static")
 
 	SET(CMAKE_SKIP_INSTALL_RPATH ON)
 	SET(CMAKE_SKIP_RPATH ON)
@@ -476,22 +498,25 @@ SET (CPACK_RESOURCE_FILE_LICENSE "${PFTOOLS_SOURCE_DIR}/LICENSE")
 
 UNSET(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE)
 IF(UNIX AND NOT WIN32)
-    SET (CPACK_GENERATOR "TBZ2")
-    SET (CPACK_DEB_COMPONENT_INSTALL ON)
-    INSTALL(FILES "${PFTOOLS_SOURCE_DIR}/LICENSE"
-                  "${PFTOOLS_SOURCE_DIR}/README.md"
-                  "${PFTOOLS_SOURCE_DIR}/README.pftools.v2.3.md"
-                  "${PFTOOLS_SOURCE_DIR}/ChangeLog"
-            DESTINATION .
-            PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
-            COMPONENT Applications)
+	SET (CPACK_GENERATOR "TBZ2")
+	SET (CPACK_DEB_COMPONENT_INSTALL ON)
+	INSTALL(FILES "${PFTOOLS_SOURCE_DIR}/LICENSE"
+	              "${PFTOOLS_SOURCE_DIR}/README.md"
+	              "${PFTOOLS_SOURCE_DIR}/README.pftools.v2.3.md"
+	              "${PFTOOLS_SOURCE_DIR}/ChangeLog"
+	        DESTINATION .
+	        PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+	        COMPONENT Applications)
 
-    IF(USE_PDF)
-      SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libhpdf")
-    ENDIF(USE_PDF)
-    IF(USE_PCRE)
-      SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS},pcre")
-    ENDIF(USE_PCRE)
+	IF(USE_PDF)
+		SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libhpdf")
+	ENDIF(USE_PDF)
+	IF(USE_PCRE2)
+		SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS},pcre2")
+	ENDIF(USE_PCRE2)
+	IF(USE_PCRE)
+		SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS},pcre")
+	ENDIF(USE_PCRE)
 ELSE(UNIX AND NOT WIN32)
 	#SET (CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE TRUE)
 ENDIF(UNIX AND NOT WIN32)

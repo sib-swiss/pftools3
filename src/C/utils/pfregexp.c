@@ -93,10 +93,10 @@ int InitRegExFromString(struct RegEx * const regex, const char * const regexSour
     int erroffset;
 //     fprintf(stderr, "Regex: \'%s\'\n", localregexString[i]);
     localregexCompiled[i] = pcre_compile (localregexString[i],  /* the pattern */
-					  /*PCRE_MULTILINE*/ 0,
-					  &error,         	/* for error message */
-					  &erroffset,     	/* for error offset */
-					  0);             	/* use default character tables */
+                      /*PCRE_MULTILINE*/ 0,
+                      &error,           /* for error message */
+                      &erroffset,       /* for error offset */
+                      0);               /* use default character tables */
     if (!localregexCompiled[i])
     {
         fprintf(stderr, "pcre_compile failed (offset: %d), %s\n", erroffset, error);
@@ -142,7 +142,7 @@ int InitRegExFromProfile(struct RegEx * const regex, const struct Profile * * Pa
 #endif
   if ( localregexCompiled == NULL) {
       for (int iPatternPrf=0; iPatternPrf<PatternProfileCount; ++iPatternPrf) {
-	free(localregexString[iPatternPrf]);
+          free(localregexString[iPatternPrf]);
       }
       free(localregexString);
       return -4;
@@ -180,14 +180,14 @@ int InitRegExFromProfile(struct RegEx * const regex, const struct Profile * * Pa
     int erroffset;
 //     fprintf(stderr, "Regex: \'%s\'\n", localregexString[i]);
     localregexCompiled[i] = pcre_compile (localregexString[i],  /* the pattern */
-					  /*PCRE_MULTILINE*/ 0,
-					  &error,         	/* for error message */
-					  &erroffset,     	/* for error offset */
-					  0);             	/* use default character tables */
+                      /*PCRE_MULTILINE*/ 0,
+                      &error,           /* for error message */
+                      &erroffset,       /* for error offset */
+                      0);               /* use default character tables */
     if (!localregexCompiled[i])
     {
         fprintf(stderr, "pcre_compile failed (offset: %d), %s\nProfile ID: %s\npattern: %s\n", erroffset, error,
-		PatternPrfs[i]->Identification, PatternPrfs[i]->Pattern);
+                PatternPrfs[i]->Identification, PatternPrfs[i]->Pattern);
 
         return -6;
     }
@@ -239,47 +239,47 @@ char * PatternToRegex(const char * const Pattern)
       case ')':
       case '}':
       case 'x':
-	++RegexLength;
-	break;
+      ++RegexLength;
+    break;
       case '{':
-	RegexLength += 2;
-	break;
+      RegexLength += 2;
+    break;
       case 'B':
-	RegexLength += 3;
-	break;
+      RegexLength += 3;
+    break;
       case 'z':
-	RegexLength += 3;
-	break;
+      RegexLength += 3;
+    break;
       case '[':
-	if (Pattern[i+1] == '<') {
-	 OpenMisc = true;
-	 RegexLength += 6;
-	}
-	else {
-	  ++RegexLength;
-	}
-	break;
+      if (Pattern[i+1] == '<') {
+          OpenMisc = true;
+          RegexLength += 6;
+      }
+      else {
+          ++RegexLength;
+      }
+    break;
       case '>':
-	if (Pattern[i+1] == ']') {
-	  RegexLength += 8;
-	}
-	else {
-	 ++RegexLength;
-	}
-	break;
+      if (Pattern[i+1] == ']') {
+          RegexLength += 8;
+      }
+      else {
+          ++RegexLength;
+      }
+    break;
       case ']':
-	if (OpenMisc) {
-	  OpenMisc = false;
-	  RegexLength += 2;
-	}
-	else {
-	 ++RegexLength;
-	}
-	break;
+      if (OpenMisc) {
+          OpenMisc = false;
+          RegexLength += 2;
+      }
+      else {
+          ++RegexLength;
+      }
+    break;
       case '-':
-	break;
+    break;
       default:
-	++RegexLength;
+      ++RegexLength;
     }
   }
   ++RegexLength;
@@ -292,61 +292,61 @@ char * PatternToRegex(const char * const Pattern)
     size_t i = 0;
     for (size_t i=0; i<length; ++i) {
       switch (Pattern[i]) {
-	case '(': *cptr++ = '{'; break;
-	case ')': *cptr++ = '}'; break;
-	case '}': *cptr++ = ']'; break;
-	case 'x': *cptr++ = '.'; break;
-	case '{': cptr[0] = '['; cptr[1] = '^'; cptr += 2; break;
-	case 'B': cptr[0] = 'N'; cptr[1] = 'D'; cptr[2] = 'B'; cptr += 3; break;
-	case 'z': cptr[0] = 'Q'; cptr[1] = 'E'; cptr[2] = 'Z'; cptr += 3; break;
-	case '[':
-	  if (Pattern[i+1] == '<') {
-	    OpenMisc = true;
-	    cptr[0] = '('; cptr[1] = '?'; cptr[2] = ':'; cptr[3] = '^'; cptr[4] = '|'; cptr[5] = '['; cptr += 6;
-	    i += 1;
-	  }
-	  else {
-	    *cptr++ = '[';
-	  }
-	  break;
-	case '>':
-	  if (Pattern[i+1] == ']') {
-	    /* Go back to opening [, copying string to buffer */
-	    char * restrict Dest = &Buffer[RegexLength-1];
-	    *Dest = '\0';
-	    while (--cptr >= regex) {
-	      if (*cptr != '[') {
-		--Dest;
-		*Dest = *cptr;
-	      }
-	      else
-		break;
-	    }
-	    cptr[0] = '('; cptr[1] = '?'; cptr[2] = ':'; cptr[3] = '['; cptr += 4;
-	    while (*Dest != '\0') {
-	      *cptr++ = *Dest++;
-	    }
-	    cptr[0] = ']'; cptr[1] = '|'; cptr[2] = '$'; cptr[3] = ')'; cptr += 4;
-	    i += 1;
-	  }
-	  else {
-	    *cptr++ = '$';
-	  }
-	  break;
-	case ']':
-	  if (OpenMisc) {
-	    OpenMisc = false;
-	    cptr[0] = ']'; cptr[1] = ')';
-	    cptr += 2;
-	  }
-	  else {
-	    *cptr++ = ']';
-	  }
-	  break;
-	case '-':
-	  break;
-	default:
-	  *cptr++ = Pattern[i];
+          case '(': *cptr++ = '{'; break;
+          case ')': *cptr++ = '}'; break;
+          case '}': *cptr++ = ']'; break;
+          case 'x': *cptr++ = '.'; break;
+          case '{': cptr[0] = '['; cptr[1] = '^'; cptr += 2; break;
+          case 'B': cptr[0] = 'N'; cptr[1] = 'D'; cptr[2] = 'B'; cptr += 3; break;
+          case 'z': cptr[0] = 'Q'; cptr[1] = 'E'; cptr[2] = 'Z'; cptr += 3; break;
+          case '[':
+              if (Pattern[i+1] == '<') {
+                  OpenMisc = true;
+                  cptr[0] = '('; cptr[1] = '?'; cptr[2] = ':'; cptr[3] = '^'; cptr[4] = '|'; cptr[5] = '['; cptr += 6;
+                  i += 1;
+              }
+              else {
+                  *cptr++ = '[';
+              }
+          break;
+          case '>':
+              if (Pattern[i+1] == ']') {
+                  /* Go back to opening [, copying string to buffer */
+                  char * restrict Dest = &Buffer[RegexLength-1];
+                  *Dest = '\0';
+                  while (--cptr >= regex) {
+                      if (*cptr != '[') {
+                          --Dest;
+                          *Dest = *cptr;
+                      }
+                      else
+                          break;
+                  }
+                  cptr[0] = '('; cptr[1] = '?'; cptr[2] = ':'; cptr[3] = '['; cptr += 4;
+                  while (*Dest != '\0') {
+                      *cptr++ = *Dest++;
+                  }
+                  cptr[0] = ']'; cptr[1] = '|'; cptr[2] = '$'; cptr[3] = ')'; cptr += 4;
+                  i += 1;
+              }
+              else {
+                  *cptr++ = '$';
+              }
+          break;
+          case ']':
+              if (OpenMisc) {
+                  OpenMisc = false;
+                  cptr[0] = ']'; cptr[1] = ')';
+                  cptr += 2;
+              }
+              else {
+                  *cptr++ = ']';
+              }
+         break;
+         case '-':
+         break;
+         default:
+             *cptr++ = Pattern[i];
       }
     }
 
@@ -372,7 +372,7 @@ void PrintRegex(const char * const restrict regexString, const char * const rest
 }
 #elif defined(USE_PCRE)
 void PrintRegex(const char * const restrict regexString, const char * const restrict Sequence,
-		const int Matches[], char * const restrict Header, const size_t SeqLength)
+                const int Matches[], char * const restrict Header, const size_t SeqLength)
 {
   char * cptr = Header;
   while ( *cptr != ' ' && *cptr != '\0') ++cptr;
@@ -381,13 +381,14 @@ void PrintRegex(const char * const restrict regexString, const char * const rest
   size_t count = 0;
   while (Matches[2*count] != -1) {
     fprintf(stdout, "%s_%lu %i-%i %s\n%.*s\n",
-	    Header, 1+count, 1+Matches[2*count], Matches[2*count+1], regexString,  Matches[2*count+1]-Matches[2*count], Sequence + Matches[2*count] );
+            Header, 1+count, 1+Matches[2*count], Matches[2*count+1], regexString,
+            Matches[2*count+1]-Matches[2*count], Sequence + Matches[2*count] );
     ++count;
   }
 }
 #else
 void PrintRegex(const char * const restrict regexString, const char * const restrict Sequence,
-		const regmatch_t Matches[], char * const restrict Header, const size_t SeqLength)
+                const regmatch_t Matches[], char * const restrict Header, const size_t SeqLength)
 {
   char * cptr = Header;
   while ( *cptr != ' ' && *cptr != '\0') ++cptr;
@@ -471,10 +472,10 @@ void PrintRegex(const char * const restrict regexString, const char * const rest
 //       size_t id = 0;
 //       localregexString[id++] = localMemory;
 //       for (size_t i=0; i<localmemorySize; ++i) {
-// 	if (localMemory[i] == '\n') {
-// 	  localMemory[i] = '\0';
-// 	  if (strlen(localregexString[id-1]) > 0) localregexString[id++] = &localMemory[i+1];
-// 	}
+//  if (localMemory[i] == '\n') {
+//    localMemory[i] = '\0';
+//    if (strlen(localregexString[id-1]) > 0) localregexString[id++] = &localMemory[i+1];
+//  }
 //       }
 //       localCount = id;
 //     }
@@ -486,8 +487,8 @@ void PrintRegex(const char * const restrict regexString, const char * const rest
 //       localmemorySize = strlen(Start)+1;
 //       localMemory = (char*) malloc(localmemorySize*sizeof(char));
 //       if (localMemory == NULL) {
-// 	free(localregexString);
-// 	return -4;
+//  free(localregexString);
+//  return -4;
 //       }
 //       memcpy(localMemory, Start, localmemorySize*sizeof(char));
 //       localMemory[localmemorySize] = '\0';
@@ -495,8 +496,8 @@ void PrintRegex(const char * const restrict regexString, const char * const rest
 //     else {
 //       localMemory = PatternToRegex(Start);
 //       if (localMemory == NULL) {
-// 	free(localregexString);
-// 	return -4;
+//  free(localregexString);
+//  return -4;
 //       }
 //     }
 //     localregexString[0] = localMemory;
@@ -530,10 +531,10 @@ void PrintRegex(const char * const restrict regexString, const char * const rest
 //     int erroffset;
 //     fprintf(stderr, "Regex: \'%s\'\n", localregexString[i]);
 //     localregexCompiled[i] = pcre_compile (localregexString[i],  /* the pattern */
-// 					  /*PCRE_MULTILINE*/ 0,
-// 					  &error,         	/* for error message */
-// 					  &erroffset,     	/* for error offset */
-// 					  0);             	/* use default character tables */
+//                    /*PCRE_MULTILINE*/ 0,
+//                    &error,           /* for error message */
+//                    &erroffset,       /* for error offset */
+//                    0);               /* use default character tables */
 //     if (!localregexCompiled[i])
 //     {
 //         fprintf(stderr, "pcre_compile failed (offset: %d), %s\n", erroffset, error);

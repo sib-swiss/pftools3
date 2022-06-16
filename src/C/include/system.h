@@ -8,7 +8,7 @@
  *******************************************************/
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
-#include <sched.h> 
+#include <sched.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -47,10 +47,10 @@
 
 #if !defined(__MIC__)
 /* TOPOLOGY structure is as follow
- * 
+ *
  *  2 bits for hyperthreading threads b0, b1 : b1 is hyperthreading only, b0 is non hyperthreading
- * 54 bits for the cores 
- *  8 bits for the sockets  
+ * 54 bits for the cores
+ *  8 bits for the sockets
  * ------------------------
  * 64 bits
  */
@@ -63,13 +63,13 @@
 #define HYPERTHREADING_MASK_WIDTH                       2
 typedef uint64_t topology_mask_t;
 
-#else 
+#else
 
 /* TOPOLOGY structure is as follow
- * 
+ *
  * 4  bits for hyperthreading threads number 0, 1, 2, 3
- * 60 bits for the cores 
- * 0 bits for the sockets  
+ * 60 bits for the cores
+ * 0 bits for the sockets
  * ------------------------
  * 64 bits
  */
@@ -99,14 +99,14 @@ typedef struct CacheInfo {
   enum CacheType Type;
 } cache_t;
 
- 
+
 typedef struct SystemInfo {
     /* Operating system data */
     char Username[64];
     char Release[64];
     char Architecture[64];
     char Nodename[64];
-    
+
     /* Architecture data */
     char CPU_Vendor[13];
     char CPU_Name[48];
@@ -114,10 +114,10 @@ typedef struct SystemInfo {
     unsigned int Model;
     unsigned int Extensions;
     unsigned int TLBs;
-    
+
     /* Cache */
     cache_t Cache[4];
-    
+
     /* Topology */
     unsigned int nSockets;
     unsigned int nCores;
@@ -132,14 +132,14 @@ typedef struct SystemInfo {
     unsigned int HyperthreadingMask;
     unsigned short int SocketSelectMaskShift;
     unsigned short int HyperthreadingMaskWidth;
-    
+
     /* NUMA */
 #ifdef __NUMA__
     unsigned int nNodes;
     unsigned int nCpusPerNode;
     _Bool NumaAble;
 #endif /* __NUMA__ */
-		
+
     /* KNC */
     unsigned int nKNCs;
 #ifdef USE_KNC
@@ -180,7 +180,7 @@ inline void __attribute__((always_inline)) freeSystemInfo(SystemInfo * const inf
 	if (info->MicEngines) free(info->MicEngines);
 #endif
 #endif
-  /* WARNING: DO NOT FREE TOPOLOGY HAS ITS MEMORY IS LINKED TO APICID 
+  /* WARNING: DO NOT FREE TOPOLOGY HAS ITS MEMORY IS LINKED TO APICID
   if (info->TopologyMasks) {
     free(info->TopologyMasks);
   }

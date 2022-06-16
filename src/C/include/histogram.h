@@ -2,7 +2,7 @@
  * HMMER - Biological sequence analysis with profile HMMs
  * Copyright (C) 1992-2003 Washington University School of Medicine
  * All Rights Reserved
- * 
+ *
  *     This source code is distributed under the terms of the
  *     GNU General Public License. See the files COPYING and LICENSE
  *     for details.
@@ -10,36 +10,36 @@
 
 /* histogram.c
  * SRE, Sat Jan 20 16:16:17 1996
- * 
+ *
  * Accumulation, printing, and fitting of score histograms
  * from database searches.
  *
  * CVS $Id: histogram.c,v 1.18 2003/04/14 16:00:16 eddy Exp $
  ************************************************************
  * Basic API:
- * 
+ *
  * struct histogram_s *h;
- * 
+ *
  * h = AllocHistogram(min_hint, max_hint, lumpsize);
- * 
+ *
  * while (getting scores x) AddToHistogram(h, x);
- * 
- * ExtremeValueFitHistogram(h, high_hint);   
- * PrintASCIIHistogram(fp, h);   
+ *
+ * ExtremeValueFitHistogram(h, high_hint);
+ * PrintASCIIHistogram(fp, h);
  * FreeHistogram(h);
  */
 #ifndef _HISTOGRAM_H_
 #define _HISTOGRAM_H_
-#include <stdio.h> 
-/* Structure: histogram_s 
- * 
- * Keep a score histogram. 
- * 
+#include <stdio.h>
+/* Structure: histogram_s
+ *
+ * Keep a score histogram.
+ *
  * The main implementation issue here is that the range of
  * scores is unknown, and will go negative. histogram is
  * a 0..max-min array that represents the range min..max.
  * A given score is indexed in histogram array as score-min.
- * The AddToHistogram() function deals with dynamically 
+ * The AddToHistogram() function deals with dynamically
  * resizing the histogram array when necessary.
  */
 struct histogram_s {

@@ -28,7 +28,7 @@ struct Random {
 
 void InitializeGenerator(const long int Seed, struct Random * const sr);
 
-extern inline bool __ALWAYS_INLINE YesOrNo(struct Random * const sr) 
+extern inline bool __ALWAYS_INLINE YesOrNo(struct Random * const sr)
 {
     if (++sr->inext == 56) sr->inext=1;
     if (++sr->inextp == 56) sr->inextp=1;
@@ -38,7 +38,7 @@ extern inline bool __ALWAYS_INLINE YesOrNo(struct Random * const sr)
     return (mj < MBIG/2) ? true : false;
 }
 
-extern inline long __ALWAYS_INLINE FlatDistributionValue(struct Random * const sr) 
+extern inline long __ALWAYS_INLINE FlatDistributionValue(struct Random * const sr)
 {
   if (++sr->inext == 56) sr->inext=1;
   if (++sr->inextp == 56) sr->inextp=1;

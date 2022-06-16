@@ -12,14 +12,14 @@ extern inline char * __ALWAYS_INLINE CleanSequence(PFSequence * const Sequence)
   unsigned char * restrict const CharPtr = Sequence->ProfileIndex;
 
   for (size_t i=0; i<Sequence->Length; ++i) {
-    register const unsigned char c = ((unsigned char) CharPtr[i] >= (unsigned char) 'a' ) 
+    register const unsigned char c = ((unsigned char) CharPtr[i] >= (unsigned char) 'a' )
                                     ? (unsigned char) CharPtr[i] - ((unsigned char) 'a' - (unsigned char) 'A')
 				    : (unsigned char) CharPtr[i];
     if ( c >= (unsigned char) 'A' && c <= (unsigned char) 'Z' ) {
       CharPtr[counter++] = c;
-    } 
+    }
   }
-  
+
   Sequence->Length = counter;
   return Sequence->ProfileIndex;
 }
@@ -51,7 +51,7 @@ static inline PFSequence * MMAP_ReadSequenceIndex(Sequence * const Seq, const ch
                                                   const ss_Data * const DataPtr, const off_t InitialArrayOffset
 #ifdef MMAP_DEBUG
                                                   ,const size_t ThreadId, const size_t NodeId, const size_t length
-#endif						
+#endif
 )
 {
   /* Position into Array */
@@ -66,7 +66,7 @@ static inline PFSequence * MMAP_ReadSequenceIndex(Sequence * const Seq, const ch
   }
 #endif
   memcpy(Seq->Data.Header, &Array[ArrayOffset], sizeof(char)*Size);
-  
+
 //   if (fread(Seq->Data.Header, sizeof(char), Size, stream) != Size) return NULL;
 
   /* Bound text */

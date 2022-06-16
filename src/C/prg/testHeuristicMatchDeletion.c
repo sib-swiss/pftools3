@@ -11,13 +11,13 @@ int main(int argc, char *argv[])
   struct Profile prf;
 
   if (argc < 1) return 1;
-  
+
   ReadProfile(argv[1], &prf);
   struct SMatch Match = prf.Scores.Match;
 
   const size_t prfLength = prf.Length + 1;
   const StoredIntegerFormat * Matches = Match.Alphabet;
-  const size_t AlignedStep  = Match.AlignStep;  
+  const size_t AlignedStep  = Match.AlignStep;
   const TransitionScores * restrict InsertionLine = prf.Scores.Insertion.Transitions;
 
   printf("Match matrix with alignment %lu\n\n",Match.AlignStep );
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     printf("%4lu ", alpha);
   }
   fputs("\n", stdout);
-  
+
   printf("    | ");
   for (size_t alpha=0; alpha<prf.Alphabet_Length; ++alpha) {
     fputs("-----",stdout);
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     StoredIntegerFormat Minimum;
     const char * STR;
     if (MIIM < MDDM) {
-      Minimum = MDDM; 
+      Minimum = MDDM;
       STR = cMDDM;
     } else {
       Minimum = MIIM;

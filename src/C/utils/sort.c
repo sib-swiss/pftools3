@@ -18,7 +18,7 @@ void iqsort(int * const restrict data, const size_t N)
 	{
 	  t = data[i];
 	  data[i] = data[j];
-	  data[j] = t; 
+	  data[j] = t;
 	}
     }
   t = data[i-1];

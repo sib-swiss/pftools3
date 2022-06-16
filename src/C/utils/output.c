@@ -17,8 +17,8 @@
  * WARNING: alignement does not start at 0 but 1 !!!
  *          NEEDS TO BE FIXED SOME DAY
  */
-static const char Dflt[] = "unknown"; 
-	
+static const char Dflt[] = "unknown";
+
 void PrintSimple(const struct Profile * const prf, const char * * const AlignedSequence,
                  const struct Alignment * const alignment, char * const Header,
                  const size_t SequenceLength, const float RAVE, const int N, const PrintInput_t * const extra)
@@ -55,7 +55,7 @@ void PrintTSV(const struct Profile * const prf, const char * * const AlignedSequ
     if (*hptr == '>' || *hptr == '@') {
        hptr++;
        HeaderLength--;
-    }   
+    }
 
     // Extract ID (id)
     char * id = calloc(1+strlen(prf->Identification),sizeof(char));
@@ -71,7 +71,7 @@ void PrintTSV(const struct Profile * const prf, const char * * const AlignedSequ
     *cptr = '\0';
     RawToNormalizedFunctionPtr RawToNormalizedFunction = prf->RawToNormalized;
     const float * const restrict NormCoefs = prf->NormalizationCoefs;
-		
+
 		char strand;
 		switch(extra->SeqId & 0xC0000000) {
 			case 0x00000000: strand = '+'; break;
@@ -120,8 +120,8 @@ void PrintTSV(const struct Profile * const prf, const char * * const AlignedSequ
 									&AlignedSequence[i][1]);
 			}
 		}
-    
-    
+
+
     free(ac);
     free(id);
 }
@@ -147,12 +147,12 @@ void PrintDefault(const struct Profile * const prf, const char * * const Aligned
 		const char * startHdr = hptr;
 		while ( *hptr != ' ' && *hptr != '\t' && *hptr != '\0') hptr++;
 		const int HeaderLength = (int) ((uintptr_t) hptr - (uintptr_t) startHdr);
-		
+
 		if (startHdr[0] == '\0') startHdr = Dflt;
-		
+
 		RawToNormalizedFunctionPtr RawToNormalizedFunction = prf->RawToNormalized;
     const float * const restrict NormCoefs = prf->NormalizationCoefs;
-		
+
 		if (extra->SeqId & 0xC0000000) {
 			for (unsigned int i=0; i<N; ++i) {
 					const float normtest = (RawToNormalizedFunction == NULL)
@@ -207,7 +207,7 @@ void PrintInterpro(const struct Profile * const prf, const char * * const Aligne
     char * des;
     char * buffer = calloc(OutputPrintWidth+1,sizeof(char));
     char * cptr = Header;
-		
+
     // Extract ID (id), short ID (cptr) and description (des) of matched entry
     while ( *cptr != ' ' && *cptr != '\0') ++cptr;
     des = ( *cptr == '\0' ) ? cptr : cptr + 1;
@@ -216,10 +216,10 @@ void PrintInterpro(const struct Profile * const prf, const char * * const Aligne
     ++cptr;
     id = Header;
     if (*Header == '>' || *cptr == '@') ++id;
-		
+
     RawToNormalizedFunctionPtr RawToNormalizedFunction = prf->RawToNormalized;
     const float * const restrict NormCoefs = prf->NormalizationCoefs;
-		
+
     for (unsigned int i=0; i<N; ++i) {
         const float normtest = (RawToNormalizedFunction == NULL)
                              ? 0.0f
@@ -464,7 +464,7 @@ void PrintIncmatch( const struct Profile * const prf, const char * * const Align
         const float norm_score = (RawToNormalizedFunction == NULL)
                            ? 0.0f
                            : RawToNormalizedFunction(alignment[i].Score, NormCoefs, RAVE, SequenceLength);
-													 
+
 						// For compliance with fortran we add a extra end space
             fprintf(stdout, ">%s/%i-%i motif=%s|%s norm_score=%.3f raw_score=%i seq_end=%i motif_start=%i motif_end=%i \n",
                 id,
@@ -550,23 +550,23 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
 	//PFSCANV3 NEWOUT   >fig|83333.1.peg.4317/36-219 motif=MF_00223|FolE norm_score=33.703 raw_score=4046 level=0 level_tag=! motif_start=1 motif_end=-1 seq_end=-4 motif_rev=F strand=+
 	char * buffer = calloc(OutputPrintWidth+1,sizeof(char));
 	char * cptr;
-	
+
 	// Extract Header
 	const char * hptr = Header;
 	if (*hptr == '>' || *hptr == '@') hptr++;
 	const char * startHdr = hptr;
 	while ( *hptr != ' ' && *hptr != '\t' && *hptr != '\0') hptr++;
 	const int HeaderLength = (int) ((uintptr_t) hptr - (uintptr_t) startHdr);
-	
+
 	if (startHdr[0] == '\0') startHdr = Dflt;
-	
+
 	// Extract ID (id)
 	char * id = calloc(1+strlen(prf->Identification),sizeof(char));
 	strcpy(id,prf->Identification);
 	cptr = id;
 	while ( *cptr != ';' && *cptr != '\0') ++cptr;
 	*cptr = '\0';
-		    
+
   char * ac  = calloc(1+strlen(prf->AC_Number),sizeof(char));
 	strcpy(ac,prf->AC_Number);
 	cptr = ac;
@@ -575,7 +575,7 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
   RawToNormalizedFunctionPtr RawToNormalizedFunction = prf->RawToNormalized;
 	const float * const restrict NormCoefs = prf->NormalizationCoefs;
 	const char * des = prf->Description;
-	
+
 	char strand;
 	switch(extra->SeqId & 0xC0000000) {
 		case 0x00000000: strand = '+'; break;
@@ -583,22 +583,22 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
 		case 0x80000000: strand = 'c'; break;
 		case 0xC0000000: strand = '-'; break;
 	}
-	
+
 	const int CurrentMode = prf->NormalizationData.Values[(int) prf->ModeIndex].NNOR;
 #ifdef XALIT_DEBUG
 	for (unsigned int i=0; i<N; ++i) {
 	  fprintf(stderr,"%u/%d %u %s\n",i,N,AlignedSequence[i][0],AlignedSequence[i] + 1);
 	}
 #endif
-	
+
 	if (!(extra->SeqId & 0xC0000000)) {
-		for (unsigned int i=0; i<N; ++i) {   
+		for (unsigned int i=0; i<N; ++i) {
 			const float normtest = (RawToNormalizedFunction == NULL) ? 0.0f : RawToNormalizedFunction(alignment[i].Score, NormCoefs, RAVE, SequenceLength);
 			const static char DashTag[] = "#";
 			const char * tag = DashTag;
 			int BestFound = NLOW;
 			for ( unsigned int j = 0; j < prf->CutOffData.JCUT; j++ ) {
-				// Is this in the correct mode 
+				// Is this in the correct mode
 				_Bool Found = false;
 				for (int k=0; k<prf->CutOffData.Values[j].JCNM; k++) {
 					if (prf->CutOffData.Values[j].MCUT[k] == CurrentMode) {
@@ -618,7 +618,7 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
 			}
 
             int level = matchLevel( prf, alignment, i );
-		
+
 			fprintf(stdout,	">%.*s/%i-%i motif=%s|%s norm_score=%.3f raw_score=%i level=%i level_tag=%s motif_start=%i motif_end=%i seq_end=%i motif_rev=%c strand=%c\n",
 							HeaderLength,
 							startHdr,
@@ -653,13 +653,13 @@ void PrintxPSA( const struct Profile * const prf, const char * * const AlignedSe
 		}
 	}
 	else {
-		for (unsigned int i=0; i<N; ++i) {   
+		for (unsigned int i=0; i<N; ++i) {
 			const float normtest = (RawToNormalizedFunction == NULL) ? 0.0f : RawToNormalizedFunction(alignment[i].Score, NormCoefs, RAVE, SequenceLength);
 			const static char DashTag[] = "#";
 			const char * tag = DashTag;
 			int BestFound = NLOW;
 			for ( unsigned int j = 0; j < prf->CutOffData.JCUT; j++ ) {
-				// Is this in the correct mode 
+				// Is this in the correct mode
 				_Bool Found = false;
 				for (int k=0; k<prf->CutOffData.Values[j].JCNM; k++) {
 					if (prf->CutOffData.Values[j].MCUT[k] == CurrentMode) {
@@ -789,7 +789,7 @@ void PrintTurtle(const struct Profile * const prf, const char * * const AlignedS
                                 alignment[i].Region.Sequence.End,
                                 _length,
                                 seqid);
-        
+
         fprintf(stdout," \"%s\" \n] .\n", &AlignedSequence[i][1]);
     }
 }
@@ -801,7 +801,7 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 	char buffer[512];
 	Sequence SeqData = { .Data.Memory=NULL} ;
 	PFSequence * PFSeq = &(SeqData.ProfileData);
-	
+
 // 	printf("\nFASTA file %s, sequence %lu, sequence len %u, sequence header len %u, seq offset %lu, quality len %u, quality header len %u, quality offset %lu\n",
 // 				FASTQ->FASTA->FileName,
 // 				FASTQ->SeqId,
@@ -811,7 +811,7 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 // 				FASTQ->FASTA->DataPtr[FASTQ->SeqId].Quality.SequenceLength,
 // 				FASTQ->FASTA->DataPtr[FASTQ->SeqId].Quality.HeaderLength,
 // 				FASTQ->FASTA->DataPtr[FASTQ->SeqId].Quality.Offset);
-	
+
 	for (int iAlign=0; iAlign<N; iAlign++) {
 //  		printf("ALN  : %s\n", &AlignedSequence[iAlign][1]);
 		char * restrict bufferptr = buffer;
@@ -825,13 +825,13 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			*cptr = '\0';
 			while ( *cptr != '|' && *cptr != '>' && *cptr != '@') --cptr;
 			++cptr;
-			
+
 			register const size_t written = snprintf(bufferptr, len, "%s\t", cptr);
 			if (len <= written) goto bail2;
 			len -= written;
 			bufferptr += written;
 		}
-		
+
 		/* FLAG */
 		{
 			const unsigned int value = (extra->SeqId & 0xC0000000) ? 18U : 2U;
@@ -840,7 +840,7 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			len -= written;
 			bufferptr += written;
 		}
-		
+
 		/* RNAME */
 		{
 			const char * cptr = prf->AC_Number;
@@ -851,7 +851,7 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			len -= written;
 			bufferptr += written;
 		}
-		
+
 		/* Compute CIGAR */
 		int InitialDeletion = 0;
 		struct Cigar { unsigned int cnt; char state; } cigar[128];
@@ -859,14 +859,14 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 		{
 			size_t index = 0UL;
 			const char * restrict cptr = &AlignedSequence[iAlign][1];
-					
+
 			if (*cptr >= 'A' && *cptr <= 'Z')
 				cigar[0].state = 'M';
 			else if (*cptr == '-')
 				cigar[0].state = 'D';
 			else if (*cptr >= 'a' && *cptr <= 'z')
 				cigar[0].state = 'I';
-			else 
+			else
 				cigar[0].state = '?';
 			cigar[0].cnt = 1;
 			cptr++;
@@ -909,19 +909,19 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 				}
 				cptr++;
 			}
-			
-			From = 0; 
+
+			From = 0;
 			To = index;
 			if (cigar[0].state == 'D') {
 				InitialDeletion = cigar[0].cnt;
 				From = 1;
 			}
-			
+
 			if(cigar[index].state == 'D') {
 				To = index - 1;
 			}
 		}
-		
+
 		/* POS */
 		{
 			register const size_t written = snprintf(bufferptr, len, "%i\t", alignment[iAlign].IPMB);
@@ -929,7 +929,7 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			len -= written;
 			bufferptr += written;
 		}
-				
+
 		/* MAPQ */
 		{
 			register const size_t written = snprintf(bufferptr, len, "255\t");
@@ -937,7 +937,7 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			len -= written;
 			bufferptr += written;
 		}
-		
+
 		/* CIGAR */
 		{
 			for (int i=From; i<=To; i++) {
@@ -950,7 +950,7 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			*bufferptr++ = '\t';
 			len -= 1;
 		}
-		
+
 		/* RNEXT */
 		{
 			register const size_t written = snprintf(bufferptr, len, "*\t");
@@ -958,7 +958,7 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			len -= written;
 			bufferptr += written;
 		}
-		
+
 		/* PNEXT */
 		{
 			register const size_t written = snprintf(bufferptr, len, "0\t");
@@ -966,7 +966,7 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			len -= written;
 			bufferptr += written;
 		}
-		
+
 		/* TLEN */
 		{
 			register const size_t written = snprintf(bufferptr, len, "%lu\t", prf->Length - alignment[iAlign].IPMB + 1 + alignment[iAlign].IPME + 1);
@@ -974,17 +974,17 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			len -= written;
 			bufferptr += written;
 		}
-		
+
 		/* SEQ */
 		{
 			const char * in = &AlignedSequence[iAlign][1];
 			char * out = (char*) &AlignedSequence[iAlign][1];
-			
+
 			while (*in != '\0') {
 				if (*in != '-') {
 					if (*in >= 'a' && *in <= 'z')
 						*out = *in - 'a' + 'A';
-					else 
+					else
 						*out = *in;
 					out++;
 				}
@@ -992,7 +992,7 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			}
 			*out = '\0';
 		}
-		
+
 		/* QUAL */
 		const size_t index = extra->SeqId & 0x3FFFFFFF;
 		static unsigned char Star = '*';
@@ -1005,15 +1005,15 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			if (extra->SeqId & 0x40000000) ReverseTranslatedSequence(PFSeq);
 			UNSET_DATABASE_ACCESS();
 			PFSeq->ProfileIndex += alignment[iAlign].Region.Sequence.Begin - 1;
-			QualLength = (int) strlen(&AlignedSequence[iAlign][1]);	
+			QualLength = (int) strlen(&AlignedSequence[iAlign][1]);
 		}
 		/* Only treat sequence */
 		else {
 			QualLength = 1;
 			PFSeq->ProfileIndex = &Star;
 		}
-		
-		
+
+
 		/* PRINT */
 		{
 			RawToNormalizedFunctionPtr RawToNormalizedFunction = prf->RawToNormalized;
@@ -1021,16 +1021,16 @@ void PrintSAM(const struct Profile * const prf, const char * * const AlignedSequ
 			const float NScore = (RawToNormalizedFunction == NULL)
                              ? 0.0f
                              : RawToNormalizedFunction(alignment[iAlign].Score, NormCoefs, RAVE, SequenceLength);
-			
+
 			printf("%s%s\t%.*s\tAS:i:%i\tNS:f:%.2f\n", buffer, &AlignedSequence[iAlign][1], QualLength,
 						 PFSeq->ProfileIndex, alignment[iAlign].Score, NScore);
-				
-			
+
+
 		}
 	}
-	
+
 	if (SeqData.Data.Memory) free(SeqData.Data.Memory);
-	
+
 	return;
 	bail2:
 		fputs("Internal buffer of SAM format not big enough.\n", stderr);

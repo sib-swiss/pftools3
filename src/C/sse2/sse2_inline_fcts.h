@@ -11,16 +11,16 @@
 #define SSE2_INLINE_FCTS_H_
 #include <emmintrin.h>
 // DOES NOT ZERO EXTEND
-//MOVSS __m128 _mm_load_ss(float * p) 
+//MOVSS __m128 _mm_load_ss(float * p)
 //MOVSS void_mm_store_ss(float * p, __m128 a)
 //MOVSS __m128 _mm_move_ss(__m128 a, __m128 b)
 // DOES ZERO EXTEND, ALLOW from reg to xmm
 //MOVD __m64 _mm_cvtsi32_si64 (int i )
-//MOVD int _mm_cvtsi64_si32 ( __m64m ) 
-//MOVD __m128i _mm_cvtsi32_si128 (int a) 
+//MOVD int _mm_cvtsi64_si32 ( __m64m )
+//MOVD __m128i _mm_cvtsi32_si128 (int a)
 //MOVD int _mm_cvtsi128_si32 ( __m128i a)
 
-#ifndef __USE_32BIT_INTEGER__ 
+#ifndef __USE_32BIT_INTEGER__
 extern __inline __m128i __ALWAYS_INLINE
 LoadStoredIntegerVector(const ScoreTuple * const address)
 {
@@ -111,7 +111,7 @@ _my_cvtepi16_epi32(const __m128i __Value)
   // Convert signed WORD into signed DWORD
   const __m128i __sign = _mm_cmpgt_epi16((__m128i) _mm_setzero_si128(), __Value);
   // Interleave sign with data to produce a 128 bit (4 x DWORD)
-  return  _mm_unpacklo_epi16 (__Value, __sign); 
+  return  _mm_unpacklo_epi16 (__Value, __sign);
 }
 
 extern __inline __m128i __ALWAYS_INLINE

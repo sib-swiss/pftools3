@@ -11,7 +11,7 @@
 // 				fprintf(stderr, "Export of indices failed, check write permission for %s\n", ExportFileName);
 // 		}
 // 	}
-// 	
+//
 
 /***************************************************************************************************
                         PFTOOLS
@@ -50,8 +50,8 @@ static const struct option long_options[] =
 	/*
 	 * These options set a flag.
 	 */
-	
-	
+
+
 	/*
 	 * These options don't set a flag. We distinguish them by their indices.
 	 */
@@ -90,10 +90,10 @@ int main (int argc, char *argv[])
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// LOCAL STRUCTURES
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	DBSequence_t DB;                  /* Sequence Database File */
 	struct timeval _t0, _t1;          /* Timing structures */
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// LOCAL DATA
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,17 +103,17 @@ int main (int argc, char *argv[])
 	_Bool isFASTQ = false;              /* FASTQ sequence file */
 	_Bool isEMBL  = false;              /* SwissProt EMBL sequence file */
 	_Bool OutputVerbose = false;
-		
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// OPTIONS
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	while (1) {
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
-		
+
 		const int c = getopt_long (argc, argv, opt_to_test, long_options, &option_index);
-		
+
 		/* Detect the end of the options. */
 		if (c == -1) break;
 		switch (c) {
@@ -144,7 +144,7 @@ int main (int argc, char *argv[])
 				Usage(stdout);
 		}
 	}
-	
+
 	if (optind >= argc) {
 		fputs("Expected arguments after options\n", stderr);
 		Usage(stderr);
@@ -152,8 +152,8 @@ int main (int argc, char *argv[])
 	else {
 		DBFileName = argv[optind];
 	}
-	
-	
+
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// COMMAND LINE ARGUMENTS COMPLIANCE
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ int main (int argc, char *argv[])
 		if (isFASTA) count++;
 		if (isEMBL) count++;
 		if (isFASTQ) count++;
-		
+
 		if (count > 1 || count <= 0) {
 			fputs("Please provide a single sequence database, FASTA or FASTQ or ENA\n", stderr);
 			exit(1);
@@ -175,7 +175,7 @@ int main (int argc, char *argv[])
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// INPUT ANALYSIS
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	/*
 	 * Read the FASTA file
 	 */
@@ -255,8 +255,8 @@ int main (int argc, char *argv[])
 		if (OutputVerbose)
 			fprintf(stderr, "Export of indices failed, check write permission for %s\n", OutFileName);
 	}
-	
+
 	FreeDBStructure(&DB);
-	
+
 	exit(0);
 }

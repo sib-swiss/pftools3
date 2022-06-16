@@ -79,7 +79,7 @@ extern inline unsigned long __ALWAYS_INLINE createMask(unsigned int numEntries, 
     unsigned long index;
     unsigned int AllZero;
 
-#ifndef __MIC__    
+#ifndef __MIC__
     __asm__ __volatile__ (
       "xorl   %0, %0; \n\t"
       "bsrq   %2,%1;  \n\t"
@@ -96,10 +96,10 @@ extern inline unsigned long __ALWAYS_INLINE createMask(unsigned int numEntries, 
       "1:"
       : "=r"(AllZero), "=r"(index)
       : "r"(k), "rm"(1)
-    ); 
+    );
 #endif
     if (AllZero) {
-      *maskWidth = 0; 
+      *maskWidth = 0;
       return 0L;
     }
     *maskWidth = (unsigned int) index;
@@ -138,7 +138,7 @@ extern inline void __ALWAYS_INLINE GetOSInfo(SystemInfo * const info)
   const char text[] = "Static linking prevents safe username query";
   strcpy(info->Username, text);
 #endif
-  
+
   tmp_size = strlen(uts_name.nodename);
   if (tmp_size<63) {
     strncpy(info->Nodename, uts_name.nodename, 63);
@@ -148,8 +148,8 @@ extern inline void __ALWAYS_INLINE GetOSInfo(SystemInfo * const info)
     info->Nodename[61] = '.';
     info->Nodename[62] = '.';
     info->Nodename[63] = '\0';
-  }  
-    
+  }
+
   tmp_size = strlen(uts_name.machine);
   if (tmp_size<63) {
     strncpy(info->Architecture, uts_name.machine, 63);
@@ -168,8 +168,8 @@ void getCumulativeMask(const SystemInfo * const info, const topology_mask_t Sock
 {
 	size_t count = 0;
 	topology_mask_t ValidMask;
-	
-	ValidMask  = ThreadId & HYPERTHREADING_MASK;  
+
+	ValidMask  = ThreadId & HYPERTHREADING_MASK;
 	ValidMask |= (CoreId << HYPERTHREADING_MASK_WIDTH) & CORE_MASK ;
 #if SOCKET_MASK_SHIFT < 64
 	ValidMask |= (SocketId << SOCKET_MASK_SHIFT) & SOCKET_MASK;
@@ -177,7 +177,7 @@ void getCumulativeMask(const SystemInfo * const info, const topology_mask_t Sock
 
 	count = 0;
 	CPU_ZERO_S(sizeof(Affinity_Mask_t), Mask);
-	
+
 	for (unsigned int thread=0; thread<info->nOverallCores; ++thread) {
 		register const topology_mask_t tmp = info->TopologyMasks[thread] & ValidMask;
 #if SOCKET_MASK_SHIFT < 64
@@ -196,9 +196,9 @@ size_t getMasks(const SystemInfo * const info, const topology_mask_t SocketId, c
 {
 	size_t count = 0;
 	topology_mask_t ValidMask;
-	
+
 	if (SocketId == 0 || CoreId == 0 || ThreadId == 0) return 0;
-	ValidMask  = ThreadId & HYPERTHREADING_MASK;  
+	ValidMask  = ThreadId & HYPERTHREADING_MASK;
 	ValidMask |= (CoreId << HYPERTHREADING_MASK_WIDTH) & CORE_MASK ;
 #if SOCKET_MASK_SHIFT < 64
 	ValidMask |= (SocketId << SOCKET_MASK_SHIFT) & SOCKET_MASK;
@@ -209,29 +209,29 @@ size_t getMasks(const SystemInfo * const info, const topology_mask_t SocketId, c
 	       sizeof(topology_mask_t)*8,
 	       info->HyperthreadingMask, info->HyperthreadingMaskWidth,
 	       info->CoreSelectMask, info->SocketSelectMaskShift, info->SocketSelectMask);
-	
+
 	printf("Valid Mask  : 0x%16.16lx\n             : ", ValidMask);
 	for (unsigned int j=0; j<8*sizeof(topology_mask_t); ++j) {
-		if (ValidMask & ((topology_mask_t)1 << ((8*sizeof(topology_mask_t)-1) - j)) ) 
+		if (ValidMask & ((topology_mask_t)1 << ((8*sizeof(topology_mask_t)-1) - j)) )
 			fputs("1",stdout);
-		else 
+		else
 			fputs("0", stdout);
-		if ( ((8*sizeof(topology_mask_t)-1 - j) == (CORE_MASK_WIDTH+HYPERTHREADING_MASK_WIDTH)) 
+		if ( ((8*sizeof(topology_mask_t)-1 - j) == (CORE_MASK_WIDTH+HYPERTHREADING_MASK_WIDTH))
 				|| ((8*sizeof(topology_mask_t)-1 - j) == (HYPERTHREADING_MASK_WIDTH))) fputs(" ",stdout);
 	}
 	fputs("\n",stdout);
-#endif  
+#endif
 	for (unsigned int thread=0; thread<info->nOverallCores; ++thread) {
 		const topology_mask_t tmp = info->TopologyMasks[thread] & ValidMask;
 		#if SOCKET_MASK_SHIFT < 64
 		if ((tmp & HYPERTHREADING_MASK) && (tmp & CORE_MASK) && (tmp & SOCKET_MASK)) ++count;
 		#else
-		if ((tmp & HYPERTHREADING_MASK) && (tmp & CORE_MASK)) ++count; 
+		if ((tmp & HYPERTHREADING_MASK) && (tmp & CORE_MASK)) ++count;
 		#endif
 	}
-	  
+
   if (count == 0) return 0;
-	
+
 	*Masks = (Affinity_Mask_t*) malloc(count*sizeof(Affinity_Mask_t));
 	if (*Masks == NULL) return 0;
 	count = 0;
@@ -248,11 +248,11 @@ size_t getMasks(const SystemInfo * const info, const topology_mask_t SocketId, c
 #ifdef __SYSTEM_DEBUG__
 			printf("Thread %3u   : ", thread);
 			for (unsigned int j=0; j<8*sizeof(topology_mask_t); ++j) {
-				if (info->TopologyMasks[thread] & (((topology_mask_t) 1) << ((8*sizeof(topology_mask_t)-1) - j)) ) 
+				if (info->TopologyMasks[thread] & (((topology_mask_t) 1) << ((8*sizeof(topology_mask_t)-1) - j)) )
 					fputs("1",stdout);
-				else 
+				else
 					fputs("0", stdout);
-				if ( ((8*sizeof(topology_mask_t)-1 - j) == (CORE_MASK_WIDTH+HYPERTHREADING_MASK_WIDTH)) 
+				if ( ((8*sizeof(topology_mask_t)-1 - j) == (CORE_MASK_WIDTH+HYPERTHREADING_MASK_WIDTH))
 					|| ((8*sizeof(topology_mask_t)-1 - j) == (HYPERTHREADING_MASK_WIDTH))) fputs(" ",stdout);
 			}
       fputs("\n",stdout);
@@ -263,11 +263,11 @@ size_t getMasks(const SystemInfo * const info, const topology_mask_t SocketId, c
     else {
 			printf("Thread %3u   : ", thread);
 			for (unsigned int j=0; j<8*sizeof(topology_mask_t); ++j) {
-				if (info->TopologyMasks[thread] & (((topology_mask_t) 1) << ((8*sizeof(topology_mask_t)-1) - j)) ) 
+				if (info->TopologyMasks[thread] & (((topology_mask_t) 1) << ((8*sizeof(topology_mask_t)-1) - j)) )
 					fputs("1",stdout);
-				else 
+				else
 					fputs("0", stdout);
-				if ( ((8*sizeof(topology_mask_t)-1 - j) == (CORE_MASK_WIDTH+HYPERTHREADING_MASK_WIDTH)) 
+				if ( ((8*sizeof(topology_mask_t)-1 - j) == (CORE_MASK_WIDTH+HYPERTHREADING_MASK_WIDTH))
 					|| ((8*sizeof(topology_mask_t)-1 - j) == (HYPERTHREADING_MASK_WIDTH))) fputs(" ",stdout);
 			}
       fputs(" FAILED\n",stdout);
@@ -283,16 +283,16 @@ size_t getMasksFromParent(const SystemInfo * const info, Affinity_Mask_t * * con
   Affinity_Mask_t * const restrict CurrentMask = (Affinity_Mask_t*) malloc(sizeof(Affinity_Mask_t));
   if (CurrentMask == NULL) goto FIN;
   if (sched_getaffinity(0, sizeof(Affinity_Mask_t), (cpu_set_t*) CurrentMask) != 0) goto FIN1;
-  
+
   /* Count potential cores */
   for (int i=0; i<sizeof(Affinity_Mask_t); i++) {
     if (CPU_ISSET_S(i, sizeof(Affinity_Mask_t), (cpu_set_t*) CurrentMask)) ++count;
   }
   if (count == 0) return 0;
-  
+
   *Masks = (Affinity_Mask_t*) malloc(count*sizeof(Affinity_Mask_t));
   if (*Masks == NULL) return 0;
-  
+
   Affinity_Mask_t * restrict newMask = *Masks;
   for (int i=0; i<sizeof(Affinity_Mask_t); i++) {
     if (CPU_ISSET_S(i, sizeof(Affinity_Mask_t), (cpu_set_t*) CurrentMask)) {
@@ -301,11 +301,11 @@ size_t getMasksFromParent(const SystemInfo * const info, Affinity_Mask_t * * con
       newMask++;
     }
   }
-  
-  
+
+
   free(CurrentMask);
   return count;
-  
+
   FIN1:
     free(CurrentMask);
   FIN:
@@ -318,9 +318,9 @@ static void GetIntelTopology(SystemInfo * const info)
 	unsigned int APIC_HyperthreadingMask, APIC_HyperthreadingMaskWidth;
 	unsigned int APIC_SocketSelectMask, APIC_SocketSelectMaskShift;
 	unsigned int APIC_CoreSelectMask;
-	
+
 	int eax_value, ebx_value, ecx_value, edx_value;
-	
+
 	/* Do we support Leaf 11 (0xB) */
 	_Bool UseLeafB = false;
 	__asm__ __volatile__ (
@@ -338,8 +338,8 @@ static void GetIntelTopology(SystemInfo * const info)
 			: "=a"(eax_value), "=b"(ebx_value), "=c"(ecx_value), "=d"(edx_value)
 			: "0"(eax_value), "2"(ecx_value)
 		);
-		UseLeafB = (ebx_value != 0); 
-	} 
+		UseLeafB = (ebx_value != 0);
+	}
   /* Use HWMT hyperthreading feature flag to treat different configurations */
 	eax_value = 1;
 	__asm__ __volatile__ (
@@ -348,13 +348,13 @@ static void GetIntelTopology(SystemInfo * const info)
 		: "=a"(eax_value), "=b"(ebx_value), "=c"(ecx_value), "=d"(edx_value)
 		: "0"(eax_value)
 	);
-		
+
 	if (edx_value & (1<<28)) {
 		int wasCoreReported = 0;
 		int wasThreadReported = 0;
 		unsigned int ThreadPerCore = 1;
 		unsigned int MaxCore = 1;
-		
+
 		if (UseLeafB) {
 			int subLeaf = 0, levelType, levelShift;
 			unsigned int coreplusSMT_Mask;
@@ -367,7 +367,7 @@ static void GetIntelTopology(SystemInfo * const info)
 					: "0"(eax_value), "2"(ecx_value)
 				);
 				if (ebx_value == 0) break;
-				
+
 				levelType  = (ecx_value >> 8) & 0xFF;
 				levelShift = (eax_value & 0xF);
 				switch (levelType)
@@ -390,7 +390,7 @@ static void GetIntelTopology(SystemInfo * const info)
 				}
 					++subLeaf;
 			} while (1);
-			
+
 			if (wasThreadReported && wasCoreReported)
 			{
 				APIC_CoreSelectMask = coreplusSMT_Mask ^ APIC_HyperthreadingMask;
@@ -408,7 +408,7 @@ static void GetIntelTopology(SystemInfo * const info)
 				exit(1);
 			}
 			info->HyperthreadingAvailable = true;
-			info->HyperthreadingOn = (wasThreadReported > 0); 
+			info->HyperthreadingOn = (wasThreadReported > 0);
 		}
 		else {
 			const unsigned int MaxCorePlusThread = (ebx_value >> 16) & 0xFF;
@@ -424,11 +424,11 @@ static void GetIntelTopology(SystemInfo * const info)
 				ThreadPerCore = MaxCorePlusThread / MaxCore;
 				info->HyperthreadingAvailable = true;
 				info->HyperthreadingOn = (MaxCorePlusThread > MaxCore ) ? true : false;
-			} 
+			}
 			else {
 				MaxCore = 1;
 				ThreadPerCore = MaxCorePlusThread;
-				
+
 				/* Check whether BIOS is preventing Hyperthreading */
 				eax_value = 0x80000000;
 				__asm__ __volatile__ (
@@ -439,15 +439,15 @@ static void GetIntelTopology(SystemInfo * const info)
 				);
 				if ( MaxCPUID <= 4 && eax_value > 0x80000004) {
 					info->HyperthreadingAvailable = true;
-				} 
+				}
 			}
-      
+
 		  /* Create the masks */
 			APIC_HyperthreadingMask     = createMask(ThreadPerCore, &(APIC_HyperthreadingMaskWidth));
 			APIC_CoreSelectMask         = createMask(MaxCore, &(APIC_SocketSelectMaskShift));
 			APIC_SocketSelectMaskShift += APIC_HyperthreadingMaskWidth;
 			APIC_CoreSelectMask       <<= APIC_HyperthreadingMaskWidth;
-			APIC_SocketSelectMask       = (-1) ^ (APIC_CoreSelectMask | APIC_HyperthreadingMask); 
+			APIC_SocketSelectMask       = (-1) ^ (APIC_CoreSelectMask | APIC_HyperthreadingMask);
 		}
 
 		/* Get Cache topology */
@@ -462,7 +462,7 @@ static void GetIntelTopology(SystemInfo * const info)
 					: "0"(eax_value), "2"(ecx_value)
 				);
 				if ((eax_value & 0x1F) == 0) break;
-				
+
 				unsigned int cachetype = (eax_value & 0x1F);
 				unsigned int cachelevel = (eax_value >> 5) & 0x7;
 				unsigned int lineSize = 1 + (ebx_value & 0xFFF);
@@ -483,7 +483,7 @@ static void GetIntelTopology(SystemInfo * const info)
 					id = cachelevel;
 				}
 				{
-					cache_t * const restrict CachePtr = &(info->Cache[id]);  
+					cache_t * const restrict CachePtr = &(info->Cache[id]);
 					CachePtr->Size = cachesize;
 					CachePtr->Set  = nsets;
 					CachePtr->Line = (unsigned short int) lineSize;
@@ -500,7 +500,7 @@ static void GetIntelTopology(SystemInfo * const info)
 		/* Prior to Hyperthreading Technology only one thread per core */
 		APIC_SocketSelectMask = -1;
 	}
-    
+
 #ifdef USE_AFFINITY
 	/* Retrieve APIC data for each thread */
 	Affinity_Mask_t Mask, BackupMask;
@@ -508,7 +508,7 @@ static void GetIntelTopology(SystemInfo * const info)
 		fputs("Error getting affinity!\n",stderr);
 		exit(1);
 	}
-						  
+
 	info->APICID = (unsigned int*) malloc(info->nOverallCores*(sizeof(unsigned int) + sizeof(topology_mask_t)));
 	info->TopologyMasks = (topology_mask_t*) &(info->APICID[info->nOverallCores]);
 
@@ -529,7 +529,7 @@ static void GetIntelTopology(SystemInfo * const info)
 						);
 						info->APICID[thread] = edx_value;
 		}
-	} 
+	}
 	else {
 		for (unsigned int thread =0; thread<info->nOverallCores; ++thread) {
 			CPU_ZERO_S(sizeof(Affinity_Mask_t), &Mask);
@@ -554,12 +554,12 @@ static void GetIntelTopology(SystemInfo * const info)
 		fputs("Error setting affinity!\n",stderr);
 		exit(1);
 	}
-#ifdef __SYSTEM_DEBUG__          
+#ifdef __SYSTEM_DEBUG__
 	printf("HTT Mask (%2u)    : ",APIC_HyperthreadingMaskWidth);
 	for (unsigned int j=0; j<32; ++j) {
-		if ( APIC_HyperthreadingMask & (1 << (31 - j)) ) 
+		if ( APIC_HyperthreadingMask & (1 << (31 - j)) )
 			fputs("1",stdout);
-		else 
+		else
 			fputs("0", stdout);
 	}
 	unsigned int CoreMaskWidth = 0;
@@ -568,24 +568,24 @@ static void GetIntelTopology(SystemInfo * const info)
 	}
   	printf("\nCore Mask (%2u)   : ",CoreMaskWidth);
 	for (unsigned int j=0; j<32; ++j) {
-		if ( APIC_CoreSelectMask & (1 << (31 - j)) ) 
+		if ( APIC_CoreSelectMask & (1 << (31 - j)) )
 			fputs("1",stdout);
-		else 
+		else
 			fputs("0", stdout);
 	}
 	printf("\nSocket Mask (%2u) : ", APIC_SocketSelectMaskShift);
 	for (unsigned int j=0; j<32; ++j) {
-		if ( APIC_SocketSelectMask & (1 << (31 - j)) ) 
+		if ( APIC_SocketSelectMask & (1 << (31 - j)) )
 			fputs("1",stdout);
-		else 
+		else
 			fputs("0", stdout);
 	}
 	fputs("\n",stdout);
 #endif
-	
+
 	register unsigned int nSockets = 0;
 
-	/* Set the topology structure to use based upon current ARCHITECTURE 
+	/* Set the topology structure to use based upon current ARCHITECTURE
 	 * that is:
 	 *          T thread bits (minimum is 1)
 	 *          C core bits   (minimum is 1)
@@ -596,17 +596,17 @@ static void GetIntelTopology(SystemInfo * const info)
 	info->CoreSelectMask          = APIC_CoreSelectMask;
 	info->SocketSelectMask        = APIC_SocketSelectMask;
 	info->SocketSelectMaskShift   = APIC_SocketSelectMaskShift;
-	
+
 	unsigned char * const restrict CorePresent = alloca(info->nOverallCores*sizeof(unsigned char));
 	memset(CorePresent, 0, info->nOverallCores*sizeof(unsigned char));
-	
+
 	for (unsigned int thread =0; thread<info->nOverallCores; ++thread) {
 		const register unsigned int ThreadAPIC = info->APICID[thread];
 		topology_mask_t TMask = ((topology_mask_t) 1) << (ThreadAPIC & APIC_HyperthreadingMask);
 		unsigned int tmp = (ThreadAPIC & APIC_CoreSelectMask) >> APIC_HyperthreadingMaskWidth;
 		CorePresent[tmp] = 1;
 		TMask |= ((topology_mask_t) 1) << (HYPERTHREADING_MASK_WIDTH + tmp);
-#if SOCKET_MASK_SHIFT < 64  
+#if SOCKET_MASK_SHIFT < 64
 		tmp = (ThreadAPIC & APIC_SocketSelectMask) >> APIC_SocketSelectMaskShift;
 		if (tmp > nSockets) nSockets = tmp;
 		TMask |= ((topology_mask_t) 1) << ( SOCKET_MASK_SHIFT + tmp);
@@ -619,15 +619,15 @@ static void GetIntelTopology(SystemInfo * const info)
 	info->nSockets = 1 + nSockets;
 #endif
 }
-    
+
 static void GetAMDTopology(SystemInfo * const info)
 {
   unsigned int APIC_HyperthreadingMask, APIC_HyperthreadingMaskWidth;
   unsigned int APIC_SocketSelectMask, APIC_SocketSelectMaskShift;
   unsigned int APIC_CoreSelectMask;
-    
+
   int eax_value, ebx_value, ecx_value, edx_value;
-  
+
   /* Use HTT hyperthreading feature flag to test single or multicore architecture */
   eax_value = 1;
   __asm__ __volatile__ (
@@ -636,12 +636,12 @@ static void GetAMDTopology(SystemInfo * const info)
 	  : "=a"(eax_value), "=b"(ebx_value), "=c"(ecx_value), "=d"(edx_value)
 	  : "0"(eax_value)
 	  );
-  
+
   if (edx_value & (1<<28)) {
     /* Get the number of logical core per processor */
     info->nCores = 1 + ((ebx_value >> 16) & 0xFF);
-  } 
-  
+  }
+
   /*Get the largest extension leaf supported */
   eax_value = 0x80000000;
   int MaxSupportedExtLeaf;
@@ -652,10 +652,10 @@ static void GetAMDTopology(SystemInfo * const info)
 	: "0"(eax_value)
 	: "%ebx", "%ecx", "%edx"
   );
-  
+
   /* Bulldozer */
   const _Bool IsBulldozer = eax_value >= 0x8000001E ? true : false;
-  
+
   /* Get the number of physical core per processor */
   eax_value = 0x80000008;
   __asm__ __volatile__ (
@@ -664,10 +664,10 @@ static void GetAMDTopology(SystemInfo * const info)
 	: "=a"(eax_value), "=b"(ebx_value), "=c"(ecx_value), "=d"(edx_value)
 	: "0"(eax_value)
   );
-  
+
   info->nCores = 1 + (ecx_value & 0xFF );
   unsigned int coreplusSMT_MaskWidth = (ecx_value >> 12) & 0xF;
-  
+
   /* Get Cache topology */
   if (MaxSupportedExtLeaf >= 0x80000006 ) {
     /* L1 cache */
@@ -678,7 +678,7 @@ static void GetAMDTopology(SystemInfo * const info)
 	: "=a"(eax_value), "=b"(ebx_value), "=c"(ecx_value), "=d"(edx_value)
 	: "0"(eax_value)
     );
-    
+
     /* Data */
     info->Cache[OneD].Level = 1;
     info->Cache[OneD].Type  = Data;
@@ -686,7 +686,7 @@ static void GetAMDTopology(SystemInfo * const info)
     info->Cache[OneD].Set   = (ecx_value >> 8) & 0xFF;
     info->Cache[OneD].Ways  = 1 << ((ecx_value >> 17) & 0xFF);
     info->Cache[OneD].Size  = ((ecx_value >> 24) & 0xFF) << 10;
-  
+
     /* Instructions */
     info->Cache[OneI].Level = 1;
     info->Cache[OneI].Type  = Instruction;
@@ -694,7 +694,7 @@ static void GetAMDTopology(SystemInfo * const info)
     info->Cache[OneI].Set   = (edx_value >> 8) & 0xFF;
     info->Cache[OneI].Ways  = 1 << ((edx_value >> 17) & 0xFF);
     info->Cache[OneI].Size  = ((edx_value >> 24) & 0xFF) << 10;
-    
+
     /* L2 */
     eax_value = 0x80000006;
     __asm__ __volatile__ (
@@ -709,7 +709,7 @@ static void GetAMDTopology(SystemInfo * const info)
     info->Cache[Two].Set   = (ecx_value >> 8) & 0xF;
     info->Cache[Two].Ways  = 1 << ((ecx_value >> 13) & 0x7);
     info->Cache[Two].Size  = ((ecx_value >> 16) & 0xFFFF) << 10;
-    
+
     /* L3 */
     info->Cache[Three].Level = 3;
     info->Cache[Three].Type  = Data;
@@ -717,9 +717,9 @@ static void GetAMDTopology(SystemInfo * const info)
     info->Cache[Three].Set   = (edx_value >> 8) & 0xF;
     info->Cache[Three].Ways  = 1 << ((edx_value >> 13) & 0x7);
     info->Cache[Three].Size  = ((edx_value >> 18)) << 19;
-    
+
   }
-  
+
 #ifdef USE_AFFINITY
   /* Retrieve APIC data for each thread */
   Affinity_Mask_t Mask, BackupMask;
@@ -727,10 +727,10 @@ static void GetAMDTopology(SystemInfo * const info)
       fputs("Error getting affinity!\n",stderr);
       exit(1);
   }
-  
+
   info->APICID = (unsigned int*) malloc(info->nOverallCores*(sizeof(unsigned int) + sizeof(topology_mask_t)));
   info->TopologyMasks = (topology_mask_t*) &(info->APICID[info->nOverallCores]);
-  
+
   if (!IsBulldozer) {
     for (unsigned int thread=0U; thread<info->nOverallCores; ++thread) {
       CPU_ZERO_S(sizeof(Affinity_Mask_t), &Mask);
@@ -749,7 +749,7 @@ static void GetAMDTopology(SystemInfo * const info)
       unsigned int tmp = ( ebx_value >> 24 ) & 0xFF;
       info->APICID[thread] = tmp;
     }
-  } 
+  }
   else {
     /* Get number of core per compute unit assuming all are identical */
     __asm__ __volatile__ (
@@ -768,7 +768,7 @@ static void GetAMDTopology(SystemInfo * const info)
 	  fputs("Error setting affinity!\n",stderr);
 	  exit(1);
       }
-      
+
       __asm__ __volatile__ (
 	  "xorl %%ecx, %%ecx;"
 	  "cpuid;"
@@ -778,12 +778,12 @@ static void GetAMDTopology(SystemInfo * const info)
 	);
       unsigned int tmp = ( ebx_value >> 24 ) & 0xFF;
       info->APICID[thread] = tmp;
-#ifdef __SYSTEM_DEBUG__	  
+#ifdef __SYSTEM_DEBUG__
       fprintf(stderr,"APIC DATA (%2u)   : ", thread);
       for (unsigned int j=0; j<8; ++j) {
-	if ( tmp & (1 << (7 - j)) ) 
+	if ( tmp & (1 << (7 - j)) )
 	  fputs("1",stderr);
-	else 
+	else
 	  fputs("0", stderr);
       }
 #endif
@@ -794,15 +794,15 @@ static void GetAMDTopology(SystemInfo * const info)
 	  : "a"(0x8000001E)
 	  : "%ecx", "%edx"
 	);
-      
+
       tmp = ebx_value & 0xFF;
       if (tmp > nCU) nCU = tmp;
-#ifdef __SYSTEM_DEBUG__		  
+#ifdef __SYSTEM_DEBUG__
       fputs(" CU ",stderr);
       for (unsigned int j=0; j<8; ++j) {
-	if ( tmp & (1 << (7 - j)) ) 
+	if ( tmp & (1 << (7 - j)) )
 	  fputs("1",stderr);
-	else 
+	else
 	  fputs("0", stderr);
       }
       fputs("\n", stderr);
@@ -810,11 +810,11 @@ static void GetAMDTopology(SystemInfo * const info)
     }
     info->nComputeUnit = 1 + nCU;
   }
-	
+
   /* Create the masks */
   if ( info->nCorePerComputeUnit ) {
     APIC_HyperthreadingMask = createMask(info->nCorePerComputeUnit, &(APIC_HyperthreadingMaskWidth));
-    coreplusSMT_MaskWidth -= APIC_HyperthreadingMaskWidth; 
+    coreplusSMT_MaskWidth -= APIC_HyperthreadingMaskWidth;
   }
   else {
     APIC_HyperthreadingMask = 0;
@@ -823,32 +823,32 @@ static void GetAMDTopology(SystemInfo * const info)
   APIC_CoreSelectMask = ( 1 << coreplusSMT_MaskWidth ) - 1; //createMask(coreplusSMT_MaskWidth, &(APIC_SocketSelectMaskShift));
   APIC_SocketSelectMaskShift += APIC_HyperthreadingMaskWidth;
   APIC_CoreSelectMask <<= APIC_HyperthreadingMaskWidth;
-  APIC_SocketSelectMask = (-1) ^ (APIC_CoreSelectMask | APIC_HyperthreadingMask);  
-    
+  APIC_SocketSelectMask = (-1) ^ (APIC_CoreSelectMask | APIC_HyperthreadingMask);
+
   if ( sched_setaffinity(0, sizeof(Affinity_Mask_t), (cpu_set_t*) &BackupMask)) {
       fputs("Error setting affinity!\n",stderr);
       exit(1);
   }
-#ifdef __SYSTEM_DEBUG__     
+#ifdef __SYSTEM_DEBUG__
   printf("HTT Mask (%2u)    : ", 0);
   for (unsigned int j=0; j<32; ++j) {
-    if ( APIC_HyperthreadingMask & (1 << (31 - j)) ) 
+    if ( APIC_HyperthreadingMask & (1 << (31 - j)) )
       fputs("1",stdout);
-    else 
+    else
       fputs("0", stdout);
   }
   fprintf(stdout, "\nCore Mask (%2u)   : ", APIC_HyperthreadingMaskWidth);
   for (unsigned int j=0; j<32; ++j) {
-    if ( APIC_CoreSelectMask & (1 << (31 - j)) ) 
+    if ( APIC_CoreSelectMask & (1 << (31 - j)) )
       fputs("1",stdout);
-    else 
+    else
       fputs("0", stdout);
   }
   printf("\nSocket Mask (%2u) : ", APIC_SocketSelectMaskShift);
   for (unsigned int j=0; j<32; ++j) {
-    if ( APIC_SocketSelectMask & (1 << (31 - j)) ) 
+    if ( APIC_SocketSelectMask & (1 << (31 - j)) )
       fputs("1",stdout);
-    else 
+    else
       fputs("0", stdout);
   }
   fputs("\n",stdout);
@@ -859,7 +859,7 @@ static void GetAMDTopology(SystemInfo * const info)
     topology_mask_t TMask = ((topology_mask_t) 1) << (info->APICID[thread] & APIC_HyperthreadingMask);
     unsigned int tmp = (info->APICID[thread] & APIC_CoreSelectMask) >> APIC_HyperthreadingMaskWidth;
     if (tmp > nCU) nCU = tmp;
-    TMask |= ((topology_mask_t) 1) << (HYPERTHREADING_MASK_WIDTH + tmp);  
+    TMask |= ((topology_mask_t) 1) << (HYPERTHREADING_MASK_WIDTH + tmp);
     tmp = (info->APICID[thread] & APIC_SocketSelectMask) >> APIC_SocketSelectMaskShift;
     if (tmp > nSockets) nSockets = tmp;
     TMask |= ((topology_mask_t) 1) << ( SOCKET_MASK_SHIFT + tmp);
@@ -867,9 +867,9 @@ static void GetAMDTopology(SystemInfo * const info)
 #ifdef __SYSTEM_DEBUG__
     fprintf(stderr,"APIC DATA (%2u)   : ", thread);
     for (unsigned int j=0; j<32; ++j) {
-      if ( info->APICID[thread] & (1 << (31 - j)) ) 
+      if ( info->APICID[thread] & (1 << (31 - j)) )
 	fputs("1",stderr);
-      else 
+      else
 	fputs("0", stderr);
     }
     fputs("\n",stderr);
@@ -878,7 +878,7 @@ static void GetAMDTopology(SystemInfo * const info)
   info->nComputeUnit = 1 + nCU;
   info->nCores = (1 + nCU)*info->nCorePerComputeUnit;
   info->nSockets = 1 + nSockets;
-  
+
   info->HyperthreadingMaskWidth = APIC_HyperthreadingMaskWidth;
   info->HyperthreadingMask      = APIC_HyperthreadingMask;
   info->CoreSelectMask          = APIC_CoreSelectMask;
@@ -895,23 +895,23 @@ void getSystemInfo(SystemInfo * const info)
 
   /* clear all data */
   memset(info, 0, sizeof(SystemInfo));
-  
+
   /*
    *  OPERATING SYSTEM INFORMATIONS ------------------------------------------------
    */
   GetOSInfo(info);
- 
+
   /*
    * ARCHITECTURE INFORMATION -----------------------------------------------
    */
-  
+
   for (size_t i=0; i<13; ++i) info->CPU_Vendor[i] = '\0';
-  
+
   /* Available number of logical processor seen by OS */
   info->nOverallCores = (unsigned int) sysconf(_SC_NPROCESSORS_ONLN);
-  const char NOBrand[] = "Not supported by this cpu"; 
+  const char NOBrand[] = "Not supported by this cpu";
   strcpy(info->CPU_Name, NOBrand);
-  
+
   long a,c;
   __asm__ __volatile__ (
     /* See if CPUID instruction is supported ... */
@@ -933,11 +933,11 @@ void getSystemInfo(SystemInfo * const info)
     :
     : "cc"
     );
-  
+
   unsigned int rval = 0;
   if (a != c) {
     int eax_value, ebx_value, ecx_value, edx_value;
-    
+
     /* Get the CPU vendor string */
     __asm__ __volatile__ (
             "xorl %%eax, %%eax;"
@@ -946,11 +946,11 @@ void getSystemInfo(SystemInfo * const info)
 	    "movl  %%ebx,   (%2);"
 	    "movl  %%edx,  4(%2);"
 	    "movl  %%ecx,  8(%2);"
-	    //"mov  %%ebx, 4(%0) ;" 
+	    //"mov  %%ebx, 4(%0) ;"
 	    : "=&a"(eax_value)
 	    : "0" (eax_value), "r"(info->CPU_Vendor)
 	    : "memory", /*"%ebp",*/ "%ebx", "%ecx", "%edx");
-    
+
     /* if available query SSE and MMX functionalities */
     if (eax_value >= 0x2) {
       __asm__ __volatile__ (
@@ -959,7 +959,7 @@ void getSystemInfo(SystemInfo * const info)
 	      : "=a"(eax_value), "=b"(ebx_value), "=c"(ecx_value), "=d"(edx_value)
 	      : "0"(0x1)
 	      );
-      
+
       if (edx_value & (1<<23))    rval |= MM_MMX;
       if (edx_value & (1<<25))    rval |= MM_MMXEXT | MM_SSE;
       if (edx_value & (1<<26))    rval |= MM_SSE2;
@@ -970,10 +970,10 @@ void getSystemInfo(SystemInfo * const info)
       if (ecx_value & (1<<23))    rval |= MM_POPCOUNT;
       if (ecx_value & (1<<28))    rval |= MM_AVX;
       if (ecx_value & (1<<12))    rval |= MM_FMA3;
-      
+
       /* Test OSXSAVE for MIC */
       const int OSXSAVE = (ecx_value & (1<<27));
-      
+
       info->Family = (( eax_value >> 8 ) & 0xF) + (( eax_value >> 20 ) & 0xFF);
       info->Model  = (( eax_value >> 4 ) & 0xF) + ((( eax_value >> 16 ) & 0xF) << 4);
 
@@ -986,7 +986,7 @@ void getSystemInfo(SystemInfo * const info)
 // 	info->Family = BaseFamily;
 // 	info->Model  = (( eax_value >> 4 ) & 0xF);
 //       }
-      
+
       /* Test for MIC architecture */
 #ifndef __APPLE__
       if (OSXSAVE > 0) {
@@ -1033,16 +1033,16 @@ void getSystemInfo(SystemInfo * const info)
 				if (eax_value == ebx_value == ecx_value == edx_value == 0) {
 					printf("Lead 0x7H is not supported\n");
 
-				} 
+				}
 				else {
 					if (ebx_value & (1<<16) ) rval |= MM_AVX512;
 					if (ebx_value & (1<<5) )  rval |= MM_AVX2;
 				}
       }
 #endif
-/* 
+/*
  * MIC OS does not report MIC featues !!!
- * Enforce when __MIC__ is active 
+ * Enforce when __MIC__ is active
  */
 #ifdef __MIC__
 			rval |= MM_AVX512;
@@ -1067,7 +1067,7 @@ void getSystemInfo(SystemInfo * const info)
 	      : "=a"(eax_value), "=b"(ebx_value), "=c"(ecx_value), "=d"(edx_value)
 	      : "0"(0x80000001)
 	      );
-      
+
       if (edx_value & (1<<31))  rval |= MM_3DNOW;
       if (edx_value & (1<<30))  rval |= MM_3DNOWEXT;
       if (edx_value & (1<<23))  rval |= MM_MMX;
@@ -1077,8 +1077,8 @@ void getSystemInfo(SystemInfo * const info)
       if (ecx_value & (1<<16))  rval |= MM_FMA4;
       if (ecx_value & (1<<11))  rval |= MM_XOP;
       if (ecx_value & (1<<12))  rval |= MM_FMA3;
-    } 
-    
+    }
+
     if (MaxLeaf >= 0x80000004) {
       /* Get the CPU brand string */
       __asm__ __volatile__ (
@@ -1101,7 +1101,7 @@ void getSystemInfo(SystemInfo * const info)
 	    "movl  %%ebx, 36(%0);"
 	    "movl  %%ecx, 40(%0);"
 	    "movl  %%edx, 44(%0);"
-	    : 
+	    :
 	    : "r"(info->CPU_Name)
 	    : "memory", "%eax", "%ebx", "%ecx", "%edx");
       {
@@ -1109,17 +1109,17 @@ void getSystemInfo(SystemInfo * const info)
 				char * ptr = info->CPU_Name;
 				size_t i = 0;
 				while (ptr[i] == ' ' && i < 48 ) ++i;
-				while (i < 48 ) { *ptr++ = info->CPU_Name[i++]; } 
+				while (i < 48 ) { *ptr++ = info->CPU_Name[i++]; }
       }
-    } 
-  
+    }
+
     info->Extensions = rval;
-    
+
     /*
      * TOPOLOGY INFORMATIONS ---------------------------------------------------------
      */
     /* Intel Topology*/
-    if (info->CPU_Vendor[0] == 'G' && info->CPU_Vendor[1] == 'e') 
+    if (info->CPU_Vendor[0] == 'G' && info->CPU_Vendor[1] == 'e')
       GetIntelTopology(info);
     /* AMD Topology*/
     else if (info->CPU_Vendor[0] == 'A' && info->CPU_Vendor[1] == 'u')
@@ -1143,10 +1143,10 @@ void getSystemInfo(SystemInfo * const info)
                         perror("stat");
                         fputs("Unable to find /usr/lib64/libscif.so.0\n", stdout);
                 }
-		
+
 		if (stat("/usr/lib64/libcoi_host.so.0", &st) != 0) {
 			perror("stat");
-			fputs("Unable to find /usr/lib64/libcoi_host.so.0\n", stdout);			
+			fputs("Unable to find /usr/lib64/libcoi_host.so.0\n", stdout);
 		}
 	}
 #endif
@@ -1183,11 +1183,11 @@ void getSystemInfo(SystemInfo * const info)
 						COIEngineGetInfoPtr = dlsym(COI, "COIEngineGetInfo");
 						if (COIEngineGetHandlePtr && COIResultGetNamePtr && COIEngineGetInfoPtr) {
 							result = COIEngineGetHandlePtr(COI_ISA_KNC, iMic, &Engine);
-							if (result != COI_SUCCESS) 
+							if (result != COI_SUCCESS)
 								fprintf(stderr,"COIEngineGetHandle result %s\n", COIResultGetNamePtr(result));
 							else {
 								result = COIEngineGetInfoPtr(Engine, sizeof(COI_ENGINE_INFO), &(info->MicEngines[iMic]));
-								if (result != COI_SUCCESS) 
+								if (result != COI_SUCCESS)
 									fprintf(stderr,"COIEngineGetInfo result %s\n", COIResultGetNamePtr(result));
 							}
 						}
@@ -1214,12 +1214,12 @@ void printSystemInfo(FILE * const fd, const SystemInfo * const info)
 {
   const static char CacheTypeText[4][12] = { {"None"}, {"Data"}, {"Instruction"}, {"Unified"} };
   char Buffer[LINE_BUFFER_SIZE] __attribute__((aligned(16)));
-	
+
 #ifdef MPI_VERSION
   fputs(  TOP_DOUBLE_LINE
           SGL_TEXT_LINE("  Master node system information                                    ")
           MIDDLE_SINGLE_LINE, fd);
-#else 
+#else
   fputs(  TOP_DOUBLE_LINE
           SGL_TEXT_LINE("  System informations                                               ")
           MIDDLE_SINGLE_LINE, fd);
@@ -1228,16 +1228,16 @@ void printSystemInfo(FILE * const fd, const SystemInfo * const info)
   PRINT_SGL_STRING_LINE("     User name     : %s", 21, info->Username, strlen(info->Username));
   PRINT_SGL_STRING_LINE("     Node name     : %s", 21, info->Nodename, strlen(info->Nodename));
   PRINT_SGL_TEXT_LINE("", 0);
-  
+
   PRINT_SGL_STRING_LINE("     Kernel        : %s", 21, info->Release, strlen(info->Release));
   PRINT_SGL_STRING_LINE("     Architecture  : %s", 21, info->Architecture, strlen(info->Architecture));
   PRINT_SGL_TEXT_LINE("", 0);
-  
+
   PRINT_SGL_STRING_LINE("     CPU vendor    : %s", 21, info->CPU_Vendor, strlen(info->CPU_Vendor));
   PRINT_SGL_STRING_LINE("     CPU brand     : %s", 21, info->CPU_Name, strlen(info->CPU_Name));
   PRINT_SGL_STRING_LINE("     Family        : 0x%2.2xh", 24, info->Family, 2);
   PRINT_SGL_STRING_LINE("     Model         : 0x%2.2xh", 24, info->Model, 2);
-  
+
   char * ptr = Buffer;
   *ptr = '\0';
   if (info->Extensions & MM_MMXEXT)   ptr += sprintf(ptr,"MMXEXT ");
@@ -1259,7 +1259,7 @@ void printSystemInfo(FILE * const fd, const SystemInfo * const info)
   if (info->Extensions & MM_AVX512)   ptr += sprintf(ptr,"AVX512 ");
 	if (info->Extensions & MM_AVX512F)   ptr += sprintf(ptr,"AVX512F ");
 	if (info->Extensions & MM_AVX512BW)   ptr += sprintf(ptr,"AVX512BW ");
-  
+
   if (ptr >= &Buffer[LINE_SIZE-2-21]) {
     ptr = &Buffer[LINE_SIZE-2-21];
     while ( ptr > &Buffer[0] && *ptr != ' ') --ptr;
@@ -1282,7 +1282,7 @@ void printSystemInfo(FILE * const fd, const SystemInfo * const info)
 	    info->Cache[i].Line,
 	    &CacheTypeText[info->Cache[i].Type][0]
  	  );
-   PRINT_SGL_STRING_LINE("%s",0, Buffer, strlen(Buffer)); 
+   PRINT_SGL_STRING_LINE("%s",0, Buffer, strlen(Buffer));
   }
   PRINT_SGL_TEXT_LINE("", 0);
   if (info->HyperthreadingAvailable) {
@@ -1292,7 +1292,7 @@ void printSystemInfo(FILE * const fd, const SystemInfo * const info)
       PRINT_SGL_TEXT_LINE("     Hyperthreading: Available but BIOS disabled", 48);
     }
   }
-  
+
 #ifdef USE_AFFINITY
   PRINT_SGL_STRING_LINE("     Sockets       : %3u", 22, info->nSockets, 2);
   if (info->nComputeUnit) {
@@ -1317,7 +1317,7 @@ void printSystemInfo(FILE * const fd, const SystemInfo * const info)
 	PRINT_SGL_TEXT_LINE("", 0);
 	PRINT_SGL_STRING_LINE("   MIC KNC engines : %3u", 21, info->nKNCs, 3);
 	for (unsigned int iMic=0; iMic<info->nKNCs; iMic++) {
-		snprintf(Buffer, LINE_BUFFER_SIZE, "%1.1u: %2.2u cores, %1.1u threads @ %u MHz", 
+		snprintf(Buffer, LINE_BUFFER_SIZE, "%1.1u: %2.2u cores, %1.1u threads @ %u MHz",
 						 iMic, info->MicEngines[iMic].NumCores, info->MicEngines[iMic].NumThreads,
 						 info->MicEngines[iMic].CoreMaxFrequency);
 		PRINT_SGL_STRING_LINE("     MIC %s", 9, Buffer, strlen(Buffer));
@@ -1330,9 +1330,9 @@ void printSystemInfo(FILE * const fd, const SystemInfo * const info)
 _Bool writeSystemInfo(FILE * const fd, const SystemInfo * const info)
 {
     _Bool res = true;
-   
+
     /* Write down a character ID for future modification */
-    {	
+    {
 #ifdef __NUMA__
       const unsigned char c = 1;
 #else
@@ -1340,7 +1340,7 @@ _Bool writeSystemInfo(FILE * const fd, const SystemInfo * const info)
 #endif
       res &= (fwrite(&c, sizeof(unsigned char), 1, fd) == 1);
     }
-    
+
     /* Operating system data */
     res &= (fwrite(info->Username, sizeof(char), 64, fd) == 64);
     res &= (fwrite(info->Release, sizeof(char), 64, fd) == 64);
@@ -1366,7 +1366,7 @@ _Bool writeSystemInfo(FILE * const fd, const SystemInfo * const info)
     res &= (fwrite(&(info->HyperthreadingMask), sizeof(unsigned int), 1, fd) == 1);
     res &= (fwrite(&(info->SocketSelectMaskShift), sizeof(unsigned int), 1, fd) == 1);
     res &= (fwrite(&(info->HyperthreadingMaskWidth), sizeof(unsigned int), 1, fd) == 1);
- 
+
 #ifdef __NUMA__
     res &= (fwrite(info->nNodes, sizeof(unsigned int), 1, fd) == 1);
     res &= (fwrite(info->nCpusPerNode, sizeof(unsigned int), 1, fd) == 1);
@@ -1375,7 +1375,7 @@ _Bool writeSystemInfo(FILE * const fd, const SystemInfo * const info)
       const unsigned char c = (info->HyperthreadingAvailable ? 1 : 0 ) | (info->HyperthreadingOn ? 2 : 0 );
       res &= (fwrite(&c, sizeof(unsigned char), 1, fd) == 1);
     }
-    
+
 #ifdef __NUMA__
     {
       const unsigned char c = (info->NumaAble) ? 1 : 0;
@@ -1385,7 +1385,7 @@ _Bool writeSystemInfo(FILE * const fd, const SystemInfo * const info)
 
 //     unsigned int * TopologyMasks;
 //     unsigned int * APICID;
-    
+
   return res;
 }
 
@@ -1395,12 +1395,12 @@ _Bool readSystemInfo(FILE * const fd, SystemInfo * const info)
     _Bool PotentialNuma = false;
 
     /* Read character ID */
-    {	
+    {
       unsigned char c;
       res &= (fread(&c, sizeof(unsigned char), 1, fd) == 1);
       PotentialNuma = ( c == 1 ) ? true : false;
     }
-    
+
     /* Operating system data */
     res &= (fread(info->Username, sizeof(char), 64, fd) == 64);
     res &= (fread(info->Release, sizeof(char), 64, fd) == 64);
@@ -1426,7 +1426,7 @@ _Bool readSystemInfo(FILE * const fd, SystemInfo * const info)
     res &= (fread(&(info->HyperthreadingMask), sizeof(unsigned int), 1, fd) == 1);
     res &= (fread(&(info->SocketSelectMaskShift), sizeof(unsigned int), 1, fd) == 1);
     res &= (fread(&(info->HyperthreadingMaskWidth), sizeof(unsigned int), 1, fd) == 1);
- 
+
     if (PotentialNuma) {
 #ifdef __NUMA__
       res &= (fread(info->nNodes, sizeof(unsigned int), 1, fd) == 1);
@@ -1437,14 +1437,14 @@ _Bool readSystemInfo(FILE * const fd, SystemInfo * const info)
       res &= (fread(&j, sizeof(unsigned int), 1, fd) == 1);
 #endif
     }
-    
+
     {
       unsigned char c;
       res &= (fread(&c, sizeof(unsigned char), 1, fd) == 1);
       info->HyperthreadingAvailable = (c & 0x1) ? true : false;
       info->HyperthreadingOn        = (c & 0x2) ? true : false;
     }
-    
+
     if (PotentialNuma) {
       unsigned char c;
       res &= (fread(&c, sizeof(unsigned char), 1, fd) == 1);
@@ -1455,7 +1455,7 @@ _Bool readSystemInfo(FILE * const fd, SystemInfo * const info)
 
    info->TopologyMasks = NULL;
    info->APICID        = NULL;
-  
+
    return res;
 }
 
@@ -1465,7 +1465,7 @@ void printMasks(const Affinity_Mask_t * const Masks, const size_t N)
   //char Mask[32] __attribute__((aligned(16)));
   fputs(SGL_TEXT_LINE("     CPUSET Masks                                                   ")
 	EMPTY_LINE, stdout);
-  
+
   for (size_t iMask = 0; iMask<N; ++iMask) {
     fprintf(stdout, SINGLE_VERTICAL_BAR "%3lu:", iMask+1);
     for (int i=63; i>=0; --i) {
@@ -1486,7 +1486,7 @@ void printAPIC(const SystemInfo * const info)
     for (size_t iThread = 0; iThread<info->nOverallCores; ++iThread) {
       fprintf(stdout, SINGLE_VERTICAL_BAR " %3lu :                             ", iThread+1);
       for (int i=31; i>=0; --i) {
-	  const int digit = info->APICID[iThread] & (1 << i) ? (int) '1' : (int) '0'; 
+	  const int digit = info->APICID[iThread] & (1 << i) ? (int) '1' : (int) '0';
 	  fputc(digit, stdout);
       }
       fputs(" " SINGLE_VERTICAL_BAR "\n", stdout);
@@ -1512,7 +1512,7 @@ void printTopology(const SystemInfo * const info)
       fprintf(stdout,"    %18u ", value+1);
       value = APIC & info->HyperthreadingMask;
       fprintf(stdout,"        %6u            ", value+1);
-     
+
       fputs(" " SINGLE_VERTICAL_BAR "\n", stdout);
     }
   } else {
@@ -1536,13 +1536,13 @@ void usage()
             SGL_TEXT_LINE("    INPUT                                                           ")
             SGL_TEXT_LINE("      --socket              number of threads to use                ")
 	          SGL_TEXT_LINE("      --core                number of threads to use                ")
-	          SGL_TEXT_LINE("      --thread              number of threads to use                ")	    
+	          SGL_TEXT_LINE("      --thread              number of threads to use                ")
             BOTTOM_DOUBLE_LINE
     ,stderr);
     exit(1);
 }
 
-int main (int argc, char * argv[]) 
+int main (int argc, char * argv[])
 {
   int c;
   const char opt_to_test[] = "s:c:t:qTh";
@@ -1561,13 +1561,13 @@ int main (int argc, char * argv[])
     {0, 			0, 		0,  	0  }
   };
   SystemInfo Info;
-  
+
 fputs(
   TOP_DOUBLE_LINE\
   SINGLE_VERTICAL_BAR "       System tool      v" GTL_VERSION "          built on " __DATE__ "  " SINGLE_VERTICAL_BAR "\n",
 	stdout);
 
-    
+
   while (1) {
         /* getopt_long stores the option index here. */
         int option_index = 0;
@@ -1613,9 +1613,9 @@ fputs(
             usage();
         }
     }
-  
+
 //   if (optind == argc) usage();
-  
+
   if (!isQuery && !isTest) isQuery=true;
   if (isQuery && isTest) {
     fputs("You may not have both query and test together\n", stderr);
@@ -1625,20 +1625,20 @@ fputs(
   getSystemInfo(&Info);
   printSystemInfo(stdout, &Info);
   if (ShowAPIC) { printAPIC(&Info); printTopology(&Info); }
-  
+
   if (isQuery) {
-#ifdef USE_AFFINITY  
+#ifdef USE_AFFINITY
     fprintf(stderr,"Input %u %u %u\n", SocketId, CoreId, ThreadId);
     Affinity_Mask_t * Masks;
-    const unsigned int count = getMasks(&Info, SocketId, CoreId, ThreadId, &Masks); 
+    const unsigned int count = getMasks(&Info, SocketId, CoreId, ThreadId, &Masks);
     printf("%3u masks satisfy the criteria\n"
            "-------------------------------\n", count);
-    unsigned int nTotalThreads = Info.nOverallCores; 
+    unsigned int nTotalThreads = Info.nOverallCores;
     for (unsigned int i=0; i<count; ++i) {
       for (unsigned int j=0; j<nTotalThreads; ++j) {
-	if ( CPU_ISSET_S(nTotalThreads-1-j, sizeof(Affinity_Mask_t), (cpu_set_t*) &Masks[i]) ) 
+	if ( CPU_ISSET_S(nTotalThreads-1-j, sizeof(Affinity_Mask_t), (cpu_set_t*) &Masks[i]) )
 		fputs("1",stdout);
-	else 
+	else
 		fputs("0", stdout);
       }
       fputs("\n",stdout);
@@ -1647,7 +1647,7 @@ fputs(
    fputs("Query only possible when affinity was build in!\n", stderr);
 #endif /* USE_AFFINITY */
   }
-  
+
   if (isTest) {
 #ifdef USE_AFFINITY
       Affinity_Mask_t Mask, BackupMask;
@@ -1655,8 +1655,8 @@ fputs(
 				fputs("Error getting affinity!\n",stderr);
 				exit(1);
       }
-      puts("Current mask:"); 
-      unsigned int nTotalThreads = Info.nOverallCores; 
+      puts("Current mask:");
+      unsigned int nTotalThreads = Info.nOverallCores;
       for (unsigned int j=0U; j<nTotalThreads; ++j) {
 	if ( CPU_ISSET_S(nTotalThreads-1-j, sizeof(Affinity_Mask_t), (cpu_set_t*) &Mask) )
 		fputs("1",stdout);
@@ -1668,9 +1668,9 @@ fputs(
       fputs("test option not available without affinity enabled.", stdout);
 #endif
   }
-  
+
   freeSystemInfo(&Info);
-  
-  return 1; 
+
+  return 1;
 }
 #endif /* _SYSTEM_TEST */

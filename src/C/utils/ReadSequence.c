@@ -37,9 +37,9 @@ int AnalyzeFASTAStructure(const char * const FileName, DBSequence_t * const Info
 	size_t MaxSequenceSize = 0Ul;
 	size_t chain_size = 819UL;
 	struct stat FileStat;
- 
+
   strncpy(Info->FileName, FileName, 256);
-  
+
   const int FileDescriptor = open(FileName, O_RDONLY);
   if ( FileDescriptor == -1) {
     fprintf(stderr, "Error occured while accessing file %s\n", FileName);
@@ -52,12 +52,12 @@ int AnalyzeFASTAStructure(const char * const FileName, DBSequence_t * const Info
     perror("The error reads ");
     return 1;
   }
-  
+
   if (FileStat.st_size == 0 )
     return 1;
   else
     Info->FileSize = FileStat.st_size;
-  
+
   /* Allocate initial CHAIN */
 	{
 		register chain_t * const data = malloc(CHAIN_SEGMENT_SIZE*sizeof(chain_t));
@@ -68,11 +68,11 @@ int AnalyzeFASTAStructure(const char * const FileName, DBSequence_t * const Info
 		}
 		chain_ptr[0] = data;
 	}
-	
+
   size_t ChainCount = 1UL;
   ssize_t SequenceCount  = -1L;
 	chain_t * CurrentChain = chain_ptr[0] - 1 ;
-  
+
   off_t BufferOffset  = lseek (FileDescriptor, 0, SEEK_CUR);
   size_t length       = read(FileDescriptor, Buffer, BUFFER_SIZE*sizeof(char));
 	_Bool HeaderPending = false;
@@ -124,14 +124,14 @@ int AnalyzeFASTAStructure(const char * const FileName, DBSequence_t * const Info
 			BufferOffset = lseek (FileDescriptor, 0, SEEK_CUR);
 			length = read(FileDescriptor, Buffer, BUFFER_SIZE*sizeof(char));
 		} while (length > 0);
-		
+
 		if (/*CurrentChain >= chain_ptr[0] && */CurrentChain->QualityOffset == 0UL)
 			CurrentChain->QualityOffset = FileStat.st_size;
-		
-		
+
+
     /* Package the overall data */
     SequenceCount += 1UL + (ChainCount-1)*CHAIN_SEGMENT_SIZE;
-    
+
     DataPtr = (s_Data*) malloc((1+SequenceCount)*sizeof(s_Data));
     if ( DataPtr == NULL) {
       fputs("Unable to allocate sufficient memory\n", stderr);
@@ -149,31 +149,31 @@ int AnalyzeFASTAStructure(const char * const FileName, DBSequence_t * const Info
         DataPtr[i].Sequence.HeaderLength            = (unsigned int) CurrentChain[index].HeaderLength;
         register const size_t SequenceLength        =  CurrentChain[index].QualityOffset -  CurrentChain[index].Offset;
         DataPtr[i].Sequence.SequenceLength          = (unsigned int) (SequenceLength - CurrentChain[index].HeaderLength - 1);
-				
+
 				DataPtr[i].Quality.Offset                   = CurrentChain[index].QualityOffset;
 				DataPtr[i].Quality.HeaderLength             = (unsigned int) CurrentChain[index].QualityHeaderLength;
 				register const size_t QualitySequenceLength = CurrentChain[index+1].Offset -  CurrentChain[index].QualityOffset;
 				DataPtr[i].Quality.SequenceLength           = (unsigned int) (QualitySequenceLength - CurrentChain[index].QualityHeaderLength);
 				if (DataPtr[i].Quality.SequenceLength	> 0) DataPtr[i].Quality.SequenceLength -= 1;
-				
+
 				const size_t FullItemLength = CurrentChain[index].QualityOffset - CurrentChain[index].Offset;
 				MaxSequenceSize             = FullItemLength > MaxSequenceSize? FullItemLength : MaxSequenceSize;
-        
+
       } else {
         DataPtr[i].Sequence.Offset           = CurrentChain[index].Offset;
         DataPtr[i].Sequence.HeaderLength     = (unsigned int) CurrentChain[index].HeaderLength;
 				register const size_t SequenceLength = CurrentChain[index].QualityOffset -  CurrentChain[index].Offset;
 				DataPtr[i].Sequence.SequenceLength   = (unsigned int) (SequenceLength - DataPtr[i].Sequence.HeaderLength - 1);
-				
+
 				DataPtr[i].Quality.Offset       = CurrentChain[index].QualityOffset;
 				DataPtr[i].Quality.HeaderLength = (unsigned int) CurrentChain[index].QualityHeaderLength;
-				
+
 				const size_t FullItemLength = CurrentChain[index].QualityOffset - CurrentChain[index].Offset;
 				MaxSequenceSize             = FullItemLength > MaxSequenceSize? FullItemLength : MaxSequenceSize;
-				
+
         free(chain_ptr[ChainCount++]);
         CurrentChain = chain_ptr[ChainCount];
-				
+
 				register const size_t QualitySequenceLength = CurrentChain[0].Offset -  DataPtr[i].Quality.Offset;
 				DataPtr[i].Quality.SequenceLength           = (unsigned int) (QualitySequenceLength - DataPtr[i].Quality.HeaderLength);
 				if (DataPtr[i].Quality.SequenceLength	> 0) DataPtr[i].Quality.SequenceLength -= 1;
@@ -181,24 +181,24 @@ int AnalyzeFASTAStructure(const char * const FileName, DBSequence_t * const Info
     }
 
     const size_t index = (SequenceCount-1) % CHAIN_SEGMENT_SIZE;
-    
+
     DataPtr[SequenceCount-1].Sequence.Offset         = CurrentChain[index].Offset;
     DataPtr[SequenceCount-1].Sequence.HeaderLength   = (unsigned int) CurrentChain[index].HeaderLength;
     register const size_t SequenceLength             = CurrentChain[index].QualityOffset - CurrentChain[index].Offset;
 		DataPtr[SequenceCount-1].Sequence.SequenceLength = (unsigned int) (SequenceLength - CurrentChain[index].HeaderLength - 1);
 		register const size_t QualitySequenceLength      = FileStat.st_size -  CurrentChain[index].QualityOffset;
 		DataPtr[index].Quality.SequenceLength = (unsigned int) (QualitySequenceLength - CurrentChain[index].QualityHeaderLength);
-		if ( DataPtr[index].Quality.SequenceLength	> 0) DataPtr[index].Quality.SequenceLength -= 1;	
+		if ( DataPtr[index].Quality.SequenceLength	> 0) DataPtr[index].Quality.SequenceLength -= 1;
 		DataPtr[index].Quality.HeaderLength = CurrentChain[index].QualityHeaderLength;
 		DataPtr[index].Quality.Offset = CurrentChain[index].QualityOffset;
-		
+
 		register const size_t FullItemLength = CurrentChain[index].QualityOffset - CurrentChain[index].Offset;
 		MaxSequenceSize = FullItemLength > MaxSequenceSize? FullItemLength : MaxSequenceSize;
-		
+
     free(chain_ptr[ChainCount]);
   }
   close(FileDescriptor);
- 
+
   /* Add extra file size at last DataPtr */
   DataPtr[SequenceCount].Sequence.Offset = FileStat.st_size;
   DataPtr[SequenceCount].Sequence.HeaderLength = 0;
@@ -206,14 +206,14 @@ int AnalyzeFASTAStructure(const char * const FileName, DBSequence_t * const Info
 	DataPtr[SequenceCount].Quality.Offset = FileStat.st_size;
 	DataPtr[SequenceCount].Quality.HeaderLength = 0;
 	DataPtr[SequenceCount].Quality.SequenceLength = 0;
-  
+
   Info->DataPtr          = DataPtr;
   Info->SequenceCount    = SequenceCount;
   Info->MaxSequenceSize  = MaxSequenceSize+1;
 	Info->LastModification = FileStat.st_mtim;
-  
+
   return 0;
-  
+
   FreeMemory:
     close(FileDescriptor);
     for (size_t i=0; i<ChainCount; ++i) {
@@ -236,9 +236,9 @@ int AnalyzeFASTQStructure(const char * const FileName, DBSequence_t * const Info
 	size_t MaxSequenceSize = 0Ul;
 	size_t chain_size = 819UL;
 	struct stat FileStat;
- 
+
   strncpy(Info->FileName, FileName, 256);
-  
+
   const int FileDescriptor = open(FileName, O_RDONLY);
   if ( FileDescriptor == -1) {
     fprintf(stderr, "Error occured while accessing file %s\n", FileName);
@@ -251,12 +251,12 @@ int AnalyzeFASTQStructure(const char * const FileName, DBSequence_t * const Info
     perror("The error reads ");
     return 1;
   }
-  
+
   if (FileStat.st_size == 0 )
     return 1;
   else
     Info->FileSize = FileStat.st_size;
-  
+
   /* Allocate initial CHAIN */
 	{
 		register chain_t * const data = malloc(CHAIN_SEGMENT_SIZE*sizeof(chain_t));
@@ -267,11 +267,11 @@ int AnalyzeFASTQStructure(const char * const FileName, DBSequence_t * const Info
 		}
 		chain_ptr[0] = data;
 	}
-	
+
   size_t ChainCount = 1UL;
   ssize_t SequenceCount  = -1L;
 	chain_t * CurrentChain = chain_ptr[0] - 1 ;
-  
+
   off_t BufferOffset  = lseek (FileDescriptor, 0, SEEK_CUR);
   size_t length       = read(FileDescriptor, Buffer, BUFFER_SIZE*sizeof(char));
 	_Bool HeaderPending = false;
@@ -337,11 +337,11 @@ int AnalyzeFASTQStructure(const char * const FileName, DBSequence_t * const Info
 			BufferOffset  = lseek (FileDescriptor, 0, SEEK_CUR);
 			length = read(FileDescriptor, Buffer, BUFFER_SIZE*sizeof(char));
 		} while (length > 0);
-		
-		
+
+
     /* Package the overall data */
     SequenceCount += 1UL + (ChainCount-1)*CHAIN_SEGMENT_SIZE;
-    
+
     DataPtr = (s_Data*) malloc((1+SequenceCount)*sizeof(s_Data));
     if ( DataPtr == NULL) {
       fputs("Unable to allocate sufficient memory\n", stderr);
@@ -359,31 +359,31 @@ int AnalyzeFASTQStructure(const char * const FileName, DBSequence_t * const Info
         DataPtr[i].Sequence.HeaderLength            = (unsigned int) CurrentChain[index].HeaderLength;
         register const size_t SequenceLength        =  CurrentChain[index].QualityOffset -  CurrentChain[index].Offset;
         DataPtr[i].Sequence.SequenceLength          = (unsigned int) (SequenceLength - CurrentChain[index].HeaderLength - 1);
-				
+
 				DataPtr[i].Quality.Offset                   = CurrentChain[index].QualityOffset;
 				DataPtr[i].Quality.HeaderLength             = (unsigned int) CurrentChain[index].QualityHeaderLength;
 				register const size_t QualitySequenceLength = CurrentChain[index+1].Offset -  CurrentChain[index].QualityOffset;
 				DataPtr[i].Quality.SequenceLength           = (unsigned int) (QualitySequenceLength - CurrentChain[index].QualityHeaderLength);
 				if (DataPtr[i].Quality.SequenceLength	> 0) DataPtr[i].Quality.SequenceLength -= 2;
-				
+
 				const size_t FullItemLength = CurrentChain[index].QualityOffset - CurrentChain[index].Offset;
 				MaxSequenceSize             = FullItemLength > MaxSequenceSize? FullItemLength : MaxSequenceSize;
-        
+
       } else {
         DataPtr[i].Sequence.Offset           = CurrentChain[index].Offset;
         DataPtr[i].Sequence.HeaderLength     = (unsigned int) CurrentChain[index].HeaderLength;
 				register const size_t SequenceLength = CurrentChain[index].QualityOffset -  CurrentChain[index].Offset;
 				DataPtr[i].Sequence.SequenceLength   = (unsigned int) (SequenceLength - DataPtr[i].Sequence.HeaderLength - 1);
-				
+
 				DataPtr[i].Quality.Offset       = CurrentChain[index].QualityOffset;
 				DataPtr[i].Quality.HeaderLength = (unsigned int) CurrentChain[index].QualityHeaderLength;
-				
+
 				const size_t FullItemLength = CurrentChain[index].QualityOffset - CurrentChain[index].Offset;
 				MaxSequenceSize             = FullItemLength > MaxSequenceSize? FullItemLength : MaxSequenceSize;
-				
+
         free(chain_ptr[ChainCount++]);
         CurrentChain = chain_ptr[ChainCount];
-				
+
 				register const size_t QualitySequenceLength = CurrentChain[0].Offset -  DataPtr[i].Quality.Offset;
 				DataPtr[i].Quality.SequenceLength           = (unsigned int) (QualitySequenceLength - DataPtr[i].Quality.HeaderLength);
 				if (DataPtr[i].Quality.SequenceLength	> 0) DataPtr[i].Quality.SequenceLength -= 2;
@@ -391,24 +391,24 @@ int AnalyzeFASTQStructure(const char * const FileName, DBSequence_t * const Info
     }
 
     const size_t index = (SequenceCount-1) % CHAIN_SEGMENT_SIZE;
-    
+
     DataPtr[SequenceCount-1].Sequence.Offset         = CurrentChain[index].Offset;
     DataPtr[SequenceCount-1].Sequence.HeaderLength   = (unsigned int) CurrentChain[index].HeaderLength;
     register const size_t SequenceLength             = CurrentChain[index].QualityOffset - CurrentChain[index].Offset;
 		DataPtr[SequenceCount-1].Sequence.SequenceLength = (unsigned int) (SequenceLength - CurrentChain[index].HeaderLength - 1);
 		register const size_t QualitySequenceLength      = FileStat.st_size -  CurrentChain[index].QualityOffset;
 		DataPtr[index].Quality.SequenceLength = (unsigned int) (QualitySequenceLength - CurrentChain[index].QualityHeaderLength);
-		if ( DataPtr[index].Quality.SequenceLength	> 0) DataPtr[index].Quality.SequenceLength -= 1;	
+		if ( DataPtr[index].Quality.SequenceLength	> 0) DataPtr[index].Quality.SequenceLength -= 1;
 		DataPtr[index].Quality.HeaderLength = CurrentChain[index].QualityHeaderLength;
 		DataPtr[index].Quality.Offset = CurrentChain[index].QualityOffset;
-		
+
 		register const size_t FullItemLength = CurrentChain[index].QualityOffset - CurrentChain[index].Offset;
 		MaxSequenceSize = FullItemLength > MaxSequenceSize? FullItemLength : MaxSequenceSize;
-		
+
     free(chain_ptr[ChainCount]);
   }
   close(FileDescriptor);
- 
+
   /* Add extra file size at last DataPtr */
   DataPtr[SequenceCount].Sequence.Offset = FileStat.st_size;
   DataPtr[SequenceCount].Sequence.HeaderLength = 0;
@@ -416,14 +416,14 @@ int AnalyzeFASTQStructure(const char * const FileName, DBSequence_t * const Info
 	DataPtr[SequenceCount].Quality.Offset = FileStat.st_size;
 	DataPtr[SequenceCount].Quality.HeaderLength = 0;
 	DataPtr[SequenceCount].Quality.SequenceLength = 0;
-  
+
   Info->DataPtr          = DataPtr;
   Info->SequenceCount    = SequenceCount;
   Info->MaxSequenceSize  = MaxSequenceSize+1;
 	Info->LastModification = FileStat.st_mtim;
-  
+
   return 0;
-  
+
   FreeMemory:
     close(FileDescriptor);
     for (size_t i=0; i<ChainCount; ++i) {
@@ -439,15 +439,15 @@ int AnalyzeEMBLStructure(const char * const FileName, DBSequence_t * const Info)
 		size_t HeaderLength;
 		size_t SequenceEnd;
 	} chain_t;
-	
+
   chain_t * * chain_ptr ;
   s_Data * restrict DataPtr = NULL;
 	size_t MaxSequenceSize = 0Ul;
 	size_t chain_size = 819UL;
 	struct stat FileStat;
- 
+
   strncpy(Info->FileName, FileName, 256);
-  
+
 	FILE* const FileDescriptor = fopen(FileName, "r" );
   if ( FileDescriptor == NULL) {
     fprintf(stderr, "Error occured while accessing file %s\n", FileName);
@@ -460,12 +460,12 @@ int AnalyzeEMBLStructure(const char * const FileName, DBSequence_t * const Info)
     perror("The error reads ");
     return 1;
   }
-  
+
   if (FileStat.st_size == 0 )
     return 1;
   else
     Info->FileSize = FileStat.st_size;
-  
+
   /* Allocate initial CHAIN */
 	{
 		register chain_t * const data = malloc(CHAIN_SEGMENT_SIZE*sizeof(chain_t));
@@ -476,11 +476,11 @@ int AnalyzeEMBLStructure(const char * const FileName, DBSequence_t * const Info)
 		}
 		chain_ptr[0] = data;
 	}
-	
+
   size_t ChainCount = 1UL;
   ssize_t SequenceCount  = -1L;
 	chain_t * CurrentChain = chain_ptr[0] - 1 ;
-  
+
   off_t BufferOffset = 0UL;
   char * Line = NULL;
 	size_t LineSize = 0UL;
@@ -520,11 +520,11 @@ int AnalyzeEMBLStructure(const char * const FileName, DBSequence_t * const Info)
 			}
 			BufferOffset += (off_t) length;
 	}
-	
-		
+
+
 	/* Package the overall data */
 	SequenceCount += 1UL + (ChainCount-1)*CHAIN_SEGMENT_SIZE;
-	
+
 	DataPtr = (s_Data*) malloc((1+SequenceCount)*sizeof(s_Data));
 	if ( DataPtr == NULL) {
 		fputs("Unable to allocate sufficient memory\n", stderr);
@@ -541,22 +541,22 @@ int AnalyzeEMBLStructure(const char * const FileName, DBSequence_t * const Info)
 		DataPtr[i].Sequence.HeaderLength   = (unsigned int) CurrentChain[index].HeaderLength - 1;
 		const size_t FullItemLength        = (unsigned int) (CurrentChain[index].SequenceEnd - CurrentChain[index].Offset) + 1;
 		DataPtr[i].Sequence.SequenceLength = (unsigned int) (FullItemLength - CurrentChain[index].HeaderLength);
-		
+
 		DataPtr[i].Quality.Offset          = (off_t) 0;
 		DataPtr[i].Quality.HeaderLength    = 0U;
 		DataPtr[i].Quality.SequenceLength  = 0U;
-		
+
 		MaxSequenceSize             = FullItemLength > MaxSequenceSize? FullItemLength : MaxSequenceSize;
-		
+
 		if (index == (CHAIN_SEGMENT_SIZE-1)) {
 			free(chain_ptr[ChainCount++]);
 			CurrentChain = chain_ptr[ChainCount];
 		}
 	}
-	
-	free(chain_ptr[ChainCount]); 
+
+	free(chain_ptr[ChainCount]);
   fclose(FileDescriptor);
- 
+
   /* Add extra file size at last DataPtr */
   DataPtr[SequenceCount].Sequence.Offset = FileStat.st_size;
   DataPtr[SequenceCount].Sequence.HeaderLength = 0;
@@ -564,15 +564,15 @@ int AnalyzeEMBLStructure(const char * const FileName, DBSequence_t * const Info)
 	DataPtr[SequenceCount].Quality.Offset = FileStat.st_size;
 	DataPtr[SequenceCount].Quality.HeaderLength = 0;
 	DataPtr[SequenceCount].Quality.SequenceLength = 0;
-  
+
   Info->DataPtr          = DataPtr;
   Info->SequenceCount    = SequenceCount;
   Info->MaxSequenceSize  = MaxSequenceSize+1;
 	Info->LastModification = FileStat.st_mtim;
   free(Line);
-	
+
   return 0;
-  
+
   FreeMemory:;
     if (Line) free(Line);
     fclose(FileDescriptor);
@@ -584,7 +584,7 @@ int AnalyzeEMBLStructure(const char * const FileName, DBSequence_t * const Info)
 
 int ExportDBStructure(FILE* const stream, const DBSequence_t * const Info)
 {
- 
+
   unsigned short FileNameLength = (unsigned short) strlen(Info->FileName);
   if (fwrite(&(FileNameLength), sizeof(unsigned short), 1, stream) != 1) return 1;
   if (fwrite(Info->FileName, sizeof(char), (size_t) FileNameLength, stream) != (size_t) FileNameLength) return 1;
@@ -595,17 +595,17 @@ int ExportDBStructure(FILE* const stream, const DBSequence_t * const Info)
   if (fwrite(&tmp, sizeof(unsigned long), 1, stream) != 1) return 1;
 	if (fwrite(&(Info->LastModification), sizeof(struct timespec), 1, stream) != 1) return 1;
   if (fwrite(Info->DataPtr, sizeof(s_Data), 1+Info->SequenceCount, stream) != 1+Info->SequenceCount) return 1;
-  
- return 0; 
+
+ return 0;
 }
 
 int ImportDBStructure(FILE* const stream, const char * const DBFileName, DBSequence_t * const Info)
 {
   unsigned short FileNameLength;
-  unsigned long SequenceCount, MaxSequenceSize; 
+  unsigned long SequenceCount, MaxSequenceSize;
   memset(Info->FileName, 0, 256*sizeof(char));
-  
-  
+
+
   if (fread(&FileNameLength, sizeof(unsigned short), 1, stream) != 1) return 1;
   if (fread(Info->FileName, sizeof(char), (size_t) FileNameLength, stream) != FileNameLength) return 1;
   if (fread(&(Info->FileSize), sizeof(off_t), 1, stream) != 1) return 1;
@@ -620,21 +620,21 @@ int ImportDBStructure(FILE* const stream, const char * const DBFileName, DBSeque
     return 1;
   }
   if (fread(Info->DataPtr, sizeof(s_Data), (1+Info->SequenceCount), stream) != 1+Info->SequenceCount) return 1;
-	
+
 	/* Check size and time of last modification */
 	struct stat st;
 	if (stat(DBFileName, &st) != 0) {
 		perror("ImportDBStructure");
 		return 1;
 	}
-	
+
 	if (st.st_size != Info->FileSize || st.st_mtim.tv_nsec != Info->LastModification.tv_nsec ||
 		st.st_mtim.tv_sec != Info->LastModification.tv_sec) {
 		fprintf(stderr, "Index file does not match %s\n", DBFileName);
 		return 1;
 	}
-  
- return 0; 
+
+ return 0;
 }
 
 #ifdef _TEST
@@ -642,7 +642,7 @@ int main(int argc, char *argv[])
 {
   char Buffer[2048] __attribute__((aligned(16)));
   DBSequence_t FASTA;
-  
+
   if (argc < 2 || argc > 3) { fputs("Provide just a FASTA file\n", stderr); return 1; }
   printf("Starting analysis of %s...\n", argv[1]);
 
@@ -697,11 +697,11 @@ int main(int argc, char *argv[])
           fputs("Sorry but allocated buffer cannot hold sequence length\n", stderr);
         }
         fclose(in);
-      } 
+      }
     }
-    
+
   }
-  
+
   return 0;
 }
 #endif

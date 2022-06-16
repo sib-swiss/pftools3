@@ -60,53 +60,53 @@ int GenerateSequences(const struct Profile * const prf, const float MaxExponent,
 #else
 static int localGenerateSequences(const struct Profile * const prf, const float MaxExponent, FILE * fd,
 			     const long int Seed, const enum GeneratedSequenceOptions Options, const unsigned int N)
-#endif  
+#endif
 {
   struct Random sr;
   int res = 0;
-  
+
   /* Open file */
 #ifndef _PFEMIT
   FILE * const fd = fopen(FileName, "w");
 #endif
   if (fd == NULL) return -1;
-  
+
   /* Localy store profile informations */
   const size_t Length = prf->Length;
   const char * const ProfileAlphabet = &(prf->CABC[1]); // WARNING: alphabet first value is for unknown
   size_t AlphabetLength = 1;
   while ( prf->CABC[AlphabetLength] != 'X' )  ++AlphabetLength;
   AlphabetLength -= 1;
-  
+
   /* What should we take into account ? (MATCH/INSERTION/DELETION) */
   size_t TotalLength = 0;
   if (Options & GENERATE_MATCH) TotalLength += AlphabetLength;
   if (Options & GENERATE_INSERTION) TotalLength += AlphabetLength;
   if (Options & GENERATE_DELETION) TotalLength += 1;
-  
+
   const size_t LDA = (TotalLength + 3) & ~3;
 //    fprintf(stderr, "Total generated length is %lu rounded to %lu\n", TotalLength, LDA);
-  
+
   /* Allocate memory to hold probability */
   float * const Probabilities = (float*) _mm_malloc(LDA*Length*sizeof(float), 16);
-  if (Probabilities == NULL) { 
+  if (Probabilities == NULL) {
     res = -2;
     goto FIN;
   }
   /* Allocate memory to hold the ordered alphabet */
   char * const Alphabets = (char*) malloc(Length*LDA*sizeof(char));
-  if (Alphabets == NULL) { 
+  if (Alphabets == NULL) {
     res = -2;
     goto FIN;
   }
   memset(Alphabets, '?', Length*LDA*sizeof(char));
-  
+
   /* Compute the Probabilities of each profile position */
   const size_t MatchInsertionLDA = prf->Scores.Match.AlignStep;
   const StoredIntegerFormat * restrict Match = prf->Scores.Match.Alphabet; 	  // WARNING: alphabet first value is for unknown
   const StoredIntegerFormat * restrict Insertion = prf->Scores.Insertion.Alphabet;  // WARNING: alphabet[_D] is deletion
   Insertion += MatchInsertionLDA;
-  
+
   float * restrict ProbPtr = Probabilities;
   char * restrict AlphaPtr = Alphabets;
   for (size_t iprf=0; iprf<Length; ++iprf) {
@@ -127,7 +127,7 @@ static int localGenerateSequences(const struct Profile * const prf, const float 
 				const register float x = (float) Insertion[1+k];
 				ProbPtr[i] = x;
 				maximum = (maximum < x) ? x : maximum;
-				// Set lower case to insertion to recognize it 
+				// Set lower case to insertion to recognize it
 				AlphaPtr[i++] = ProfileAlphabet[k++] + ((unsigned char) 'a' - (unsigned char) 'A');
       }
     }
@@ -137,9 +137,9 @@ static int localGenerateSequences(const struct Profile * const prf, const float 
       maximum = (maximum < x) ? x : maximum;
       AlphaPtr[i++] = '-';
     }
-        
+
     while (i<LDA) ProbPtr[i++] = 0.0f;
-    
+
     if (maximum > 0.0f) {
       const register float scale = MaxExponent/(maximum);
       i = 0;
@@ -164,7 +164,7 @@ static int localGenerateSequences(const struct Profile * const prf, const float 
 				ProbPtr[i++] = expf(x);
       }
     }
-    
+
     /* Sort the alphabets and the scores according to the score */
     fcqsort(ProbPtr, AlphaPtr, TotalLength);
 #ifdef _PFEMIT
@@ -185,7 +185,7 @@ static int localGenerateSequences(const struct Profile * const prf, const float 
     while (i<(TotalLength-1)) {
       ProbPtr[i++] *= invSum;
     }
-    ProbPtr[TotalLength-1] = 1.0f;  
+    ProbPtr[TotalLength-1] = 1.0f;
 
     Match     += MatchInsertionLDA;
     Insertion += MatchInsertionLDA;
@@ -202,7 +202,7 @@ static int localGenerateSequences(const struct Profile * const prf, const float 
       goto FIN2;
   }
   char * restrict LastSPtr = &SequenceBuffer[SequenceBufferSize-2];
-  
+
   for (unsigned int iseq=0; iseq<N; ++iseq) {
     ProbPtr = Probabilities;
     AlphaPtr = Alphabets;
@@ -242,11 +242,11 @@ static int localGenerateSequences(const struct Profile * const prf, const float 
 							res = -4;
 							goto FIN3;
 					}
-					
+
 					continue;
 				}
 				InsertCount = 0;
-      }  
+      }
 #else
       *SPtr++ = *cptr;
       if (++CR == 80) {
@@ -266,12 +266,12 @@ static int localGenerateSequences(const struct Profile * const prf, const float 
       break;
     }
   }
-  
+
   FIN3:
   free(SequenceBuffer);
   FIN2:
   free(Alphabets);
-  FIN1:  
+  FIN1:
   _mm_free(Probabilities);
   FIN:
 #ifndef _PFEMIT
@@ -295,14 +295,14 @@ static void __attribute__((noreturn)) Usage(FILE * stream)
 		" Options:\n"
 		"   -N <uint>   : number of sequences (default 10)\n"
 		"   -s <ulong>  : random generator seed (default 1234)\n"
-		"   -E <float>  : maximum exponent value\n"         
+		"   -E <float>  : maximum exponent value\n"
 		"   -v          : verbose mode\n"
 		"   -h          : prints this help\n\n",
 	stream);
   exit(0);
 }
 
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   struct Profile prf;
   struct timeval _t0, _t1;
@@ -312,11 +312,11 @@ int main(int argc, char *argv[])
   bool OutputVerbose = false;
   unsigned long Seed = 1234L;
   float MaxExponent = 8.0f;
-  
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // OPTIONS
   ////////////////////////////////////////////////////////////////////////////////////////////////
- 
+
   while (1) {
     const int c = getopt(argc, argv, opt_to_test);
 
@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
     switch (c) {
       case 'N':
       {
-				int val = (int) atoi(optarg); 
+				int val = (int) atoi(optarg);
 				N = (size_t) (val > 0) ? val : -val;
       }
       break;
@@ -350,8 +350,8 @@ int main(int argc, char *argv[])
   } else {
     ProfileFile = argv[optind];
   }
-  
-  /* 
+
+  /*
    * Read the profile and output some infos
    */
   gettimeofday(&_t0,0);
@@ -377,11 +377,11 @@ int main(int argc, char *argv[])
 
     fprintf(stderr,"Disjoint set: %i to %i\n", prf.DisjointData.NDIP[0], prf.DisjointData.NDIP[1]);
   }
-  
+
   if (localGenerateSequences(&prf, MaxExponent, stdout, Seed, GENERATE_MATCH | GENERATE_INSERTION | GENERATE_DELETION, N) != 0) {
-    fputs("Error in generation of sequences\n", stderr); 
+    fputs("Error in generation of sequences\n", stderr);
   }
-  
+
   FreeProfile(&prf, false);
 }
 #endif /* _PFEMIT*/

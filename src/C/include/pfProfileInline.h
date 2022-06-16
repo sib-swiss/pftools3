@@ -44,7 +44,7 @@ PF_EXTERN_INLINE(void) InitializeDefault(union Scores * const matrices,
   matrices->Insertion.Alphabet[0] = NLOW_16;
   matrices->Match.Alphabet[0]     = NLOW_16;
 #endif
-  
+
   *MatchSymbol = 'X';
   *InsertionSymbol = '-';
 }
@@ -105,6 +105,6 @@ PF_EXTERN_INLINE(int) ComputeHeuristicCutoff(struct Profile * const prf, const i
     const float hcut = (float) CutOff * NormItem->RNOP[1] + NormItem->RNOP[0] + 0.5f;
     return (int) hcut;
   }
-  else 
+  else
     return -1;
 }

@@ -79,7 +79,7 @@ PFSequence * MMAP_ReadSequenceIndex(Sequence * const Seq, const char * const res
 				    const ss_Data * const DataPtr, const off_t InitialArrayOffset
 #ifdef MMAP_DEBUG
 				    ,const size_t ThreadId, const size_t NodeId, const size_t length
-#endif						
+#endif
 );
 void ReadSequenceNameIndex(char * const Name, FILE * const stream, const ss_Data * const DataPtr);
 unsigned char TranslateCharToIndex(const char letter, const unsigned char * restrict const Alphabet);

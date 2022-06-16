@@ -31,7 +31,7 @@
 
 #define KDIS                    2
 #define KDPM                    2
-/* Maximum number of normalization modes, half is for score and the other for heuristic score */ 
+/* Maximum number of normalization modes, half is for score and the other for heuristic score */
 #define MAXN                    8
 /* Maximum number of function type in normalization (LINEAR,...) */
 #define KNOR                    3
@@ -43,8 +43,8 @@
 #define NALI 1024
 
 #ifndef _BEST_IS_NEGATIVE_
-/* 
- * Lowest score value used when forbidding paths in the computation 
+/*
+ * Lowest score value used when forbidding paths in the computation
  * Remember that we need to be able to go underneath without underflow
  */
 # ifndef __USE_32BIT_INTEGER__
@@ -53,14 +53,14 @@
 #  define STORED_INT_MAX	SHRT_MAX
 # else
 // Division by 4 is required to prevent the pfplot tagging to underflow
-#  define NLOW             -536870912/4 
+#  define NLOW             -536870912/4
 #  define STORED_INT_MIN        INT_MIN
 #  define STORED_INT_MAX	      INT_MAX
 # endif
 # define NLOW_16                 -16383
 #else
-/* 
- * Highest score value used when forbidding paths in the computation 
+/*
+ * Highest score value used when forbidding paths in the computation
  * Remember that we need to be able to go over without underflow
  */
 # ifndef __USE_32BIT_INTEGER__
@@ -69,7 +69,7 @@
 #  define STORED_INT_MAX	SHRT_MAX
 # else
 // Division by 4 is required to prevent the pfplot tagging to underflow
-#  define NLOW              536870912/4 
+#  define NLOW              536870912/4
 #  define STORED_INT_MIN	      INT_MIN
 #  define STORED_INT_MAX	      INT_MAX
 # endif
@@ -201,7 +201,7 @@ union ScoreLength {
 	} Element;
 	__m64 mm;
 };
-static inline void __attribute__((__gnu_inline__, __always_inline__, __artificial__)) 
+static inline void __attribute__((__gnu_inline__, __always_inline__, __artificial__))
 StoreScoreLength( union ScoreLength * const _address, __m128i _score, __m128i _length)
 {
 	_score = _mm_unpacklo_epi32(_score, _length);
@@ -274,7 +274,7 @@ typedef struct NormalizationItem {
 typedef struct Normalization {
 	SNormalizationItem Values[MAXN];
 	char  CNOR[KNOR][16];		// description of the mode function
-	int   JNOP[KNOR];       // number of coefficients 
+	int   JNOP[KNOR];       // number of coefficients
 	int   JNOR;
 } SNormalization;
 
@@ -390,8 +390,8 @@ enum Strand {FORWARD=0, REVERSE_COMPLEMENT=3, BOTH=4, REVERSE=1, COMPLEMENT=2};
 enum Version { SSE2=0, SSE41=1};
 
 /************** Sequence generated from profile options *********/
-enum GeneratedSequenceOptions { 
-	GENERATE_MATCH=1, 
+enum GeneratedSequenceOptions {
+	GENERATE_MATCH=1,
 	GENERATE_INSERTION=2,
 	GENERATE_DELETION=4
 };
@@ -451,7 +451,7 @@ struct Alignment {
 
 struct DBSequence;
 typedef struct PrintInput {
-	const char * SequenceFile; 
+	const char * SequenceFile;
 	const struct DBSequence * DB;
 	unsigned int SeqId;
 } PrintInput_t;
@@ -768,7 +768,7 @@ extern inline HeuristicFunctionPtr __ALWAYS_INLINE GetHeuristicVersion(const enu
 {
 	if (version == SSE2)
 		return &TransposeHeuristic_sse2;
-	else 
+	else
 		return &TransposeHeuristic_sse41;
 }
 

@@ -19,25 +19,25 @@ void mutate(struct Random * const restrict Generator, const struct Profile * con
 	    const size_t MutationNumber)
 {
   /*
-   * Keep in mind that the corresponding indices used to translate the alphabet have 0 as unknown 
+   * Keep in mind that the corresponding indices used to translate the alphabet have 0 as unknown
    * Furthermore Alphabet length is the dimension size, not the real size, therfore we look for the
    * second occurance of 'X'.
    * At last, we expect outSequence to be already allocated (malloc) to at least the size of inSequence.
    * From then it is adjusted.
    */
-    
+
 	size_t AlphabetLength = 1;
 	while ( prf->CABC[AlphabetLength] != 'X' )  ++AlphabetLength;
 	AlphabetLength -= 1;
-	
+
 	const float fAlphabetLength = (float) AlphabetLength;
 	size_t SequenceLength       = inSequence->Length;
 	const size_t N              = MutationNumber;
 	size_t MemorySize           = outSequence->Size;
 	unsigned char * Memory      = outSequence->Data.Memory;
-	
+
 	memcpy(Memory, inSequence->ProfileIndex, inSequence->Length*sizeof(unsigned char));
-	
+
 	for (size_t i=0; i<N; ++i) {
 		/* pick up ramdomly the possible transformations */
 		const float NewTransform = (fAlphabetLength+1.0f)*NormalizedFlatDistributionValue(Generator);
@@ -47,7 +47,7 @@ void mutate(struct Random * const restrict Generator, const struct Profile * con
 		if (NewTransform >= 1.0f) {
 			/* Single mutation */
 			Memory[position] = (unsigned char) NewTransform;
-		} 
+		}
 		else if (NewTransform >= 0.5f) {
 			/* Deletion */
 			if (SequenceLength > 1) {
@@ -65,7 +65,7 @@ void mutate(struct Random * const restrict Generator, const struct Profile * con
 				count = 0;
 				while (gd_param > 0.2f) { gd_param *= gd_param; ++count; }
 			} while ( count > 32);
-			
+
 			/* Check if memory is ok */
 			{
 				const size_t tmp = SequenceLength + count;
@@ -88,7 +88,7 @@ void mutate(struct Random * const restrict Generator, const struct Profile * con
 				else {
 					register const size_t end = position+count;
 					memmove(&Memory[end], &Memory[position], (SequenceLength - position)*sizeof(char));
-					for (size_t p=position; p<end; ++p) Memory[p] = 1 + (unsigned char) (fAlphabetLength*NormalizedFlatDistributionValue(Generator)); 
+					for (size_t p=position; p<end; ++p) Memory[p] = 1 + (unsigned char) (fAlphabetLength*NormalizedFlatDistributionValue(Generator));
 				}
 				SequenceLength += count;
 			}
@@ -120,7 +120,7 @@ static void __attribute__((noreturn)) Usage(FILE * stream)
   exit(0);
 }
 
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   struct Profile prf;
   struct Random Generator;
@@ -131,11 +131,11 @@ int main(int argc, char *argv[])
   PFSequence pfseq_in;
   Sequence SeqOut;
   unsigned long Seed = 1234L;
-  
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // OPTIONS
   ////////////////////////////////////////////////////////////////////////////////////////////////
- 
+
   while (1) {
     const int c = getopt(argc, argv, opt_to_test);
 
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
     switch (c) {
       case 'N':
       {
-				int val = (int) atoi(optarg); 
+				int val = (int) atoi(optarg);
 				N = (size_t) (val > 0) ? val : -val;
       }
       break;
@@ -166,10 +166,10 @@ int main(int argc, char *argv[])
   } else {
     ProfileFile = argv[optind];
   }
-  
+
   char * Sequence = argv[optind+1];
-  
-  /* 
+
+  /*
    * Read the profile and output some infos
    */
   int res = ReadProfile(ProfileFile, &prf, false);
@@ -180,35 +180,35 @@ int main(int argc, char *argv[])
   if (OutputVerbose) {
 		fprintf(stderr,"Profile %s has length %lu and alphabet size of %lu\n",
 		ProfileFile, prf.Length, prf.Alphabet_Length);
-		
+
 		fputs("Alphabet Mapping\n",stderr);
 		for (size_t i=0; i<ALPHABET_SIZE; ++i) {
 			fprintf(stderr,"Map %c=%2u  ", (char) ((unsigned char) 'A' + (unsigned char) i), (unsigned int) prf.Alphabet_Mapping[i]);
 			if ((i+1) % 8 == 0 ) fputs("\n",stderr);
 		}
 		fputs("\n\n",stderr);
-		
+
 		fprintf(stderr,"Disjoint set: %i to %i\n", prf.DisjointData.NDIP[0], prf.DisjointData.NDIP[1]);
   }
-  
+
   size_t length = strlen(Sequence);
   pfseq_in.ProfileIndex = malloc(1+length);
   pfseq_in.Length = length;
   strcpy(pfseq_in.ProfileIndex, Sequence);
   printf(" Original sequence      : %s\n", pfseq_in.ProfileIndex);
   TranslateSequenceToIndex(&pfseq_in, prf.Alphabet_Mapping, 0);
-  
+
   InitializeGenerator(Seed, &Generator);
-  
+
   SeqOut.Data.Memory = malloc(1+length);
   SeqOut.Size        = (1+length);
   mutate(&Generator, &prf, &pfseq_in, &SeqOut,N);
   PFSequence * restrict pfseq_out = &SeqOut.ProfileData;
-  
-  for (size_t i=0; i<pfseq_out->Length; ++i) 
+
+  for (size_t i=0; i<pfseq_out->Length; ++i)
 		pfseq_out->ProfileIndex[i] = prf.CABC[pfseq_out->ProfileIndex[i]];
   pfseq_out->ProfileIndex[pfseq_out->Length] = '\0';
   printf(" New sequence           : %s\n", pfseq_out->ProfileIndex);
-  
+
 }
 #endif /* _PFPAM*/

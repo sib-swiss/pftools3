@@ -70,7 +70,7 @@ static size_t MaxRegexNumber = 16;
  ************************************************************************************************
  */
 #ifdef _NEEDS_HEURISTIC_
-static void *thread_heuristic(void * _Data) 
+static void *thread_heuristic(void * _Data)
 {
   Sequence SeqData;
   const struct Profile * const * prfs         = ((struct ThreadData*) _Data)->prf;
@@ -78,7 +78,7 @@ static void *thread_heuristic(void * _Data)
   const TransposeMatrix * const restrict TransposeMatch = ((struct ThreadData*) _Data)->TransposeMatch;
   struct ID * const restrict Array            = ((struct ThreadData*) _Data)->Array;
   PFSequence * PFSeq;
-  
+
   const HeuristicFunctionPtr heuristic = GetHeuristicVersion(((struct ThreadData*) _Data)->version);
 
   /* Allocate memory to hold sequence */
@@ -99,14 +99,14 @@ static void *thread_heuristic(void * _Data)
   register const size_t Nprf = ((struct ThreadData*) _Data)->profileCount;
   for (size_t i=Start; i<Stop; ++i) {
     PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(FASTA->DataPtr[i].Sequence));
-       
+
     for (size_t k=0; k<Nprf; ++k) {
       memcpy(Buffer, PFSeq->ProfileIndex, PFSeq->Length);
       Buffer[PFSeq->Length] = '\0';
-      PFSequence lPFSeq = {Buffer, NULL, PFSeq->Length}; 
+      PFSequence lPFSeq = {Buffer, NULL, PFSeq->Length};
       const struct Profile * const restrict prf = prfs[k];
-			
-			
+
+
       unsigned int lHeuristicCutOff;
 			if (((struct ThreadData*) _Data)->NormalizedCutoff > 0.0f) {
 				if (prf->HeuristicModeIndex < 0) {
@@ -122,13 +122,13 @@ static void *thread_heuristic(void * _Data)
 			else {
 				lHeuristicCutOff = prf->HeuristicCutOff;
 			}
-			
+
       if (lHeuristicCutOff > 0U) {
 				/* Translate first sequence */
 				TranslateSequenceToIndex(&lPFSeq, prf->Alphabet_Mapping, 0);
 				const unsigned int score = heuristic(TransposeMatch[k], prf->Alphabet_Length, prf->Length, &lPFSeq);
-				Array[i*Nprf+k].PrfId = (score >= (unsigned int) lHeuristicCutOff) ? (int) k : -1 ;	
-      } 
+				Array[i*Nprf+k].PrfId = (score >= (unsigned int) lHeuristicCutOff) ? (int) k : -1 ;
+      }
       else {
 				/* No heuristic cutoff, accept all */
 				Array[i*Nprf+k].PrfId = (int) k;
@@ -139,7 +139,7 @@ static void *thread_heuristic(void * _Data)
 
   /* close sequence file */
   UNSET_DATABASE_ACCESS();
-  
+
   /* Free Memory */
   free(SeqData.Data.Memory);
   pthread_exit(0);
@@ -165,24 +165,24 @@ static void *thread_xali1( void * _Data)
   /* Allocate work aligned memory for xali1 */
   int * Work = _mm_malloc((1+MaxProfileSize)*4*sizeof(int)+63,64);
   if (Work == NULL) pthread_exit((void*) 1);
-  
+
   /* Open sequence file*/
   SETUP_DATABASE_ACCESS(((struct ThreadData*) _Data)->SequenceFile);
-  
+
   size_t Start  = ((struct ThreadData*) _Data)->start;
   size_t Stop   = ((struct ThreadData*) _Data)->stop;
-//   fprintf(stderr,"Thread %lu - %lu\n", Start, Stop); 
+//   fprintf(stderr,"Thread %lu - %lu\n", Start, Stop);
   /* LOOPS ON SEQUENCES AND PROFILES */
   for (size_t i=Start; i<Stop; ++i) {
     PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(FASTA->DataPtr[Array[i].SeqId].Sequence));
-    
+
     const struct Profile * const restrict prf = prfs[Array[i].PrfId];
-    
+
     /* Translate first sequence */
     PFSeq = TranslateSequenceToIndex(PFSeq, prf->Alphabet_Mapping, 0);
-		
+
     const float lNormalizedCutoff = (((struct ThreadData*) _Data)->NormalizedCutoff > 0.0f) ?
-                                    ((struct ThreadData*) _Data)->NormalizedCutoff : prf->NormalizedCutOff;   
+                                    ((struct ThreadData*) _Data)->NormalizedCutoff : prf->NormalizedCutOff;
     int CutOff;
     if (prf->NormalizationType == GLE_ZSCAVE) {
       NormalizedToRawFunctionPtr NormalizedToRawFunction = prf->NormalizedToRaw;
@@ -196,28 +196,28 @@ static void *thread_xali1( void * _Data)
     else {
       CutOff = prf->CutOff;
     }
-    
+
     const int score = xali1_ptr(prf, PFSeq->ProfileIndex, Work, 0, PFSeq->Length, CutOff, false);
     if (score < CutOff) Array[i].PrfId = -1;
   }
-  
+
   /* close sequence file */
   UNSET_DATABASE_ACCESS();
-  
+
   /* Free Memory */
   free(SeqData.Data.Memory);
   _mm_free(Work);
-    
+
   pthread_exit(0);
 }
 #endif /* _NEEDS_FILTER_ */
 
 #ifdef _NEEDS_ALIGNMENT_
 static void *thread_xaliPT( void * _Data)
-{ 
+{
   Sequence SeqData;
   const struct Profile * const * prfs         = ((struct ThreadData*) _Data)->prf;
-  const DBSequence_t * const restrict FASTA   = ((struct ThreadData*) _Data)->FASTA; 
+  const DBSequence_t * const restrict FASTA   = ((struct ThreadData*) _Data)->FASTA;
   struct ID * const restrict Array            = ((struct ThreadData*) _Data)->Array;
   const size_t MaxProfileSize                 = ((struct ThreadData*) _Data)->MaxProfileSize;
   PFSequence * PFSeq;
@@ -245,7 +245,7 @@ static void *thread_xaliPT( void * _Data)
     if (Sequences) _mm_free(Sequences);
     pthread_exit((void*)1);
   }
-  
+
   /* Open sequence file */
   PrintInput_t FASTQ;
 	FASTQ.DB = FASTA;
@@ -256,17 +256,17 @@ static void *thread_xaliPT( void * _Data)
   size_t Stop  = ((struct ThreadData*) _Data)->stop;
 
   unsigned int AlignedSeqCounter = 0;
-  
+
   // Allocate on the stack for maximum NALI alignment
   char ** const restrict AlignedSequences = (char **) alloca((NALI)*sizeof(char *));
   AlignedSequences[0] = &Sequences[0];
   for (size_t i=1; i<NALI; ++i) AlignedSequences[i] = &Sequences[i*MaxAlignmentSize];
-   
+
   /* LOOPS ON SEQUENCES AND PROFILES */
   for (size_t i=Start; i<Stop; ++i) {
     PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(FASTA->DataPtr[Array[i].SeqId].Sequence));
     FASTQ.SeqId =  Array[i].SeqId;
-		
+
     const struct Profile * const restrict prf = prfs[Array[i].PrfId];
 
     /* Translate first sequence */
@@ -274,7 +274,7 @@ static void *thread_xaliPT( void * _Data)
 
     /* Clear Lock */
     memset(Lock, 0, FASTA->MaxSequenceSize*sizeof(_Bool));
-    
+
 		const float lNormalizedCutoff = (((struct ThreadData*) _Data)->NormalizedCutoff > 0.0f) ?
                                     ((struct ThreadData*) _Data)->NormalizedCutoff : prf->NormalizedCutOff;
     int CutOff;
@@ -290,24 +290,24 @@ static void *thread_xaliPT( void * _Data)
     else {
       CutOff = prf->CutOff;
     }
-    
+
     // It seems we must have sequence starting from 1 here
     const int nali = xalip_ptr(prf, PFSeq->ProfileIndex, iop, iom, ioi, 1, PFSeq->Length, alignment,
-				                       Lock, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], false, 
-				                       CutOff, NALI); 
-			  
+				                       Lock, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], false,
+				                       CutOff, NALI);
+
     if (nali <= 0) {
       fprintf(stderr,"Thread %lu : Internal error xalip reported no possible alignment for sequence %lu(%u) (nali=%i)!\n%s\n",
 	      ((struct ThreadData*) _Data)->threadId, i, Array[i].SeqId, nali, SeqData.Data.Header);
-//       pthread_exit((void*)1);          
+//       pthread_exit((void*)1);
     }
-    
+
     // Alignement is not filled from start !!!
     for ( int j=1; j<=nali; j++) {
-    
+
       /* Remove lock for aligned sequence generation */
       memset(Lock, 0, FASTA->MaxSequenceSize*sizeof(_Bool));
-      
+
       if (xalit_ptr(prf, prf->DisjointData.NDIP[0], prf->DisjointData.NDIP[1], 1, PFSeq,
 		    AlignedSequences[j-1], iop, &alignment[j], Lock) < 0 ) {
 				fputs("Internal error within xalit!\n", stderr);
@@ -317,17 +317,17 @@ static void *thread_xaliPT( void * _Data)
     pthread_mutex_lock(&PrintLock);
     PrintFunction(prf, (const char ** const restrict) AlignedSequences, &alignment[1], SeqData.Data.Header, PFSeq->Length, 0.0f, nali, &FASTQ);
     pthread_mutex_unlock(&PrintLock);
-    
+
     AlignedSeqCounter += nali;
   }
-  
+
 
   /* Set the number of aligned sequences */
-  ((struct ThreadData*) _Data)->counter = AlignedSeqCounter; 
+  ((struct ThreadData*) _Data)->counter = AlignedSeqCounter;
 
   /* close sequence file */
   UNSET_DATABASE_ACCESS();
-  
+
   /* Free Memory */
   free(SeqData.Data.Memory);
   _mm_free(iop);
@@ -349,14 +349,14 @@ static void *thread_regex( void * _Data)
   const struct Profile * const * prfs         = ((struct ThreadData*) _Data)->prf;
   const DBSequence_t * const restrict FASTA   = ((struct ThreadData*) _Data)->FASTA;
   PFSequence * PFSeq;
-  
+
   /* Allocate memory to hold sequence */
   SeqData.Data.Memory = malloc(FASTA->MaxSequenceSize*sizeof(unsigned char));
   if (SeqData.Data.Memory == NULL) {
     fputs("Thread Cannot allocate memory for sequence.\n", stderr);
     return (void*) 1;
   }
-  
+
    /* Allocate the memory to hold the matches */
   const size_t nmatch = regex->maxMatchCount;
 #if defined(USE_PCRE2)
@@ -380,13 +380,13 @@ static void *thread_regex( void * _Data)
 //   fprintf(stderr,"Thread %lu - %lu\n", Start, Stop);
   /* LOOPS ON SEQUENCES */
   register const size_t Nprf = regex->count;
-  
+
   for (size_t i=Start; i<Stop; ++i) {
     PFSeq = GET_DATABASE_SEQUENCE(&SeqData, &(FASTA->DataPtr[i].Sequence));
-       
+
     /* Translate first sequence */
     const char * const CleanSeq = CleanSequence(PFSeq);
-      
+
     for (size_t iPatternPrf=0; iPatternPrf<Nprf; ++iPatternPrf) {
       /* Run the regex engine */
 #if defined(USE_PCRE2)
@@ -434,7 +434,7 @@ static void *thread_regex( void * _Data)
 		    ++count;
 	      }
 	      else {
-		    fprintf(stderr, "Warning: maximum number of matches reached for %s with %s\n", 
+		    fprintf(stderr, "Warning: maximum number of matches reached for %s with %s\n",
 			  prfs[iPatternPrf]->Identification, prfs[iPatternPrf]->Pattern);
 	      }
 	    }
@@ -470,11 +470,11 @@ static void *thread_regex( void * _Data)
   }
   /* close sequence file */
   UNSET_DATABASE_ACCESS();
-  
+
   /* Free Memory */
   free(SeqData.Data.Memory);
   free(Matches);
-    
+
   pthread_exit(0);
 }
 #endif /* _NEEDS_REGEX_ */

@@ -17,7 +17,7 @@ int RescoreAlignment(const struct Profile * const prf, char * const AlignedSeque
   int Score = 0;
   int iprf=1;
   enum VectorPosition PreviousState;
-  
+
   //////////////////////////////////////////////////////////////////////////////////////////////
   // Prologue
   //////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,32 +25,32 @@ int RescoreAlignment(const struct Profile * const prf, char * const AlignedSeque
       fputs("Currently we do not provide classification for other than semiglobal alignment.\n", stderr);
       exit(1);
   }
-  
+
   const size_t AlignmentLength            = strlen(AlignedSequence);
   const char * restrict Seq               = AlignedSequence;
   const char * restrict const MaxSequence = &AlignedSequence[AlignmentLength];
   unsigned int SequenceIndex              = alignment->Region.Sequence.Begin;
   const unsigned int SequenceBegin        = alignment->Region.Sequence.Begin;
   const unsigned int SequenceEnd          = alignment->Region.Sequence.End;
-  
+
   /* Get first alignment state */
-  if (*Seq == '-') 
+  if (*Seq == '-')
     PreviousState = DELETION;
   else
     PreviousState = ( *Seq < 'a' ) ? MATCH : INSERTION;
-  
+
   const TransitionScores * restrict pTransitions = prf->Scores.Insertion.Transitions;
   const StoredIntegerFormat * pMatch             = prf->Scores.Match.Alphabet;
   const StoredIntegerFormat * pInsertion         = prf->Scores.Insertion.Alphabet;
   const size_t AlignStep                         = prf->Scores.Match.AlignStep;
-  
+
   //////////////////////////////////////////////////////////////////////////////////////////////
   // First Sequence Line
-  ////////////////////////////////////////////////////////////////////////////////////////////// 
+  //////////////////////////////////////////////////////////////////////////////////////////////
   if (SequenceBegin == 1) {
     register const ScoreTuple * restrict FirstSequenceProtein = prf->Scores.Insertion.FirstSequenceProtein;
     int lScore = (int) FirstSequenceProtein->To[PreviousState];
-//     printf("Alignment starts at the beginning of the sequence\n");    
+//     printf("Alignment starts at the beginning of the sequence\n");
     /* We need to further keep looking that we are not in the case of a multiple deletion entrance */
     if (PreviousState == DELETION) {
       pInsertion += AlignStep;
@@ -78,12 +78,12 @@ int RescoreAlignment(const struct Profile * const prf, char * const AlignedSeque
 //     pInsertion += AlignStep;
 //     printf(" Profile pos: %4i Score: %i\n", iprf, Score);
   }
-  
+
   //////////////////////////////////////////////////////////////////////////////////////////////
   // Loop through the internal sequence indices
   //////////////////////////////////////////////////////////////////////////////////////////////
-  
-  if (Seq < MaxSequence) { 
+
+  if (Seq < MaxSequence) {
     do {
 //       fputc(*Seq, stdout);
       if (*Seq == '-') {
@@ -114,7 +114,7 @@ int RescoreAlignment(const struct Profile * const prf, char * const AlignedSeque
 //       printf(" Profile pos: %4i Score: %i\n", iprf, Score);
     } while ( ++Seq < MaxSequence && SequenceIndex < SequenceLength);
   }
-  
+
   //////////////////////////////////////////////////////////////////////////////////////////////
   // Epilogue
   //////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +152,7 @@ int RescoreAlignment(const struct Profile * const prf, char * const AlignedSeque
  * Treats the level of cutoff by seeking the index corresponding to the wanted level number,
  * then storing it into the profile Level member.
  * BE CAREFUL THIS IS THE INDEX AND NOT THE VALUE OF THE LEVEL !!!
- * 
+ *
  * The function shall the index to the level if found, -1 if not found and -2 upon multiple
  * existance of the same level.
  */
@@ -172,7 +172,7 @@ int SeekProfileLevel(const struct Profile * const prf, const int Level)
   return index;
 }
 /*
- * This function returns the index of the highest priority normalization 
+ * This function returns the index of the highest priority normalization
  * matching the given mode or -1 if not found.
  */
 int SeekProfileMode(const struct Profile * const prf, const int Mode)
@@ -180,15 +180,15 @@ int SeekProfileMode(const struct Profile * const prf, const int Mode)
   int index = -1;
   register const int SeekMode = Mode;
   const SNormalizationItem * const restrict NormItems = &(prf->NormalizationData.Values[0]);
-  
+
   int Priority =  -1;
-  
+
   for (int iNormalizationMode=0; iNormalizationMode<prf->NormalizationData.JNOR; ++iNormalizationMode) {
     if ( SeekMode == NormItems[iNormalizationMode].NNOR ) {
       if (index < 0) {
 	Priority = NormItems[iNormalizationMode].NNPR;
 	index    = iNormalizationMode;
-      } 
+      }
       else if (NormItems[iNormalizationMode].NNPR < Priority) {
 	Priority = NormItems[iNormalizationMode].NNPR;
 	index    = iNormalizationMode;
@@ -233,7 +233,7 @@ int SetProfileMode(struct Profile * const prf, const int Mode)
     }
     const int index2 = SeekProfileMode(prf, -Mode);
     prf->HeuristicModeIndex = (index2 >= 0) ? (short int) index : -1;
-    
+
     return index;
 }
 
@@ -243,12 +243,12 @@ void SeekProfileLevelAndMode(int * const restrict LevelIndex, int * const restri
   int localLevelIndex = -1;
   int localModeIndexWithinLevel = -1;
   int localHeuristicModeIndex = -1;
-  
+
   /* First test if Mode exists */
   int localModeIndex = SeekProfileMode(prf, Mode);
   if (localModeIndex < 0 ) goto FIN;
   localHeuristicModeIndex = SeekProfileMode(prf, -Mode);
-  
+
   /* Now scan the level to see if there exists one satisfying Level and Mode */
   if ( Level < MAXC ) {
     {
@@ -270,13 +270,13 @@ void SeekProfileLevelAndMode(int * const restrict LevelIndex, int * const restri
 				goto FIN;
       }
     }
-    
+
     const SCutOffItem * const restrict cutItem = &prf->CutOffData.Values[localLevelIndex];
     register const int N = cutItem->JCNM;
     for (int iCutoffMode=0; iCutoffMode<N; ++iCutoffMode) {
       const int CutoffMode = cutItem->MCUT[iCutoffMode];
       if (CutoffMode == Mode) {
-				if (localModeIndexWithinLevel < 0) 
+				if (localModeIndexWithinLevel < 0)
 					localModeIndexWithinLevel = iCutoffMode;
 				else {
 					localModeIndexWithinLevel = -2;
@@ -306,7 +306,7 @@ int SetProfileLevelAndMode(struct Profile * const prf, const int Level, const in
 {
   int lLevel=-1, lModeWithinLevel=-1, lMode=-1, lHeuristicMode=-1;
   SeekProfileLevelAndMode(&lLevel, &lModeWithinLevel, &lMode, &lHeuristicMode, prf, Level, Mode);
-  
+
   prf->HeuristicCutOff      = 0;
   prf->ModeIndex            = -1;
   prf->ModeIndexWithinLevel = -1;
@@ -317,9 +317,9 @@ int SetProfileLevelAndMode(struct Profile * const prf, const int Level, const in
   prf->NormalizationType    = 0;
   prf->NormalizedToRaw      = NULL;
   prf->RawToNormalized      = NULL;
-  
+
   if(lMode < 0) return -3;
-  
+
   if (lLevel >= 0) {
     if (lMode >= 0) {
       prf->LevelIndex                      = (short int) lLevel;
@@ -351,7 +351,7 @@ int SetProfileLevelAndMode(struct Profile * const prf, const int Level, const in
       if (lHeuristicMode>=0) prf->HeuristicModeIndex = lHeuristicMode;
     }
     else {
-      return lMode - 2; 
+      return lMode - 2;
     }
   }
   else {

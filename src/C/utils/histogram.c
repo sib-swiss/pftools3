@@ -2,55 +2,55 @@
  * HMMER - Biological sequence analysis with profile HMMs
  * Copyright (C) 1992-2003 Washington University School of Medicine
  * All Rights Reserved
- * 
+ *
  *     This source code is distributed under the terms of the
  *     GNU General Public License. See the files COPYING and LICENSE
  *     for details.
  ************************************************************
- * 
+ *
  * Extra code from other files from HMMER has been added
  * to fulfill dependencies.
  * ExtreneValueFitHistogram has slight differences
  * Thierry Schuepbach (thierry.schuepbach@sib.swiss)
- * 
+ *
  ************************************************************/
 
 /* histogram.c
  * SRE, Sat Jan 20 16:16:17 1996
- * 
+ *
  * Accumulation, printing, and fitting of score histograms
  * from database searches.
  *
  * CVS $Id: histogram.c,v 1.18 2003/04/14 16:00:16 eddy Exp $
  ************************************************************
  * Basic API:
- * 
+ *
  * struct histogram_s *h;
- * 
+ *
  * h = AllocHistogram(min_hint, max_hint, lumpsize);
- * 
+ *
  * while (getting scores x) AddToHistogram(h, x);
- * 
- * ExtremeValueFitHistogram(h, high_hint);   
- * PrintASCIIHistogram(fp, h);   
+ *
+ * ExtremeValueFitHistogram(h, high_hint);
+ * PrintASCIIHistogram(fp, h);
  * FreeHistogram(h);
  */
 
 #include "config.h"
-#include "histogram.h" 
+#include "histogram.h"
 
 #if (DEBUGLEVEL >= 2)
 #define SQD_DPRINTF2(x)  printf x
 #define SQD_DASSERT2(x)  assert x
 #else
-#define SQD_DPRINTF2(x)  
+#define SQD_DPRINTF2(x)
 #define SQD_DASSERT2(x)
 #endif
 #if (DEBUGLEVEL >= 3)
 #define SQD_DPRINTF3(x)  printf x
 #define SQD_DASSERT3(x)  assert x
 #else
-#define SQD_DPRINTF3(x)  
+#define SQD_DPRINTF3(x)
 #define SQD_DASSERT3(x)
 #endif
 
@@ -70,12 +70,12 @@
 #include <math.h>
 
 /* Function: Die()
- * 
+ *
  * Purpose:  Print an error message and die. The arguments
  *           are formatted exactly like arguments to printf().
- *           
+ *
  * Return:   None. Exits the program.
- */          
+ */
 /* VARARGS0 */
 static void Die(char *format, ...)
 {
@@ -115,26 +115,26 @@ static inline void * sre_realloc(char *file, int line, void *p, size_t size)
 
 
 /* Function: sre_random()
- * 
+ *
  * Purpose:  Return a uniform deviate x, 0.0 <= x < 1.0.
- * 
+ *
  *           sre_randseed is a static variable, set
- *           by sre_srandom(). When it is non-zero, 
+ *           by sre_srandom(). When it is non-zero,
  *           we re-seed.
- *           
+ *
  *           Implements L'Ecuyer's algorithm for combining output
  *           of two linear congruential generators, plus a Bays-Durham
  *           shuffle. This is essentially ran2() from Numerical Recipes,
  *           sans their nonhelpful Rand/McNally-esque code obfuscation.
- *           
+ *
  *           Overflow errors are avoided by Schrage's algorithm:
  *               az % m = a(z%q) - r(z/q) (+m if <0)
  *           where q=m/a, r=m%a
  *
  *           Requires that long int's have at least 32 bits.
  *           This function uses statics and is NOT THREADSAFE.
- *           
- * Reference: Press et al. Numerical Recipes in C, 1992. 
+ *
+ * Reference: Press et al. Numerical Recipes in C, 1992.
  *
  * Reliable and portable, but slow. Benchmarks on wrasse,
  * using Linux gcc and Linux glibc rand() (see randspeed, in Testsuite):
@@ -154,8 +154,8 @@ static double sre_random(void)
   /* Magic numbers a1,m1, a2,m2 from L'Ecuyer, for 2 LCGs.
    * q,r derive from them (q=m/a, r=m%a) and are needed for Schrage's algorithm.
    */
-  long a1 = 40014;		
-  long m1 = 2147483563;		
+  long a1 = 40014;
+  long m1 = 2147483563;
   long q1 = 53668;
   long r1 = 12211;
 
@@ -164,7 +164,7 @@ static double sre_random(void)
   long q2 = 52774;
   long r2 = 3791;
 
-  if (sre_randseed > 0) 
+  if (sre_randseed > 0)
     {
       rnd1 = sre_randseed;
       rnd2 = sre_randseed;
@@ -204,24 +204,24 @@ static double sre_random(void)
   tbl[i] = rnd1-rnd2;
   if (tbl[i] < 0) tbl[i] += m1;
 
-  return ((double) rnd / (double) m1);  
+  return ((double) rnd / (double) m1);
 }
 
 
 /* Function: Linefit()
- * 
+ *
  * Purpose:  Given points x[0..N-1] and y[0..N-1], fit to
  *           a straight line y = a + bx.
  *           a, b, and the linear correlation coefficient r
  *           are filled in for return.
- *           
+ *
  * Args:     x     - x values of data
- *           y     - y values of data               
+ *           y     - y values of data
  *           N     - number of data points
  *           ret_a - RETURN: intercept
  *           ret_b - RETURN: slope
- *           ret_r - RETURN: correlation coefficient  
- *           
+ *           ret_r - RETURN: correlation coefficient
+ *
  * Return:   1 on success, 0 on failure.
  */
 static int Linefit(float *x, float *y, int N, float *ret_a, float *ret_b, float *ret_r)
@@ -257,7 +257,7 @@ static int Linefit(float *x, float *y, int N, float *ret_a, float *ret_b, float 
 /* Function: Gammln()
  *
  * Returns the natural log of the gamma function of x.
- * x is > 0.0.  
+ * x is > 0.0.
  *
  * Adapted from a public domain implementation in the
  * NCBI core math library. Thanks to John Spouge and
@@ -282,11 +282,11 @@ static double Gammln(double x)
     -2.319827630494973e-04,
     1.251639670050933e-10
   };
-  
+
   /* Protect against x=0. We see this in Dirichlet code,
    * for terms alpha = 0. This is a severe hack but it is effective
    * and (we think?) safe. (due to GJM)
-   */ 
+   */
   if (x <= 0.0) return 999999.;
 
   xx       = x - 1.0;
@@ -305,26 +305,26 @@ static double Gammln(double x)
 
 
 /* Function: IncompleteGamma()
- * 
+ *
  * Purpose:  Returns 1 - P(a,x) where:
  *           P(a,x) = \frac{1}{\Gamma(a)} \int_{0}^{x} t^{a-1} e^{-t} dt
  *                  = \frac{\gamma(a,x)}{\Gamma(a)}
  *                  = 1 - \frac{\Gamma(a,x)}{\Gamma(a)}
- *                  
+ *
  *           Used in a chi-squared test: for a X^2 statistic x
  *           with v degrees of freedom, call:
- *                  p = IncompleteGamma(v/2., x/2.) 
+ *                  p = IncompleteGamma(v/2., x/2.)
  *           to get the probability p that a chi-squared value
  *           greater than x could be obtained by chance even for
- *           a correct model. (i.e. p should be large, say 
+ *           a correct model. (i.e. p should be large, say
  *           0.95 or more).
- *           
+ *
  * Method:   Based on ideas from Numerical Recipes in C, Press et al.,
- *           Cambridge University Press, 1988. 
- *           
+ *           Cambridge University Press, 1988.
+ *
  * Args:     a  - for instance, degrees of freedom / 2     [a > 0]
- *           x  - for instance, chi-squared statistic / 2  [x >= 0] 
- *           
+ *           x  - for instance, chi-squared statistic / 2  [x >= 0]
+ *
  * Return:   1 - P(a,x).
  */
 static double IncompleteGamma(double a, double x)
@@ -348,46 +348,46 @@ static double IncompleteGamma(double a, double x)
       de0 = 1.;                 /* B_0 = 1       */
       nu1 = 1.;                 /* A_1 = 1       */
       de1 = x;                  /* B_1 = x       */
-      
-      oldp = nu1; 
+
+      oldp = nu1;
       for (iter = 1; iter < 100; iter++)
-        { 
+        {
           /* Continued fraction development:
            * set A_j = b_j A_j-1 + a_j A_j-2
            *     B_j = b_j B_j-1 + a_j B_j-2
            * We start with A_2, B_2.
-           */                   
+           */
                                 /* j = even: a_j = iter-a, b_j = 1 */
                                 /* A,B_j-2 are in nu0, de0; A,B_j-1 are in nu1,de1 */
           nu0 = nu1 + ((double)iter - a) * nu0;
           de0 = de1 + ((double)iter - a) * de0;
-                                
+
                                 /* j = odd: a_j = iter, b_j = x */
                                 /* A,B_j-2 are in nu1, de1; A,B_j-1 in nu0,de0 */
           nu1 = x * nu0 + (double) iter * nu1;
           de1 = x * de0 + (double) iter * de1;
-                                
+
                                 /* rescale */
           if (de1 != 0.)
-            { 
+            {
               nu0 /= de1;
               de0 /= de1;
               nu1 /= de1;
               de1 =  1.;
-            }                   
+            }
                                 /* check for convergence */
-          if (fabs((nu1-oldp)/nu1) < 1.e-7) 
+          if (fabs((nu1-oldp)/nu1) < 1.e-7)
             return nu1 * exp(a * log(x) - x - Gammln(a));
-          
+
           oldp = nu1;
         }
       Die("IncompleteGamma(): failed to converge using continued fraction approx");
     }
   else /* x <= a+1 */
-    { 
+    {
       double p;                 /* current sum               */
       double val;               /* current value used in sum */
-      
+
       /* For x <= a+1 we use a convergent series instead:
        *   P(a,x) = \frac{\gamma(a,x)}{\Gamma(a)},
        * where
@@ -397,13 +397,13 @@ static double IncompleteGamma(double a, double x)
        *   = \frac{1}{a} + \frac{x}{a(a+1)} + \frac{x^2}{a(a+1)(a+2)} ...
        * and it's obvious that this should converge nicely for x <= a+1.
        */
-      
+
       p = val = 1. / a;
       for (iter = 1; iter < 10000; iter++)
-        { 
+        {
           val *= x / (a+(double)iter);
           p   += val;
-          
+
           if (fabs(val/p) < 1.e-7)
             return 1. - p * exp(a * log(x) - x - Gammln(a));
         }
@@ -415,14 +415,14 @@ static double IncompleteGamma(double a, double x)
 
 
 /* Function: AllocHistogram()
- * 
+ *
  * Purpose:  Allocate and return a histogram structure.
  *           min and max are your best guess. They need
  *           not be absolutely correct; the histogram
  *           will expand dynamically to accomodate scores
  *           that exceed these suggested bounds. The amount
  *           that the histogram grows by is set by "lumpsize".
- * 
+ *
  * Args:     min:      minimum score (integer)
  *           max:      maximum score (integer)
  *           lumpsize: when reallocating histogram, pad the reallocation
@@ -455,7 +455,7 @@ AllocHistogram(int min, int max, int lumpsize)
 
 
 /* Function: FreeHistogram()
- * 
+ *
  * Purpose:  free a histogram structure.
  */
 void
@@ -464,10 +464,10 @@ FreeHistogram(struct histogram_s *h)
   free(h->histogram);
   if (h->expect != NULL) free(h->expect);
   free(h);
-} 
+}
 
 /* Function: UnfitHistogram()
- * 
+ *
  * Purpose:  Free only the theoretical fit part of a histogram.
  */
 void
@@ -480,7 +480,7 @@ UnfitHistogram(struct histogram_s *h)
 
 
 /* Function: AddToHistogram()
- * 
+ *
  * Purpose:  Bump the appropriate counter in a histogram
  *           structure, given a score. The score is
  *           rounded off from float precision to the
@@ -500,9 +500,9 @@ AddToHistogram(struct histogram_s *h, float sc)
    */
   if (h->fit_type != HISTFIT_NONE)
     Die("AddToHistogram(): Can't add to a fitted histogram\n");
-  
 
-  /* histogram bins are defined as:  score >= bin value, < bin+1 
+
+  /* histogram bins are defined as:  score >= bin value, < bin+1
    * -1.9 -> -2    -0.4 -> -1    1.9 -> 1
    * -2.1 -> -3     0.4 -> 0     2.1 -> 2
    */
@@ -549,14 +549,14 @@ AddToHistogram(struct histogram_s *h, float sc)
 
 
 /* Function: PrintASCIIHistogram()
- * 
+ *
  * Purpose:  Print a "prettified" histogram to a file pointer.
- *           Deliberately a look-and-feel clone of Bill Pearson's 
+ *           Deliberately a look-and-feel clone of Bill Pearson's
  *           excellent FASTA output.
- * 
+ *
  * Args:     fp     - open file to print to (stdout works)
  *           h      - histogram to print
- */           
+ */
 void
 PrintASCIIHistogram(FILE *fp, struct histogram_s *h)
 {
@@ -578,7 +578,7 @@ PrintASCIIHistogram(FILE *fp, struct histogram_s *h)
    */
   maxbar = 0;
   for (i = h->lowscore - h->min; i <= h->highscore - h->min; i++)
-    if (h->histogram[i] > maxbar) 
+    if (h->histogram[i] > maxbar)
       {
 	maxbar   = h->histogram[i];     /* max height    */
 	lowbound = i + h->min;     	/* peak position */
@@ -615,7 +615,7 @@ PrintASCIIHistogram(FILE *fp, struct histogram_s *h)
 
   /* Print the histogram
    */
-  fprintf(fp, "%5s %6s %6s  (one = represents %d sequences)\n", 
+  fprintf(fp, "%5s %6s %6s  (one = represents %d sequences)\n",
 	  "score", "obs", "exp", units);
   fprintf(fp, "%5s %6s %6s\n", "-----", "---", "---");
   buffer[80] = '\0';
@@ -629,7 +629,7 @@ PrintASCIIHistogram(FILE *fp, struct histogram_s *h)
        */
       if      (i < lowbound)  continue;
       else if (i > highbound) continue;
-      else if (i == lowbound && i != h->lowscore) 
+      else if (i == lowbound && i != h->lowscore)
 	{
 	  sprintf(buffer, "<%4d %6d %6s|", i+1, lowcount, "-");
 	  if (lowcount > 0) {
@@ -653,20 +653,20 @@ PrintASCIIHistogram(FILE *fp, struct histogram_s *h)
 
       /* Deal with most cases
        */
-      if (h->fit_type != HISTFIT_NONE) 
-	sprintf(buffer, "%5d %6d %6d|", 
+      if (h->fit_type != HISTFIT_NONE)
+	sprintf(buffer, "%5d %6d %6d|",
 		i, h->histogram[idx], (int) h->expect[idx]);
       else
 	sprintf(buffer, "%5d %6d %6s|", i, h->histogram[idx], "-");
       buffer[20] = ' ';		/* sprintf writes a null char */
 
       /* Mark the histogram bar for observed hits
-       */ 
+       */
       if (h->histogram[idx] > 0) {
 	num = 1 + (h->histogram[idx]-1) / units;
 	for (pos = 20; num > 0; num--)  buffer[pos++] = '=';
       }
-	  
+
       /* Mark the theoretically expected value
        */
       if (h->fit_type != HISTFIT_NONE && (int) h->expect[idx] > 0)
@@ -687,7 +687,7 @@ PrintASCIIHistogram(FILE *fp, struct histogram_s *h)
   case HISTFIT_NONE:
     fprintf(fp, "\n\n%% No statistical fit available\n");
     break;
-    
+
   case HISTFIT_EVD:
     fprintf(fp, "\n\n%% Statistical details of theoretical EVD fit:\n");
     fprintf(fp, "              mu = %10.4f\n", h->param[EVD_MU]);
@@ -703,15 +703,15 @@ PrintASCIIHistogram(FILE *fp, struct histogram_s *h)
     fprintf(fp, "chi-sq statistic = %10.4f\n", h->chisq);
     fprintf(fp, "  P(chi-square)  = %10.4g\n", h->chip);
     break;
-  }    
+  }
   return;
 }
-  
+
 
 
 /* Function: PrintXMGRHistogram()
  * Date:     SRE, Wed Nov 12 11:02:00 1997 [St. Louis]
- * 
+ *
  * Purpose:  Print an XMGR data file that contains two data sets:
  *               - xy data for the observed histogram
  *               - xy data for the theoretical histogram
@@ -726,7 +726,7 @@ PrintXMGRHistogram(FILE *fp, struct histogram_s *h)
    */
   for (sc = h->lowscore; sc <= h->highscore; sc++)
     if (h->histogram[sc - h->min] > 0)
-      fprintf(fp, "%-6d %f\n", sc, 
+      fprintf(fp, "%-6d %f\n", sc,
 	      (float) h->histogram[sc - h->min]/ (float) h->total);
   fprintf(fp, "&\n");
 
@@ -736,7 +736,7 @@ PrintXMGRHistogram(FILE *fp, struct histogram_s *h)
     {
         for (sc = h->lowscore; sc <= h->highscore; sc++)
 	  {
-	    val = 
+	    val =
 	      (1. - ExtremeValueP((float)sc+1, h->param[EVD_MU], h->param[EVD_LAMBDA]))-
 	      (1. - ExtremeValueP((float)sc, h->param[EVD_MU], h->param[EVD_LAMBDA]));
 	    fprintf(fp, "%-6d %f\n", sc, val);
@@ -747,7 +747,7 @@ PrintXMGRHistogram(FILE *fp, struct histogram_s *h)
 
 /* Function: PrintXMGRDistribution()
  * Date:     SRE, Wed Nov 12 11:02:09 1997 [St. Louis]
- * 
+ *
  * Purpose:  Print an XMGR data file that contains two data sets:
  *               - xy data for the observed distribution P(S<x)
  *               - xy data for the theoretical distribution P(S<x)
@@ -761,7 +761,7 @@ PrintXMGRDistribution(FILE *fp, struct histogram_s *h)
 
   /* First data set is the observed distribution;
    * histogram bin x contains # of scores between x and x+1,
-   * hence the sc+1 offset. 
+   * hence the sc+1 offset.
    */
   for (cum = 0, sc = h->lowscore; sc <= h->highscore; sc++)
     {
@@ -776,7 +776,7 @@ PrintXMGRDistribution(FILE *fp, struct histogram_s *h)
     {
       for (sc = h->lowscore; sc <= h->highscore; sc++)
 	{
-	  val = (1. - ExtremeValueP((float) sc, h->param[EVD_MU], 
+	  val = (1. - ExtremeValueP((float) sc, h->param[EVD_MU],
 				    h->param[EVD_LAMBDA]));
 	  fprintf(fp, "%-6d %f\n", sc, val);
 	}
@@ -786,7 +786,7 @@ PrintXMGRDistribution(FILE *fp, struct histogram_s *h)
 
 /* Function: PrintXMGRRegressionLine()
  * Date:     SRE, Wed Nov 12 11:02:19 1997 [St. Louis]
- * 
+ *
  * Purpose:  Print an XMGR data file that contains two data sets:
  *               - xy data for log log transform of observed distribution P(S<x)
  *               - xy data for log log transform of theoretical distribution P(S<x)
@@ -800,7 +800,7 @@ PrintXMGRRegressionLine(FILE *fp, struct histogram_s *h)
 
   /* First data set is the observed distribution;
    * histogram bin x contains # of scores between x and x+1,
-   * hence the sc+1 offset. 
+   * hence the sc+1 offset.
    */
   for (cum = 0, sc = h->lowscore; sc <= h->highscore; sc++)
     {
@@ -817,7 +817,7 @@ PrintXMGRRegressionLine(FILE *fp, struct histogram_s *h)
     {
       for (sc = h->lowscore; sc <= h->highscore; sc++)
 	{
-	  val = log(-1. * log(1. - ExtremeValueP((float) sc, h->param[EVD_MU], 
+	  val = log(-1. * log(1. - ExtremeValueP((float) sc, h->param[EVD_MU],
 						       h->param[EVD_LAMBDA])));
 	  fprintf(fp, "%-6d %f\n", sc, val);
 	}
@@ -827,21 +827,21 @@ PrintXMGRRegressionLine(FILE *fp, struct histogram_s *h)
 
 /* Function: EVDBasicFit()
  * Date:     SRE, Wed Nov 12 11:02:27 1997 [St. Louis]
- * 
- * Purpose:  Fit a score histogram to the extreme value 
+ *
+ * Purpose:  Fit a score histogram to the extreme value
  *           distribution. Set the parameters lambda
  *           and mu in the histogram structure. Fill in the
  *           expected values in the histogram. Calculate
- *           a chi-square test as a measure of goodness of fit. 
- *           
+ *           a chi-square test as a measure of goodness of fit.
+ *
  *           This is the basic version of ExtremeValueFitHistogram(),
  *           in a nonrobust form: simple linear regression with no
  *           outlier pruning.
- *           
+ *
  * Methods:  Uses a linear regression fitting method [Collins88,Lawless82]
  *
  * Args:     h         - histogram to fit
- *           
+ *
  * Return:   (void)
  */
 void
@@ -868,8 +868,8 @@ EVDBasicFit(struct histogram_s *h)
 
   /* Calculate P(S < x) distribution from histogram.
    * note off-by-one of sc, because histogram bin contains scores between
-   * x and x+1. 
-   */ 
+   * x and x+1.
+   */
   sum = 0;
   for (sc = h->lowscore; sc <= h->highscore; sc++)
     {
@@ -905,30 +905,30 @@ EVDBasicFit(struct histogram_s *h)
 
 /* Function: ExtremeValueFitHistogram()
  * Date:     SRE, Sat Nov 15 17:16:15 1997 [St. Louis]
- * 
- * Purpose:  Fit a score histogram to the extreme value 
+ *
+ * Purpose:  Fit a score histogram to the extreme value
  *           distribution. Set the parameters lambda
  *           and mu in the histogram structure. Calculate
- *           a chi-square test as a measure of goodness of fit. 
- *           
+ *           a chi-square test as a measure of goodness of fit.
+ *
  * Methods:  Uses a maximum likelihood method [Lawless82].
  *           Lower outliers are removed by censoring the data below the peak.
- *           Upper outliers are removed iteratively using method 
+ *           Upper outliers are removed iteratively using method
  *           described by [Mott92].
- *           
+ *
  * Args:     h         - histogram to fit
  *           censor    - 0: FULL 1:TAIL using lowbound, 2: PEAK to censor data left of the peak
- *           low score - lower bound of fitted region 
+ *           low score - lower bound of fitted region
  *           high_hint - score cutoff; above this are `real' hits that aren't fit
- *           
+ *
  * Return:   1 if fit is judged to be valid.
  *           else 0 if fit is invalid (too few seqs.)
  */
 int
-ExtremeValueFitHistogram(struct histogram_s *h, const int censor, int lowscore, float high_hint) 
+ExtremeValueFitHistogram(struct histogram_s *h, const int censor, int lowscore, float high_hint)
 {
   float *x;                     /* array of EVD samples to fit */
-  int   *y;                     /* histogram counts            */ 
+  int   *y;                     /* histogram counts            */
   int    n;			/* number of observed samples  */
   int    z;			/* number of censored samples  */
   int    hsize;			/* size of histogram           */
@@ -944,11 +944,11 @@ ExtremeValueFitHistogram(struct histogram_s *h, const int censor, int lowscore, 
    * if we're not, then we take the whole histogram.
    */
   lowbound = h->lowscore;
-  if (censor) 
+  if (censor)
     {
       int max = -1;
       for ( sc = lowscore; sc <= h->highscore; ++sc)
-	if (h->histogram[sc - h->min] > max) 
+	if (h->histogram[sc - h->min] > max)
 	  {
 	    max      = h->histogram[sc - h->min];
 	    lowbound = sc;
@@ -999,27 +999,27 @@ ExtremeValueFitHistogram(struct histogram_s *h, const int censor, int lowscore, 
 	      z = MIN(h->total-n, (int) ((double) n * psx / (1. - psx)));
 	    }
 	}
-      else if (censor == 1) 
+      else if (censor == 1)
 	z = h->total-n;
-      
+
       /* Do an ML fit
        */
       if (censor) {
 	if (! EVDCensoredFit(x, y, hsize, z, (float) lowbound, &mu, &lambda))
 	  goto FITFAILED;
-      } else  
+      } else
 	if (! EVDMaxLikelyFit(x, y, hsize, &mu, &lambda))
 	  goto FITFAILED;
 
       /* Find the Eval = 1 point as a new highbound;
-       * the total number of samples estimated to "belong" to the EVD is n+z  
+       * the total number of samples estimated to "belong" to the EVD is n+z
        */
       new_highbound = (int)
 	(mu - (log (-1. * log((double) (n+z-1) / (double)(n+z))) / lambda));
 
       free(x);
       free(y);
-      if (new_highbound >= highbound) break; 
+      if (new_highbound >= highbound) break;
       highbound = new_highbound;
     }
 
@@ -1027,8 +1027,8 @@ ExtremeValueFitHistogram(struct histogram_s *h, const int censor, int lowscore, 
    * - we fit from lowbound to highbound; thus we lose 2 degrees of freedom
    *   for fitting mu, lambda, but we get 1 back because we're unnormalized
    *   in this interval, hence we pass 2-1 = 1 as ndegrees.
-   */    
-  ExtremeValueSetHistogram(h, mu, lambda, lowbound, highbound, 1); 
+   */
+  ExtremeValueSetHistogram(h, mu, lambda, lowbound, highbound, 1);
   return 1;
 
 FITFAILED:
@@ -1038,14 +1038,14 @@ FITFAILED:
   return 0;
 }
 
-    
+
 /* Function: ExtremeValueSetHistogram()
- * 
+ *
  * Purpose:  Instead of fitting the histogram to an EVD,
  *           simply set the EVD parameters from an external source.
  *
  * Args:     h        - the histogram to set
- *           mu       - mu location parameter                
+ *           mu       - mu location parameter
  *           lambda   - lambda scale parameter
  *           lowbound - low bound of the histogram that was fit
  *           highbound- high bound of histogram that was fit
@@ -1054,7 +1054,7 @@ FITFAILED:
  *                        else 2 if mu, lambda are estimated from data
  */
 void
-ExtremeValueSetHistogram(struct histogram_s *h, float mu, float lambda, 
+ExtremeValueSetHistogram(struct histogram_s *h, float mu, float lambda,
 			 float lowbound, float highbound, int ndegrees)
 {
   int   sc;
@@ -1076,11 +1076,11 @@ ExtremeValueSetHistogram(struct histogram_s *h, float mu, float lambda,
    */
   for (sc = h->min; sc <= h->max; sc++)
     h->expect[sc - h->min] =
-      ExtremeValueE((float)(sc), h->param[EVD_MU], h->param[EVD_LAMBDA], 
+      ExtremeValueE((float)(sc), h->param[EVD_MU], h->param[EVD_LAMBDA],
 		    h->total) -
       ExtremeValueE((float)(sc+1), h->param[EVD_MU], h->param[EVD_LAMBDA],
 		    h->total);
-  
+
   /* Calculate the goodness-of-fit (within whole region)
    */
   h->chisq = 0.;
@@ -1093,20 +1093,20 @@ ExtremeValueSetHistogram(struct histogram_s *h, float mu, float lambda,
 	nbins++;
       }
 
-  /* Since we fit the whole histogram, there is at least 
+  /* Since we fit the whole histogram, there is at least
    * one constraint on chi-square: the normalization to h->total.
    */
   if (nbins > 1 + ndegrees)
-    h->chip = (float) IncompleteGamma((double)(nbins-1-ndegrees)/2., 
+    h->chip = (float) IncompleteGamma((double)(nbins-1-ndegrees)/2.,
 				      (double) h->chisq/2.);
   else
-    h->chip = 0.;		
+    h->chip = 0.;
 }
 
 
 
 /* Function: GaussianFitHistogram()
- * 
+ *
  * Purpose:  Fit a score histogram to a Gaussian distribution.
  *           Set the parameters mean and sd in the histogram
  *           structure, as well as a chi-squared test for
@@ -1114,9 +1114,9 @@ ExtremeValueSetHistogram(struct histogram_s *h, float mu, float lambda,
  *
  * Args:     h         - histogram to fit
  *           high_hint - score cutoff; above this are `real' hits that aren't fit
- *           
+ *
  * Return:   1 if fit is judged to be valid.
- *           else 0 if fit is invalid (too few seqs.)           
+ *           else 0 if fit is invalid (too few seqs.)
  */
 int
 GaussianFitHistogram(struct histogram_s *h, float high_hint)
@@ -1127,7 +1127,7 @@ GaussianFitHistogram(struct histogram_s *h, float high_hint)
   int   sc;
   int   nbins;
   int   hsize, idx;
-  
+
   /* Clear any previous fitting from the histogram.
    */
   UnfitHistogram(h);
@@ -1139,10 +1139,10 @@ GaussianFitHistogram(struct histogram_s *h, float high_hint)
 
   /* Simplest algorithm for mean and sd;
    * no outlier detection yet (not even using high_hint)
-   * 
+   *
    * Magic 0.5 correction is because our histogram is for
    * scores between x and x+1; we estimate the expectation
-   * (roughly) as x + 0.5. 
+   * (roughly) as x + 0.5.
    */
   sum = sqsum = 0.;
   for (sc = h->lowscore; sc <= h->highscore; sc++)
@@ -1153,12 +1153,12 @@ GaussianFitHistogram(struct histogram_s *h, float high_hint)
     }
   h->fit_type          = HISTFIT_GAUSSIAN;
   h->param[GAUSS_MEAN] = sum / (float) h->total;
-  h->param[GAUSS_SD]   = sqrt((sqsum - (sum*sum/(float)h->total)) / 
+  h->param[GAUSS_SD]   = sqrt((sqsum - (sum*sum/(float)h->total)) /
 			      (float)(h->total-1));
-  
+
   /* Calculate the expected values for the histogram.
    * Note that the magic 0.5 correction appears again.
-   * Calculating difference between distribution functions for Gaussian 
+   * Calculating difference between distribution functions for Gaussian
    * would be correct but hard.
    */
   hsize     = h->max - h->min + 1;
@@ -1170,7 +1170,7 @@ GaussianFitHistogram(struct histogram_s *h, float high_hint)
     {
       delta = (float) sc + 0.5 - h->param[GAUSS_MEAN];
       h->expect[sc - h->min] =
-	(float) h->total * ((1. / (h->param[GAUSS_SD] * sqrt(2.*3.14159))) * 
+	(float) h->total * ((1. / (h->param[GAUSS_SD] * sqrt(2.*3.14159))) *
         (exp(-1.* delta*delta / (2. * h->param[GAUSS_SD] * h->param[GAUSS_SD]))));
     }
 
@@ -1187,17 +1187,17 @@ GaussianFitHistogram(struct histogram_s *h, float high_hint)
       }
 	/* -1 d.f. for normalization; -2 d.f. for two free parameters */
   if (nbins > 3)
-    h->chip = (float) IncompleteGamma((double)(nbins-3)/2., 
+    h->chip = (float) IncompleteGamma((double)(nbins-3)/2.,
 				      (double) h->chisq/2.);
   else
-    h->chip = 0.;		
+    h->chip = 0.;
 
   return 1;
 }
 
 
 /* Function: GaussianSetHistogram()
- * 
+ *
  * Purpose:  Instead of fitting the histogram to a Gaussian,
  *           simply set the Gaussian parameters from an external source.
  */
@@ -1222,15 +1222,15 @@ GaussianSetHistogram(struct histogram_s *h, float mean, float sd)
     h->expect[idx] = 0.;
 
   /* Note: ideally we'd use the Gaussian distribution function
-   * to find the histogram occupancy in the window sc..sc+1. 
+   * to find the histogram occupancy in the window sc..sc+1.
    * However, the distribution function is hard to calculate.
    * Instead, estimate the histogram by taking the density at sc+0.5.
    */
   for (sc = h->min; sc <= h->max; sc++)
-    { 
+    {
       delta = ((float)sc + 0.5) - h->param[GAUSS_MEAN];
       h->expect[sc - h->min] =
-	(float) h->total * ((1. / (h->param[GAUSS_SD] * sqrt(2.*3.14159))) * 
+	(float) h->total * ((1. / (h->param[GAUSS_SD] * sqrt(2.*3.14159))) *
 	    (exp(-1.*delta*delta / (2. * h->param[GAUSS_SD] * h->param[GAUSS_SD]))));
     }
 
@@ -1247,17 +1247,17 @@ GaussianSetHistogram(struct histogram_s *h, float mean, float sd)
       }
 	/* -1 d.f. for normalization */
   if (nbins > 1)
-    h->chip = (float) IncompleteGamma((double)(nbins-1)/2., 
+    h->chip = (float) IncompleteGamma((double)(nbins-1)/2.,
 				      (double) h->chisq/2.);
   else
-    h->chip = 0.;		
+    h->chip = 0.;
 }
 
 
 
 /* Function: EVDDensity()
  * Date:     SRE, Sat Nov 15 19:37:52 1997 [St. Louis]
- * 
+ *
  * Purpose:  Return the extreme value density P(S=x) at
  *           a given point x, for an EVD controlled by
  *           parameters mu and lambda.
@@ -1265,13 +1265,13 @@ GaussianSetHistogram(struct histogram_s *h, float mean, float sd)
 double
 EVDDensity(float x, float mu, float lambda)
 {
-  return (lambda * exp(-1. * lambda * (x - mu) 
+  return (lambda * exp(-1. * lambda * (x - mu)
 		       - exp(-1. * lambda * (x - mu))));
 }
 
 /* Function: EVDDistribution()
  * Date:     SRE, Tue Nov 18 08:02:22 1997 [St. Louis]
- * 
+ *
  * Purpose:  Returns the extreme value distribution P(S < x)
  *           evaluated at x, for an EVD controlled by parameters
  *           mu and lambda.
@@ -1283,22 +1283,22 @@ EVDDistribution(float x, float mu, float lambda)
 }
 
 /* Function: ExtremeValueP()
- * 
+ *
  * Purpose:  Calculate P(S>x) according to an extreme
  *           value distribution, given x and the parameters
  *           of the distribution (characteristic
  *           value mu, decay constant lambda).
- *           
+ *
  *           This function is exquisitely prone to
  *           floating point exceptions if it isn't coded
  *           carefully.
- *           
+ *
  * Args:     x      = score
  *           mu     = characteristic value of extreme value distribution
  *           lambda = decay constant of extreme value distribution
- *           
+ *
  * Return:   P(S>x)
- */                   
+ */
 double
 ExtremeValueP(float x, float mu, float lambda)
 {
@@ -1316,7 +1316,7 @@ ExtremeValueP(float x, float mu, float lambda)
 
 
 /* Function: ExtremeValueP2()
- * 
+ *
  * Purpose:  Calculate P(S>x) in a database of size N,
  *           using P(S>x) for a single sequence, according
  *           to a Poisson distribution.
@@ -1338,7 +1338,7 @@ ExtremeValueP2(float x, float mu, float lambda, int N)
 }
 
 /* Function: ExtremeValueE()
- * 
+ *
  * Purpose:  Calculate E(S>x) in a database of size N,
  *           using P(S>x) for a single sequence: simply np.
  *
@@ -1357,7 +1357,7 @@ ExtremeValueE(float x, float mu, float lambda, int N)
 
 
 /* Function: EVDrandom()
- * 
+ *
  * Purpose:  Randomly sample an x from an EVD.
  *           Trivially done by the transformation method, since
  *           the distribution is analytical:
@@ -1370,35 +1370,35 @@ EVDrandom(float mu, float lambda)
   float p = 0.0;
 
   /* Very unlikely, but possible,
-   * that sre_random() would give us exactly 0 or 1 
+   * that sre_random() would give us exactly 0 or 1
    */
-  while (p == 0. || p == 1.) p = sre_random(); 
+  while (p == 0. || p == 1.) p = sre_random();
   return mu - log(-1. * log(p)) / lambda;
-} 
- 
+}
+
 
 /* Function: Lawless416()
  * Date:     SRE, Thu Nov 13 11:48:50 1997 [St. Louis]
- * 
+ *
  * Purpose:  Equation 4.1.6 from [Lawless82], pg. 143, and
  *           its first derivative with respect to lambda,
  *           for finding the ML fit to EVD lambda parameter.
  *           This equation gives a result of zero for the maximum
  *           likelihood lambda.
- *           
+ *
  *           Can either deal with a histogram or an array.
- *           
+ *
  *           Warning: beware overflow/underflow issues! not bulletproof.
- *           
+ *
  * Args:     x      - array of sample values (or x-axis of a histogram)
  *           y      - NULL (or y-axis of a histogram)
  *           n      - number of samples (or number of histogram bins)
  *           lambda - a lambda to test
  *           ret_f  - RETURN: 4.1.6 evaluated at lambda
  *           ret_df - RETURN: first derivative of 4.1.6 evaluated at lambda
- *           
+ *
  * Return:   (void)
- */ 
+ */
 void
 Lawless416(float *x, int *y, int n, float lambda, float *ret_f, float *ret_df)
 {
@@ -1433,29 +1433,29 @@ Lawless416(float *x, int *y, int n, float lambda, float *ret_f, float *ret_df)
 
 /* Function: Lawless422()
  * Date:     SRE, Mon Nov 17 09:42:48 1997 [St. Louis]
- * 
+ *
  * Purpose:  Equation 4.2.2 from [Lawless82], pg. 169, and
  *           its first derivative with respect to lambda,
  *           for finding the ML fit to EVD lambda parameter
- *           for Type I censored data. 
+ *           for Type I censored data.
  *           This equation gives a result of zero for the maximum
  *           likelihood lambda.
- *           
+ *
  *           Can either deal with a histogram or an array.
- *           
+ *
  *           Warning: beware overflow/underflow issues! not bulletproof.
- *           
+ *
  * Args:     x      - array of sample values (or x-axis of a histogram)
  *           y      - NULL (or y-axis of a histogram)
  *           n      - number of observed samples (or number of histogram bins)
- *           z      - number of censored samples 
- *           c      - censoring value; all observed x_i >= c         
+ *           z      - number of censored samples
+ *           c      - censoring value; all observed x_i >= c
  *           lambda - a lambda to test
  *           ret_f  - RETURN: 4.2.2 evaluated at lambda
  *           ret_df - RETURN: first derivative of 4.2.2 evaluated at lambda
- *           
+ *
  * Return:   (void)
- */ 
+ */
 void
 Lawless422(float *x, int *y, int n, int z, float c,
 	   float lambda, float *ret_f, float *ret_df)
@@ -1497,25 +1497,25 @@ Lawless422(float *x, int *y, int n, int z, float c,
 
 /* Function: EVDMaxLikelyFit()
  * Date:     SRE, Fri Nov 14 07:56:29 1997 [St. Louis]
- * 
+ *
  * Purpose:  Given a list or a histogram of EVD-distributed samples,
  *           find maximum likelihood parameters lambda and
- *           mu. 
- *           
+ *           mu.
+ *
  * Algorithm: Uses approach described in [Lawless82]. Solves
  *           for lambda using Newton/Raphson iterations;
  *           then substitutes lambda into Lawless' equation 4.1.5
- *           to get mu. 
- *           
+ *           to get mu.
+ *
  *           Newton/Raphson algorithm developed from description in
- *           Numerical Recipes in C [Press88]. 
- *           
+ *           Numerical Recipes in C [Press88].
+ *
  * Args:     x          - list of EVD distributed samples or x-axis of histogram
  *           c          - NULL, or y-axis of histogram
- *           n          - number of samples, or number of histogram bins 
+ *           n          - number of samples, or number of histogram bins
  *           ret_mu     : RETURN: ML estimate of mu
  *           ret_lambda : RETURN: ML estimate of lambda
- *           
+ *
  * Return:   1 on success; 0 on any failure
  */
 int
@@ -1524,7 +1524,7 @@ EVDMaxLikelyFit(float *x, int *c, int n, float *ret_mu, float *ret_lambda)
   float  lambda, mu;
   float  fx;			/* f(x)  */
   float  dfx;			/* f'(x) */
-  double esum;                  /* \sum e^(-lambda xi) */ 
+  double esum;                  /* \sum e^(-lambda xi) */
   double mult;
   double total;
   float  tol = 1e-5;
@@ -1550,7 +1550,7 @@ EVDMaxLikelyFit(float *x, int *c, int n, float *ret_mu, float *ret_lambda)
    *      We assume (!?) that fx is a monotonically decreasing function of x;
    *      i.e. fx > 0 if we are left of the root, fx < 0 if we
    *      are right of the root.
-   */ 
+   */
   if (i == 100)
     {
       float left, right, mid;
@@ -1559,13 +1559,13 @@ EVDMaxLikelyFit(float *x, int *c, int n, float *ret_mu, float *ret_lambda)
 				/* First we need to bracket the root */
       lambda = right = left = 0.2;
       Lawless416(x, c, n, lambda, &fx, &dfx);
-      if (fx < 0.) 
+      if (fx < 0.)
 	{			/* fix right; search left. */
 	  do {
 	    left -= 0.1;
-	    if (left < 0.) { 
-	      SQD_DPRINTF2(("EVDMaxLikelyFit(): failed to bracket root")); 
-	      return 0; 
+	    if (left < 0.) {
+	      SQD_DPRINTF2(("EVDMaxLikelyFit(): failed to bracket root"));
+	      return 0;
 	    }
 	    Lawless416(x, c, n, left, &fx, &dfx);
 	  } while (fx < 0.);
@@ -1576,23 +1576,23 @@ EVDMaxLikelyFit(float *x, int *c, int n, float *ret_mu, float *ret_lambda)
 	    right += 0.1;
 	    Lawless416(x, c, n, right, &fx, &dfx);
 	    if (right > 100.) {
-	      SQD_DPRINTF2(("EVDMaxLikelyFit(): failed to bracket root")); 
-	      return 0; 
+	      SQD_DPRINTF2(("EVDMaxLikelyFit(): failed to bracket root"));
+	      return 0;
 	    }
 	  } while (fx > 0.);
 	}
 			/* now we bisection search in left/right interval */
       for (i = 0; i < 100; i++)
 	{
-	  mid = (left + right) / 2.; 
+	  mid = (left + right) / 2.;
 	  Lawless416(x, c, n, mid, &fx, &dfx);
 	  if (fabs(fx) < tol) break;             /* success */
 	  if (fx > 0.)	left = mid;
 	  else          right = mid;
 	}
-      if (i == 100) { 
-	SQD_DPRINTF2(("EVDMaxLikelyFit(): even the bisection search failed")); 
-	return 0; 
+      if (i == 100) {
+	SQD_DPRINTF2(("EVDMaxLikelyFit(): even the bisection search failed"));
+	return 0;
       }
       lambda = mid;
     }
@@ -1610,46 +1610,46 @@ EVDMaxLikelyFit(float *x, int *c, int n, float *ret_mu, float *ret_lambda)
   mu = -1. * log(esum / total) / lambda;
 
   *ret_lambda = lambda;
-  *ret_mu     = mu;   
+  *ret_mu     = mu;
   return 1;
 }
 
 
 /* Function: EVDCensoredFit()
  * Date:     SRE, Mon Nov 17 10:01:05 1997 [St. Louis]
- * 
- * Purpose:  Given a /left-censored/ list or histogram of EVD-distributed 
+ *
+ * Purpose:  Given a /left-censored/ list or histogram of EVD-distributed
  *           samples, as well as the number of censored samples z and the
- *           censoring value c,              
+ *           censoring value c,
  *           find maximum likelihood parameters lambda and
- *           mu. 
- *           
+ *           mu.
+ *
  * Algorithm: Uses approach described in [Lawless82]. Solves
  *           for lambda using Newton/Raphson iterations;
  *           then substitutes lambda into Lawless' equation 4.2.3
- *           to get mu. 
- *           
+ *           to get mu.
+ *
  *           Newton/Raphson algorithm developed from description in
- *           Numerical Recipes in C [Press88]. 
- *           
+ *           Numerical Recipes in C [Press88].
+ *
  * Args:     x          - list of EVD distributed samples or x-axis of histogram
  *           y          - NULL, or y-axis of histogram
- *           n          - number of observed samples,or number of histogram bins 
+ *           n          - number of observed samples,or number of histogram bins
  *           z          - number of censored samples
  *           c          - censoring value (all x_i >= c)
  *           ret_mu     : RETURN: ML estimate of mu
  *           ret_lambda : RETURN: ML estimate of lambda
- *           
+ *
  * Return:   (void)
  */
 int
-EVDCensoredFit(float *x, int *y, int n, int z, float c, 
+EVDCensoredFit(float *x, int *y, int n, int z, float c,
 	       float *ret_mu, float *ret_lambda)
 {
   float  lambda, mu;
   float  fx;			/* f(x)  */
   float  dfx;			/* f'(x) */
-  double esum;                  /* \sum e^(-lambda xi) */ 
+  double esum;                  /* \sum e^(-lambda xi) */
   double mult;
   double total;
   float  tol = 1e-5f;
@@ -1675,7 +1675,7 @@ EVDCensoredFit(float *x, int *y, int n, int z, float c,
    *      We assume (!?) that fx is a monotonically decreasing function of x;
    *      i.e. fx > 0 if we are left of the root, fx < 0 if we
    *      are right of the root.
-   */ 
+   */
   if (i == 100)
     {
       float left, right, mid;
@@ -1683,12 +1683,12 @@ EVDCensoredFit(float *x, int *y, int n, int z, float c,
       SQD_DPRINTF2(("EVDCensoredFit(): Newton/Raphson failed; switched to bisection"));
       lambda = right = left = 0.2;
       Lawless422(x, y, n, z, c, lambda, &fx, &dfx);
-      if (fx < 0.) 
+      if (fx < 0.)
 	{			/* fix right; search left. */
 	  do {
 	    left -= 0.03;
-	    if (left < 0.) { 
-	      SQD_DPRINTF2(("EVDCensoredFit(): failed to bracket root")); 
+	    if (left < 0.) {
+	      SQD_DPRINTF2(("EVDCensoredFit(): failed to bracket root"));
 	      return 0;
 	    }
 	    Lawless422(x, y, n, z, c, left, &fx, &dfx);
@@ -1708,7 +1708,7 @@ EVDCensoredFit(float *x, int *y, int n, int z, float c,
 			/* now we bisection search in left/right interval */
       for (i = 0; i < 100; i++)
 	{
-	  mid = (left + right) / 2.; 
+	  mid = (left + right) / 2.;
 	  Lawless422(x, y, n, z, c, left, &fx, &dfx);
 	  if (fabs(fx) < tol) break;             /* success */
 	  if (fx > 0.)	left = mid;
@@ -1731,10 +1731,10 @@ EVDCensoredFit(float *x, int *y, int n, int z, float c,
       total += mult;
     }
   esum += (double) z * exp(-1. * lambda * c);    /* term from censored data */
-  mu = -1. * log(esum / total) / lambda;        
+  mu = -1. * log(esum / total) / lambda;
 
   *ret_lambda = lambda;
-  *ret_mu     = mu;   
+  *ret_mu     = mu;
   return 1;
 }
 

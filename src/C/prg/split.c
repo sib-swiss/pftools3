@@ -13,21 +13,21 @@ int main (int argc, char *argv[])
   char LineAC[256];
   const char DirectoryTypeM[] = "MATRIX";
   const char DirectoryTypeP[] = "PATTERN";
-  
+
 	if (argc != 2) {
 		printf("Usage: %s <concatenated profiles file>\n"
 		       "\t This will generate folders MATRIX and PATTERN, and populate them with single file profiles.\n"
 		       "\t Typical use is with prosite.dat file\n",
-		       argv[0]); 
+		       argv[0]);
 	}
-	
+
   FILE* in = fopen(argv[1], "r");
   if (in == NULL) return 0;
- 
+
   /* Generating directories if required */
   {
       struct stat st;
-      
+
       if ( stat("MATRIX", &st) != 0) {
 	  if (mkdir("MATRIX", S_IRWXU) != 0) {
 	      perror("Creating drirectory MATRIX");
@@ -41,18 +41,18 @@ int main (int argc, char *argv[])
 	  }
       }
   }
-   
+
   size_t iline = 0;
   _Bool OpenProfile = false;
   FILE * newFile = NULL;
   char newFileName[128];
-  const char * DirType = NULL; 
+  const char * DirType = NULL;
   while (1) {
 
       const char * Line = fgets(Buffer, 4096, in);
       iline++;
       if (Line == NULL) {
-				if (feof(in)) 
+				if (feof(in))
 					break;
 				else {
 					fprintf(stderr, "Error reading line %lu in %s\n", iline, argv[1]);
@@ -60,10 +60,10 @@ int main (int argc, char *argv[])
 					return 1;
 				}
       }
-      
+
       /* Remove heading spaces */
       while (*Line == ' ' || *Line == '\t') Line++;
-      
+
       /* What line ID to we have ? */
       if (Line[0] == '/' && Line[1] == '/') {
 				// New profile ?
@@ -116,11 +116,11 @@ int main (int argc, char *argv[])
 						fprintf(stderr, "Line %lu, should not have no profile opened\n", iline);
 						exit(1);
 					}
-				} else 
+				} else
 					fputs(Buffer, newFile);
-      }  
+      }
   }
-  
+
   fclose(in);
   return 0;
 }

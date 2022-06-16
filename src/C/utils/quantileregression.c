@@ -28,9 +28,9 @@ C     S is an integer work array (M)
 C     WA is a real work array (M5,N2)
 C     WB is another real work array (M)
 C     Utilization:  If you just want a solution at a single quantile you
-C     The algorithm  is a slightly modified version of Algorithm AS 229 
+C     The algorithm  is a slightly modified version of Algorithm AS 229
 C     described in Koenker and D'Orey, "Computing Regression Quantiles,
-C     Applied Statistics, pp. 383-393. 
+C     Applied Statistics, pp. 383-393.
 C
       IMPLICIT REAL*8(A-H,O-Z)
       INTEGER I,J,K,KL,KOUNT,KR,M,M1,M2,M3,M4,M5,IFT
@@ -62,13 +62,13 @@ int QuantileRegression(const unsigned int * const restrict HeuristicScores, cons
   const int N = 2;
   const int N2 = N + 2;
   const double TOLER = 1.E-8;
-  
+
   /* computes M5 in order to have cache aligned columns */
   const int M5 = (size + 5 + (64/sizeof(double)-1)) & ~(64/sizeof(double)-1);
-  
+
   /* allocates memory (N2(WA) + 1(WB) + 1(S) + 1(E) + 1(S)*/
   double * const mem         = (double*) _mm_malloc((N2+4)*M5*sizeof(double), 64);
-  const size_t ldaCacheSize  = (size_t) ((size + 0x7) & ~0x7); 
+  const size_t ldaCacheSize  = (size_t) ((size + 0x7) & ~0x7);
   double * const data        = (double*) _mm_malloc(3*ldaCacheSize*sizeof(double), 64);
   double * const restrict A0 = data;
   double * const restrict A1 = &data[ldaCacheSize];
@@ -82,13 +82,13 @@ int QuantileRegression(const unsigned int * const restrict HeuristicScores, cons
 	A1[i] = (double) FilterScore[i];
 	B[i]  = (double) HeuristicScores[i];
     }
-    
+
     /* Prepare a guess */
     double guess[2] = { 0.0, 1.0/(float) maxFilter};
     /* Compute quantile regression */
     rq0_(&size, &N, &M5, &N2, A0, B, &quantile, &TOLER, &result,
 	 guess /*X*/, &mem[M5] /*E*/, (int*) &mem[2*M5] /*S*/,
-	 &mem[4*M5] /*WA*/, &mem[3*M5] /*WB*/ 
+	 &mem[4*M5] /*WA*/, &mem[3*M5] /*WB*/
 	);
     _mm_free(mem);
     _mm_free(data);
@@ -102,6 +102,6 @@ int QuantileRegression(const unsigned int * const restrict HeuristicScores, cons
       return -1;
     }
   }
-  else 
+  else
     return -1;
 }

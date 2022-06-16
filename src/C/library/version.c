@@ -11,7 +11,7 @@
 
 char Version[] = PF_VERSION;
 
-const char * GetVersion() 
+const char * GetVersion()
 {
   return Version;
 }

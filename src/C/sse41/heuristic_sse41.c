@@ -247,7 +247,7 @@ unsigned int TransposeHeuristicGivenMemory_sse41(const int * const restrict Tran
     _mm_store_si128((__m128i*)&Sc[iprf+12], __sc4);
     iprf += 16;
   } while (iprf < Profile_Length);
-  
+
   while (iprf < Aligned_Profile_Length) {
     _mm_store_si128((__m128i*)&Sc[iprf   ], __Zero);
     _mm_store_si128((__m128i*)&Sc[iprf+4 ], __Zero);
@@ -352,7 +352,7 @@ unsigned int TransposeHeuristicGivenMemory_sse41(const int * const restrict Tran
   __m128i __s2 = _mm_setzero_si128();
   __m128i __s3 = _mm_setzero_si128();
   __m128i __s4 = _mm_setzero_si128();
-  
+
   do {
     __m128i __sc1 = _mm_load_si128((__m128i*)&Sc[iprf   ]);
     __m128i __sc2 = _mm_load_si128((__m128i*)&Sc[iprf+ 4]);

@@ -15,13 +15,13 @@ void InitializeGenerator(const long int Seed, struct Random * const sr)
 {
   long mj,mk;
   size_t i,ii,k;
-  
-  /* 
+
+  /*
    * THIS IS NECESSARY AS IT SEEMS ALL VALUES ARE NOT SET WITHIN THE INITIALIZATION
    * SOME OLD ONE REMAINS !!!
    */
   memset(sr->ma, 0, 56*sizeof(long int));
-  
+
   long int lSeed = Seed;
   long int * const ma = (long int *) sr->ma;
 
@@ -42,7 +42,7 @@ void InitializeGenerator(const long int Seed, struct Random * const sr)
       if (ma[i] < MZ) ma[i] += MBIG;
     }
   }
-    
+
   sr->Seed    = Seed;
   sr->inext   = 0;
   sr->inextp  = 31;

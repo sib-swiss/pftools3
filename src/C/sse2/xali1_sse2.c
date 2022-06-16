@@ -31,7 +31,7 @@ int xali1_sse2(const struct Profile * const restrict prf, const unsigned char * 
   union { int i; float f;} Transfer;
   union lScores KOPD;
   __m128 __lScore;
-  
+
   const union sIOP * restrict IOP_R;
   union sIOP * restrict IOP_W = (union sIOP*) WORK;
 
@@ -58,29 +58,29 @@ int xali1_sse2(const struct Profile * const restrict prf, const unsigned char * 
     do {
       register __m128 __KD = _mm_add_ss(KOPD.xmmf, _my_cvtdw_ss(*lMatch));
       lMatch += AlignStep;
-      
+
       // dispatch value to all tuple
       __KD = _mm_shuffle_ps(__KD, __KD, _MM_SHUFFLE(0,0,0,0));
-      
+
       // Load Transitions / Convert signed WORD into float / Add KD to Transitions
       __m128 __Transitions = LoadAndConvertToFloatAndAddStoredIntegerVector(&(pTransitions->From[DELETION]), __KD);
-      
+
       // Move to next profile transitions
       pTransitions++;
 
       // Load FirstSequenceProtein / Convert signed WORD into float
       __m128 __FirstSequenceProtein = LoadAndConvertToFloatStoredIntegerVector(&(FirstSequenceProtein[0]));
-      
+
       // Move to next profile First Sequence
       FirstSequenceProtein++;
-      
+
       // Get maximum
       __m128 __max = _mm_max_ps(__Transitions, __FirstSequenceProtein);
 
       // Store IOPI and IOPM
       StoreMatchInsertion( &(pIOP->mm), (__m128) __max);
       pIOP++;
-      
+
       // Set KOPD
       KOPD.xmmf = _mm_move_ss(_mm_setzero_ps(), __max);
 
@@ -91,12 +91,12 @@ int xali1_sse2(const struct Profile * const restrict prf, const unsigned char * 
   // Swap and assign Read and write pointers
   IOP_R = IOP_W;
   IOP_W = (union sIOP*) (((uintptr_t) &WORK[2*(prf->Length+1)] + 63) & ~63);
-  
+
 #ifdef XALI1_DEBUG
   fprintf(stdout,"XALI1 SCORE %12i\n", (int) lScore);
 #endif
   __asm__ (" movss %1,%0" : "=x"(__lScore) : "m"(lScore));
-  
+
   for ( int iseq=BSEQ; iseq < LSEQ-1; ++iseq) {
 //       printf("%i %i\t", iseq+1, (int) lScore);
     register const size_t j1 = (size_t) Sequence[iseq];
@@ -108,39 +108,39 @@ int xali1_sse2(const struct Profile * const restrict prf, const unsigned char * 
       __m128 __KI = _mm_set1_ps(KI);
       // Load Transitions / Convert signed WORD into float / Add KI to Transition
       __m128 __TransitionsI = LoadAndConvertToFloatAndAddStoredIntegerVector(&(Transitions[0].From[INSERTION]), __KI);
-      
+
       // Load Transitions and Convert signed WORD into float
-      union lScores __TransitionsX = { xmmf: LoadAndConvertToFloatStoredIntegerVector(&(Transitions[0].From[EXTRA]))};     
+      union lScores __TransitionsX = { xmmf: LoadAndConvertToFloatStoredIntegerVector(&(Transitions[0].From[EXTRA]))};
       // Insert lScore into __TransitionsX
       __TransitionsX.xmmf = _my_insert_ss_ps_POS1(__TransitionsX.xmmf, __lScore);
 
-      // Get maximum 
+      // Get maximum
       __TransitionsX.xmmf = _mm_max_ps(__TransitionsI, __TransitionsX.xmmf);
 
       // Store IOPI and IOPM
       StoreMatchInsertion( &(IOP_W[0].mm), (__m128) __TransitionsX.xmmf);
-      
+
       // Store KOPD
       KOPD.xmmf = _mm_move_ss(KOPD.xmmf, __TransitionsX.xmmf);
-      
+
       __lScore = _mm_shuffle_ps(__TransitionsX.xmmf, __TransitionsX.xmmf, _MM_SHUFFLE(1,1,1,1));
 #ifdef XALI1_DEBUG
       fprintf(stdout,"XALI1 SCORE SEQ %i %12i\n", iseq, _mm_cvttss_si32(__lScore));
 #endif
     }
-    
+
     lInsertion += AlignStep;
     register const StoredIntegerFormat * restrict lMatch = Match;
-   
-    
+
+
     for (int iprf=1; iprf<=prf->Length; ++iprf ) {
       const float KM = IOP_R[iprf-1].Element.Match + (float) lMatch[j1];
       const float KI = IOP_R[iprf].Element.Insertion   + (float) lInsertion[j1];
       union lScores KD    = { xmmf: _mm_add_ss(KOPD.xmmf, _my_cvtdw_ss(lMatch[_D]))} ;
-      
+
       lMatch     += AlignStep;
       lInsertion += AlignStep;
-            
+
       // Transform KM into a vector
       __m128 __KM = _mm_set1_ps(KM);
       // Load Transitions / Convert signed WORD into float / Add KM to Transition
@@ -150,7 +150,7 @@ int xali1_sse2(const struct Profile * const restrict prf, const unsigned char * 
       __m128 __KI = _mm_set1_ps(KI);
       // Load Transitions / Convert signed WORD into float / Add KI to Transition
       __m128 __TransitionsI = LoadAndConvertToFloatAndAddStoredIntegerVector(&(Transitions[iprf].From[INSERTION]), __KI);
-      
+
 #ifdef XALI1_DEBUG
       fprintf(stdout,"XALI1 M    SEQ %4i %12i %12i %12i %12i\n", iseq, Transitions[iprf].From[MATCH].To[MATCH],
 	Transitions[iprf].From[MATCH].To[INSERTION],Transitions[iprf].From[MATCH].To[DELETION],Transitions[iprf].From[MATCH].To[EXTRA]);
@@ -161,12 +161,12 @@ int xali1_sse2(const struct Profile * const restrict prf, const unsigned char * 
       fprintf(stdout,"XALI1 X    SEQ %4i %12i %12i %12i %12i\n", iseq, Transitions[iprf].From[EXTRA].To[MATCH],
 	Transitions[iprf].From[EXTRA].To[INSERTION],Transitions[iprf].From[EXTRA].To[DELETION],Transitions[iprf].From[EXTRA].To[EXTRA]);
       fprintf(stdout,"XALI1 KMID SEQ %4i %12i %12i %12i %12i\n", iseq, (int) KM, (int) KI, (int) KD.Elementf[0], 0);
-#endif      
-      // Get maximum 
+#endif
+      // Get maximum
       const __m128 __max1 = _mm_max_ps(__TransitionsM, __TransitionsI);
 
        // Load Transitions and Convert signed WORD into float
-      union lScores __TransitionsX = { xmmf: LoadAndConvertToFloatStoredIntegerVector(&(Transitions[iprf].From[EXTRA]))};     
+      union lScores __TransitionsX = { xmmf: LoadAndConvertToFloatStoredIntegerVector(&(Transitions[iprf].From[EXTRA]))};
       // Insert lScore into __TransitionsX
       __TransitionsX.xmmf = _my_insert_ss_ps_POS1(__TransitionsX.xmmf, __lScore);
 
@@ -174,8 +174,8 @@ int xali1_sse2(const struct Profile * const restrict prf, const unsigned char * 
       KD.xmmf = _mm_shuffle_ps(KD.xmmf, KD.xmmf, _MM_SHUFFLE(0,0,0,0));
       // Load Transitions / Convert signed WORD into float / Add KD to Transition
       __m128 __TransitionsD = LoadAndConvertToFloatAndAddStoredIntegerVector(&(Transitions[iprf].From[DELETION]), KD.xmmf);
-  
-      
+
+
       // Get maximum / Set KOPD
       __TransitionsX.xmmf = _mm_max_ps(__TransitionsD, __TransitionsX.xmmf);
       KOPD.xmmf           = _mm_max_ps(__max1, __TransitionsX.xmmf);
@@ -200,7 +200,7 @@ int xali1_sse2(const struct Profile * const restrict prf, const unsigned char * 
     const union sIOP * const ptr = IOP_W;
     IOP_W = (union sIOP*) IOP_R;
     IOP_R = ptr;
-    
+
     if ( ! LOPT ) {
       __m128 __dummy;
       __asm__ ("cvtsi2ss  %1, %0" : "=x"(__dummy) : "m"(CutOff));
@@ -208,18 +208,18 @@ int xali1_sse2(const struct Profile * const restrict prf, const unsigned char * 
 	return _mm_cvttss_si32(__lScore);
       }
     }
-  } 
+  }
   int iScore = _mm_cvttss_si32(__lScore);
   {
     register const StoredIntegerFormat * restrict lInsertion = Insertion;
     const int j1 = (int) Sequence[LSEQ-1];
     int iKOPM    = (int) IOP_R[0].Element.Match;
     int KI       = (int) IOP_R[0].Element.Insertion + (int) lInsertion[j1];
-   
+
     int iKOPD    = MAX( KI + (int) Transitions[0].Element[_ID],      (int) Transitions[0].Element[_XD] );
     register const ScoreTuple * const restrict LastSequenceProtein = prf->Scores.Insertion.LastSequenceProtein;
     iScore = MAX( iScore, KI + (int) LastSequenceProtein[0].From[INSERTION] );
-  
+
     register const StoredIntegerFormat * restrict lMatch = Match;
     lInsertion += AlignStep;
     register const int itmp = prf->Length;

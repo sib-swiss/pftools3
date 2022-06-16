@@ -43,16 +43,16 @@ void xali1_print_sse41(const struct Profile * const restrict prf, const unsigned
   const __m128i __DeletionMask  = _mm_set1_epi32(PRIORITY_DELETION);
   const __m128i __ExtraMask     = _mm_set1_epi32(PRIORITY_EXTRA);
   const __m128i __ClearMask     = _mm_set1_epi32(0xC0000000); /* two major bits on */
-  
+
   register const TransitionScores * const restrict Transitions = prf->Scores.Insertion.Transitions;
   const StoredIntegerFormat * const restrict Match             = prf->Scores.Match.Alphabet;
   const StoredIntegerFormat * const restrict Insertion         = prf->Scores.Insertion.Alphabet;
   const size_t AlignStep                                       = prf->Scores.Match.AlignStep;
   const size_t prfLength = prf->Length;
-  
+
   /* Set matrix ptr according to BSEQ */
   __m128i * const restrict MatrixPtr = (BSEQ == 0) ? &matrix[1+prfLength].xmm : &matrix[BSEQ].xmm;
-  
+
   /* NOTE: The following part could be replaced and performed only once for a profile as it
    *       is profile dependent. Nevertheless it does a good job loading Match and Transition
    *       matrices into the cache hierarchy.
@@ -60,7 +60,7 @@ void xali1_print_sse41(const struct Profile * const restrict prf, const unsigned
 
   /*
    * Initialize Insertion and Match Entrance Line using FirstSequenceProtein
-   */  
+   */
   {
     register const StoredIntegerFormat * restrict lMatch = (const StoredIntegerFormat *) &Match[_D];
     register const ScoreTuple * restrict FirstSequenceProtein = prf->Scores.Insertion.FirstSequenceProtein;
@@ -80,11 +80,11 @@ void xali1_print_sse41(const struct Profile * const restrict prf, const unsigned
 	operation(__FirstSequenceProtein, MatrixPtr - (1+prfLength), 0, 0, 1+prfLength);
     }
 #endif
-    
+
     FirstSequenceProtein++;
     register const TransitionScores (* restrict pTransitions) = &Transitions[1];
     register union sIOP * restrict pIOP = &IOP_W[1];
-    
+
     /*
      * LOOP THROUGH THE REST OF THE PROFILE
      */
@@ -108,7 +108,7 @@ void xali1_print_sse41(const struct Profile * const restrict prf, const unsigned
 
       // Move to next profile First Sequence
       FirstSequenceProtein++;
-      
+
 #ifdef TAG
       // Paste index in lowest 2 bits
       __TransitionsD = _mm_slli_epi32(__TransitionsD, 2);
@@ -116,7 +116,7 @@ void xali1_print_sse41(const struct Profile * const restrict prf, const unsigned
       __TransitionsD = _mm_or_si128(__TransitionsD, __DeletionMask);
       __FirstSequenceProtein = _mm_or_si128(__FirstSequenceProtein, __ExtraMask);
 #endif
-      
+
       // Get maximum ( this is SSE 4.1 )
       __m128i __max = _mm_max_epi32(__TransitionsD, __FirstSequenceProtein);
 
@@ -129,7 +129,7 @@ void xali1_print_sse41(const struct Profile * const restrict prf, const unsigned
       __max = _mm_srai_epi32(__max, 2);
       __max = _mm_or_si128(__max,_mm_and_si128(__sign, __ClearMask));
 #endif
-      
+
       // Store IOPI and IOPM
       StoreMatchInsertion( &(pIOP->mm), (__m128) __max);
       pIOP++;
@@ -168,7 +168,7 @@ void xali1_print_sse41(const struct Profile * const restrict prf, const unsigned
 
       // Insert lScore into __TransitionsX not necessary as profile loading store NLOW there automatically
       //__TransitionsX = _mm_insert_epi32(__TransitionsX, NLOW, DUMMY);
-      
+
 #ifdef TAG
       // Paste index in lowest 2 bits
       __TransitionsI = _mm_slli_epi32(__TransitionsI, 2);
@@ -179,7 +179,7 @@ void xali1_print_sse41(const struct Profile * const restrict prf, const unsigned
 
       // Get maximum ( this is SSE 4.1 )
       __m128i __max = _mm_max_epi32(__TransitionsI, __TransitionsX);
-      
+
       // Store all scores to matrix
       operation(__max, MatrixPtr, iseq, 0, 1+prfLength); //_mm_store_si128(&pmatrix[iprf-1], __max1);
 
@@ -239,7 +239,7 @@ void xali1_print_sse41(const struct Profile * const restrict prf, const unsigned
 #endif
 
       // Get maximum ( this is SSE 4.1 )
-      __m128i __max1 = _mm_max_epi32(__TransitionsM, __TransitionsI);      
+      __m128i __max1 = _mm_max_epi32(__TransitionsM, __TransitionsI);
 
       // Load Transitions and Convert signed WORD into signed DWORD
       __m128i __TransitionsX = LoadStoredIntegerVector(&(Transitions[iprf].From[EXTRA]));

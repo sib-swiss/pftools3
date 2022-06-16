@@ -21,7 +21,7 @@ union sIOP {
     struct { int Match; int Insertion; } Element;
     __m64 mm;
 };
- 
+
 int xali1_sse41(const struct Profile * const restrict prf, const unsigned char * const restrict Sequence,
                 int * const WORK, const size_t BSEQ, const size_t LSEQ, const int CutOff, const _Bool LOPT)
 /*
@@ -30,7 +30,7 @@ int xali1_sse41(const struct Profile * const restrict prf, const unsigned char *
  */
 {
   int KOPD, lScore = (int) NLOW;
-  
+
   const union sIOP * restrict IOP_R;
   union sIOP * restrict IOP_W = (union sIOP*) WORK;
 
@@ -44,8 +44,8 @@ int xali1_sse41(const struct Profile * const restrict prf, const unsigned char *
    *       matrices into the cache hierarchy.
    */
   {
-    /* 
-     * Initialize Profile Entrance Line 
+    /*
+     * Initialize Profile Entrance Line
      */
     register const StoredIntegerFormat * restrict lMatch = (const StoredIntegerFormat *) &Match[_D];
     register const ScoreTuple * restrict FirstSequenceProtein = prf->Scores.Insertion.FirstSequenceProtein;
@@ -60,15 +60,15 @@ int xali1_sse41(const struct Profile * const restrict prf, const unsigned char *
     do {
       register const int KD = KOPD + (int) *lMatch;
       lMatch += AlignStep;
-      
+
       // Transform KD into a vector
       __m128i __KD = _mm_set1_epi32(KD);
       // Load Transitions and Convert signed WORD into signed DWORD
       __m128i __Transitions = LoadStoredIntegerVector(&(pTransitions->From[DELETION]));
-            
+
       // Add KD to Transitions
       __Transitions = _mm_add_epi32(__Transitions, __KD);
-      
+
       // Move to next profile transitions
       pTransitions++;
 
@@ -78,14 +78,14 @@ int xali1_sse41(const struct Profile * const restrict prf, const unsigned char *
 
       // Move to next profile First Sequence
       FirstSequenceProtein++;
-      
+
       // Get maximum ( this is SSE 4.1 )
       __m128i __max = _mm_max_epi32(__Transitions, __FirstSequenceProtein);
 
       // Store IOPI and IOPM
       StoreMatchInsertion( &(pIOP->mm), (__m128) __max);
       pIOP++;
-      
+
       // Set KOPD ( this is SSE 4.1 )
       KOPD = _mm_extract_epi32(__max, DELETION);
 
@@ -109,13 +109,13 @@ int xali1_sse41(const struct Profile * const restrict prf, const unsigned char *
       __m128i __KI = _mm_set1_epi32(KI);
       // Load Transitions and Convert signed WORD into signed DWORD
       __m128i __TransitionsI = LoadStoredIntegerVector(&(Transitions[0].From[INSERTION]));
-     
+
       // Add KI to Transition
       __TransitionsI = _mm_add_epi32(__TransitionsI, __KI);
 
        // Load Transitions and Convert signed WORD into signed DWORD
       __m128i __TransitionsX = LoadStoredIntegerVector(&(Transitions[0].From[EXTRA]));
-     
+
       // Insert lScore into __TransitionsX
       __TransitionsX = _mm_insert_epi32(__TransitionsX, lScore, DUMMY);
 
@@ -124,17 +124,17 @@ int xali1_sse41(const struct Profile * const restrict prf, const unsigned char *
 
       // Store IOPI and IOPM
       StoreMatchInsertion( &(IOP_W[0].mm), (__m128) __max);
-      
+
       // Store KOPD
       KOPD = _mm_extract_epi32(__max, DELETION);
 
       // Backup new score to xmm register
       lScore = _mm_extract_epi32(__max, DUMMY);
     }
-    
+
     lInsertion += AlignStep;
     register const StoredIntegerFormat * restrict lMatch = Match;
-    
+
     for (size_t iprf=1; iprf<=prfLength; ++iprf ) {
       const int KM = KOPM                          + (int) lMatch[j1];
       const int KI = IOP_R[iprf].Element.Insertion + (int) lInsertion[j1];
@@ -153,7 +153,7 @@ int xali1_sse41(const struct Profile * const restrict prf, const unsigned char *
       // Add KM to Transition
       __TransitionsM = _mm_add_epi32(__TransitionsM, __KM);
 
-    
+
       // Transform KI into a vector
       __m128i __KI = _mm_set1_epi32(KI);
       // Load Transitions and Convert signed WORD into signed DWORD
@@ -168,14 +168,14 @@ int xali1_sse41(const struct Profile * const restrict prf, const unsigned char *
       __m128i __TransitionsX = LoadStoredIntegerVector(&(Transitions[iprf].From[EXTRA]));
       // Insert lscore into TransitionX
       __TransitionsX = _mm_insert_epi32(__TransitionsX, lScore, DUMMY);
-      
+
       // Transform KD into a vector
       __m128i __KD = _mm_set1_epi32(KD);
       // Load Transitions and Convert signed WORD into signed DWORD
       __m128i __TransitionsD = LoadStoredIntegerVector(&(Transitions[iprf].From[DELETION]));
       // Add KD to Transition
       __TransitionsD = _mm_add_epi32(__TransitionsD, __KD);
-      
+
       // Get maximum ( this is SSE 4.1 )
       __m128i __max2 = _mm_max_epi32(__TransitionsD, __TransitionsX);
       __max1 = _mm_max_epi32(__max1, __max2);
@@ -202,20 +202,20 @@ int xali1_sse41(const struct Profile * const restrict prf, const unsigned char *
     IOP_R = ptr;
 
     if ( ! LOPT && lScore >= CutOff) return lScore;
-  } 
+  }
   {
     register const StoredIntegerFormat * restrict lInsertion = Insertion;
     const int j1 = (int) Sequence[LSEQ-1];
     int KOPM     = IOP_R[0].Element.Match;
     int KI       = IOP_R[0].Element.Insertion + (int) lInsertion[j1];
-    
+
     KOPD   = MAX( KI + (int) Transitions[0].Element[_ID],      (int) Transitions[0].Element[_XD] );
     register const ScoreTuple * const restrict LastSequenceProtein = prf->Scores.Insertion.LastSequenceProtein;
     lScore = MAX( lScore, KI + (int) LastSequenceProtein[0].From[INSERTION] );
-  
+
     register const StoredIntegerFormat * restrict lMatch = Match;
     lInsertion += AlignStep;
-    
+
     for (size_t iprf=1; iprf<=prfLength; ++iprf) {
       const int KM = KOPM                          + lMatch[j1];
       KI           = IOP_R[iprf].Element.Insertion + lInsertion[j1];

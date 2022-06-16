@@ -19,31 +19,31 @@
 #include "/usr/include/intel-coi/source/COIEngine_source.h"
 #endif
 
-#define MM_NONE     0x00000000 /* Not SSE at all */
-#define MM_MMX    	0x00000001 /* standard MMX */
-#define MM_MMXEXT 	0x00000002 /* SSE integer instructions or AMD MMX ext */
-#define MM_3DNOW  	0x00000004 /* AMD 3DNOW */
-#define MM_SSE    	0x00000008 /* SSE instructions */
-#define MM_SSE2   	0x00000010 /* PIV SSE2 instructions */
-#define MM_3DNOWEXT 0x00000020 /* AMD 3DNowExt */
-#define MM_SSE3   	0x00000040 /* Prescott SSE3 instructions */
-#define MM_SSSE3  	0x00000080 /* Conroe SSSE3 instructions */
-#define MM_SSE41  	0x00000100 /* Penryn SSE41 instructions */
-#define MM_SSE42  	0x00000200 /* Nehalem SSE42 instructions */
-#define MM_POPCOUNT 0x00000400
-#define MM_SSE4A		0x00000800 /* AMD Barcelona instructions */
-#define MM_AVX			0x00001000 /* AVX technology 256 bits */
-#define MM_XOP			0x00002000 /* AMD XOP instructions */
-#define MM_FMA3			0x00004000 /* Float Multiply Accumulate functions with 3 operands */
-#define MM_FMA4			0x00008000 /* Float Multiply Accumulate functions with 4 operands */
-#define MM_AVX2			0x00010000 /* AVX2 technology 256 bits */
-#define MM_AVX512		0x00020000 /* Intel MIC architecture 512 bit AVX */
-#define MM_AVX512F	0x00040000 /* Intel Xeon AVC 512 F */
-#define MM_AVX512BW	0x00080000 /* Intel Xeon AVC 512 Byte Word */
-#define MM_AVX512CD	0x00100000 /* Intel Xeon AVC 512 Conflict Detection */
+#define MM_NONE         0x00000000 /* Not SSE at all */
+#define MM_MMX          0x00000001 /* standard MMX */
+#define MM_MMXEXT       0x00000002 /* SSE integer instructions or AMD MMX ext */
+#define MM_3DNOW        0x00000004 /* AMD 3DNOW */
+#define MM_SSE          0x00000008 /* SSE instructions */
+#define MM_SSE2         0x00000010 /* PIV SSE2 instructions */
+#define MM_3DNOWEXT     0x00000020 /* AMD 3DNowExt */
+#define MM_SSE3         0x00000040 /* Prescott SSE3 instructions */
+#define MM_SSSE3        0x00000080 /* Conroe SSSE3 instructions */
+#define MM_SSE41        0x00000100 /* Penryn SSE41 instructions */
+#define MM_SSE42        0x00000200 /* Nehalem SSE42 instructions */
+#define MM_POPCOUNT     0x00000400
+#define MM_SSE4A        0x00000800 /* AMD Barcelona instructions */
+#define MM_AVX          0x00001000 /* AVX technology 256 bits */
+#define MM_XOP          0x00002000 /* AMD XOP instructions */
+#define MM_FMA3         0x00004000 /* Float Multiply Accumulate functions with 3 operands */
+#define MM_FMA4         0x00008000 /* Float Multiply Accumulate functions with 4 operands */
+#define MM_AVX2         0x00010000 /* AVX2 technology 256 bits */
+#define MM_AVX512       0x00020000 /* Intel MIC architecture 512 bit AVX */
+#define MM_AVX512F      0x00040000 /* Intel Xeon AVC 512 F */
+#define MM_AVX512BW     0x00080000 /* Intel Xeon AVC 512 Byte Word */
+#define MM_AVX512CD     0x00100000 /* Intel Xeon AVC 512 Conflict Detection */
 
-#define TLB_2MB			0x00000001
-#define TLB_1GB			0x00000002
+#define TLB_2MB         0x00000001
+#define TLB_1GB         0x00000002
 
 #if !defined(__MIC__)
 /* TOPOLOGY structure is as follow
@@ -165,28 +165,27 @@ _Bool readSystemInfo(FILE * const fd, SystemInfo * const info);
 void getCumulativeMask(const SystemInfo * const info, const topology_mask_t SocketId, const topology_mask_t CoreId,
                        const topology_mask_t ThreadId, Affinity_Mask_t * const Mask);
 size_t getMasks(const SystemInfo * const info, const topology_mask_t SocketId, const topology_mask_t CoreId,
-		const topology_mask_t ThreadId, Affinity_Mask_t * * const Masks);
+                const topology_mask_t ThreadId, Affinity_Mask_t * * const Masks);
 size_t getMasksFromParent(const SystemInfo * const info, Affinity_Mask_t * * const Masks);
 void printMasks(const Affinity_Mask_t * const Masks, const size_t N);
 #endif
 
-inline void __attribute__((always_inline)) freeSystemInfo(SystemInfo * const info)
-{
-  if (info->APICID) {
-    free(info->APICID);
-  }
+inline void __attribute__((always_inline)) freeSystemInfo(SystemInfo * const info) {
+    if (info->APICID) {
+        free(info->APICID);
+    }
 #ifdef USE_KNC
 #if defined(USE_AFFINITY) && !(defined(__MIC__))
-	if (info->MicEngines) free(info->MicEngines);
+    if (info->MicEngines) free(info->MicEngines);
 #endif
 #endif
-  /* WARNING: DO NOT FREE TOPOLOGY HAS ITS MEMORY IS LINKED TO APICID
-  if (info->TopologyMasks) {
-    free(info->TopologyMasks);
-  }
-  */
-  char * ptr = (char*) info;
-  for (size_t i=0; i<sizeof(SystemInfo); ++i) ptr[i] = '\0';
+    /* WARNING: DO NOT FREE TOPOLOGY HAS ITS MEMORY IS LINKED TO APICID
+    if (info->TopologyMasks) {
+        free(info->TopologyMasks);
+    }
+    */
+    char * ptr = (char*) info;
+    for (size_t i=0; i < sizeof(SystemInfo); ++i) ptr[i] = '\0';
 }
 
 #endif /* SYSTEM_H_ */

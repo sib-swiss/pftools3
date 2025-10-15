@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17360684.svg)](https://doi.org/10.5281/zenodo.17360684)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/pftools/README.html)
 [![install with EasyBuild](https://img.shields.io/badge/install%20with-EasyBuild-brightgreen.svg?style=flat)](#easybuild)
 [![install with Docker](https://img.shields.io/badge/install%20with-Docker-brightgreen.svg?style=flat)](#using-docker)

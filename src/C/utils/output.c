@@ -64,7 +64,7 @@ void PrintTSV(const struct Profile * const prf, const char * * const AlignedSequ
     while ( *cptr != ';' && *cptr != '\0') ++cptr;
     *cptr = '\0';
 
-    char * ac  = calloc(strlen(prf->AC_Number),sizeof(char));
+    char * ac  = calloc(1+strlen(prf->AC_Number),sizeof(char));
     strcpy(ac,prf->AC_Number);
     cptr = ac;
     while ( *cptr != ';' && *cptr != '\0' ) ++cptr;
